@@ -9,5 +9,9 @@ import Foundation
 
 
 extension String {
-    static let settingsSelectedTabKey = ""
+    static let settingsSelectedTabKey = "PlanetSettingsSelectedTabKey"
+    static let settingsServerURLKey = "PlanetSettingsServerURLKey"
+    static let settingsServerAuthenticationEnabledKey = "PlanetSettingsServerAuthenticationEnabledKey"
+    static let settingsServerUsernameKey = "PlanetSettingsServerUsernameKey"
+    static let settingsServerPasswordKey = "PlanetSettingsServerPasswordKey"
 }

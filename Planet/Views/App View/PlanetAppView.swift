@@ -10,6 +10,7 @@ import SwiftUI
 
 struct PlanetAppView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
+    @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
     
     var body: some View {
         TabView(selection: $appViewModel.selectedTab) {
@@ -23,7 +24,9 @@ struct PlanetAppView: View {
                     Label(PlanetAppTab.myPlanets.name(), systemImage: "globe")
                 }
                 .tag(PlanetAppTab.myPlanets)
-            Text(PlanetAppTab.settings.name())
+            PlanetSettingsView()
+                .environmentObject(appViewModel)
+                .environmentObject(settingsViewModel)
                 .tabItem {
                     Label(PlanetAppTab.settings.name(), systemImage: "gear")
                 }

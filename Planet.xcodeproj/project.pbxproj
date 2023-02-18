@@ -15,6 +15,8 @@
 		2AAF3E50299E112300CA60AD /* PlanetAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E4F299E112300CA60AD /* PlanetAppView.swift */; };
 		2AAF3E52299E11CE00CA60AD /* PlanetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */; };
 		2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */; };
+		2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */; };
+		2AC7CC0629A0B4E50089C58C /* PlanetSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +29,8 @@
 		2AAF3E4F299E112300CA60AD /* PlanetAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAppView.swift; sourceTree = "<group>"; };
 		2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetModel.swift; sourceTree = "<group>"; };
 		2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetExtension.swift; sourceTree = "<group>"; };
+		2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetSettingsView.swift; sourceTree = "<group>"; };
+		2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetSettingsViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,8 +67,7 @@
 				2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */,
 				2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */,
 				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
-				2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */,
-				2AAF3E4F299E112300CA60AD /* PlanetAppView.swift */,
+				2AC7CC0029A0AC960089C58C /* Views */,
 				2AAF3E41299E07B700CA60AD /* Assets.xcassets */,
 				2AAF3E43299E07B700CA60AD /* Preview Content */,
 			);
@@ -77,6 +80,33 @@
 				2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		2AC7CC0029A0AC960089C58C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2AC7CC0329A0B4C80089C58C /* App View */,
+				2AC7CC0429A0B4D00089C58C /* Settings View */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		2AC7CC0329A0B4C80089C58C /* App View */ = {
+			isa = PBXGroup;
+			children = (
+				2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */,
+				2AAF3E4F299E112300CA60AD /* PlanetAppView.swift */,
+			);
+			path = "App View";
+			sourceTree = "<group>";
+		};
+		2AC7CC0429A0B4D00089C58C /* Settings View */ = {
+			isa = PBXGroup;
+			children = (
+				2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */,
+				2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */,
+			);
+			path = "Settings View";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -150,9 +180,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AAF3E4E299E111300CA60AD /* PlanetAppViewModel.swift in Sources */,
+				2AC7CC0629A0B4E50089C58C /* PlanetSettingsViewModel.swift in Sources */,
 				2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */,
 				2AAF3E4C299E07E400CA60AD /* Planet.swift in Sources */,
 				2AAF3E50299E112300CA60AD /* PlanetAppView.swift in Sources */,
+				2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */,
 				2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */,
 				2AAF3E52299E11CE00CA60AD /* PlanetModel.swift in Sources */,
 			);
@@ -286,11 +318,13 @@
 				DEVELOPMENT_TEAM = 3SCMMGZXY8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Planet;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -298,9 +332,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = space.airwolf.Planet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -315,11 +352,13 @@
 				DEVELOPMENT_TEAM = 3SCMMGZXY8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Planet;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -327,9 +366,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = space.airwolf.Planet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
