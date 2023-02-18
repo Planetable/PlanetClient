@@ -25,3 +25,16 @@ enum PlanetAppTab: Int, Hashable {
         }
     }
 }
+
+
+struct Planet: Codable, Identifiable {
+    let id: UUID
+    let created: Date
+    let updated: Date
+    let name: String
+    let about: String
+    let templateName: String
+    let lastPublished: Date
+    let lastPublishedCID: String
+    let ipns: String
+}

@@ -10,13 +10,15 @@
 		2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */; };
 		2AAF3E42299E07B700CA60AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AAF3E41299E07B700CA60AD /* Assets.xcassets */; };
 		2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */; };
-		2AAF3E4C299E07E400CA60AD /* Planet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E4B299E07E400CA60AD /* Planet.swift */; };
 		2AAF3E4E299E111300CA60AD /* PlanetAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */; };
 		2AAF3E50299E112300CA60AD /* PlanetAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E4F299E112300CA60AD /* PlanetAppView.swift */; };
 		2AAF3E52299E11CE00CA60AD /* PlanetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */; };
 		2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */; };
 		2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */; };
 		2AC7CC0629A0B4E50089C58C /* PlanetSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */; };
+		2AC7CC0829A13E360089C58C /* PlanetMyPlanetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0729A13E360089C58C /* PlanetMyPlanetsView.swift */; };
+		2AC7CC0B29A141EF0089C58C /* PlanetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */; };
+		2AC7CC0D29A143D90089C58C /* PlanetMyPlanetsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0C29A143D90089C58C /* PlanetMyPlanetsViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,13 +26,15 @@
 		2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetApp.swift; sourceTree = "<group>"; };
 		2AAF3E41299E07B700CA60AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		2AAF3E4B299E07E400CA60AD /* Planet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Planet.swift; sourceTree = "<group>"; };
 		2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAppViewModel.swift; sourceTree = "<group>"; };
 		2AAF3E4F299E112300CA60AD /* PlanetAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAppView.swift; sourceTree = "<group>"; };
 		2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetModel.swift; sourceTree = "<group>"; };
 		2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetExtension.swift; sourceTree = "<group>"; };
 		2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetSettingsView.swift; sourceTree = "<group>"; };
 		2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetSettingsViewModel.swift; sourceTree = "<group>"; };
+		2AC7CC0729A13E360089C58C /* PlanetMyPlanetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetMyPlanetsView.swift; sourceTree = "<group>"; };
+		2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetManager.swift; sourceTree = "<group>"; };
+		2AC7CC0C29A143D90089C58C /* PlanetMyPlanetsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetMyPlanetsViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,8 +67,8 @@
 		2AAF3E3C299E07B600CA60AD /* Planet */ = {
 			isa = PBXGroup;
 			children = (
-				2AAF3E4B299E07E400CA60AD /* Planet.swift */,
 				2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */,
+				2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */,
 				2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */,
 				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
 				2AC7CC0029A0AC960089C58C /* Views */,
@@ -86,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				2AC7CC0329A0B4C80089C58C /* App View */,
+				2AC7CC0929A13E3C0089C58C /* My Planets */,
 				2AC7CC0429A0B4D00089C58C /* Settings View */,
 			);
 			path = Views;
@@ -107,6 +112,15 @@
 				2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */,
 			);
 			path = "Settings View";
+			sourceTree = "<group>";
+		};
+		2AC7CC0929A13E3C0089C58C /* My Planets */ = {
+			isa = PBXGroup;
+			children = (
+				2AC7CC0729A13E360089C58C /* PlanetMyPlanetsView.swift */,
+				2AC7CC0C29A143D90089C58C /* PlanetMyPlanetsViewModel.swift */,
+			);
+			path = "My Planets";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -181,12 +195,14 @@
 			files = (
 				2AAF3E4E299E111300CA60AD /* PlanetAppViewModel.swift in Sources */,
 				2AC7CC0629A0B4E50089C58C /* PlanetSettingsViewModel.swift in Sources */,
+				2AC7CC0D29A143D90089C58C /* PlanetMyPlanetsViewModel.swift in Sources */,
+				2AC7CC0829A13E360089C58C /* PlanetMyPlanetsView.swift in Sources */,
 				2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */,
-				2AAF3E4C299E07E400CA60AD /* Planet.swift in Sources */,
 				2AAF3E50299E112300CA60AD /* PlanetAppView.swift in Sources */,
 				2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */,
 				2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */,
 				2AAF3E52299E11CE00CA60AD /* PlanetModel.swift in Sources */,
+				2AC7CC0B29A141EF0089C58C /* PlanetManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

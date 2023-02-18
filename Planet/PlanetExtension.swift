@@ -15,3 +15,13 @@ extension String {
     static let settingsServerUsernameKey = "PlanetSettingsServerUsernameKey"
     static let settingsServerPasswordKey = "PlanetSettingsServerPasswordKey"
 }
+
+
+extension URL {
+    static let myPlanetsList = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("myplanets.json")
+}
+
+
+extension NSError {
+    static let serverIsInactive = NSError(domain: "planet.error", code: 10000)
+}
