@@ -33,6 +33,14 @@ struct PlanetSettingsView: View {
                     }
                 }
             }
+            .onAppear {
+                Task(priority: .background) {
+                    let status = await self.settingsViewModel.serverIsOnline()
+                    await MainActor.run {
+                        self.serverOnlineStatus = status
+                    }
+                }
+            }
         }
     }
     
