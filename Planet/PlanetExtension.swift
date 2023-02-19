@@ -24,6 +24,9 @@ extension URL {
 
 extension Notification.Name {
     static let reloadPlanets = Notification.Name("PlanetReloadPlanetsNotification")
+    static func reloadPlanetAvatar(forID id: UUID) -> Self {
+        return Notification.Name("PlanetReloadPlanet-" + id.uuidString + "-" + "Notification")
+    }
 }
 
 

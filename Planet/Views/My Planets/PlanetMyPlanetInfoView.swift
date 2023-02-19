@@ -6,13 +6,52 @@
 //
 
 import SwiftUI
+import CachedAsyncImage
 
 
 struct PlanetMyPlanetInfoView: View {
     var planet: Planet
     
+    @State private var isEdit: Bool = false
+    
     var body: some View {
-        Text(planet.name)
+        List {
+            Section {
+                PlanetAvatarView(planet: planet, size: CGSize(width: 96, height: 96))
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+
+            Text(planet.name)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(planet.about == "" ? "No description" : planet.about)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .task(priority: .background) {
+            NotificationCenter.default.post(name: .reloadPlanetAvatar(forID: planet.id), object: nil)
+        }
+        .toolbar {
+            // MARK: TODO: Edit planet info.
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                if isEdit {
+                    Button {
+                        withAnimation {
+                            isEdit = false
+                        }
+                    } label: {
+                        Text("Cancel")
+                    }
+                }
+                Button {
+                    withAnimation {
+                        isEdit.toggle()
+                    }
+                } label: {
+                    Text(isEdit ? "Save" : "Edit")
+                }
+            }
+        }
     }
 }
 
