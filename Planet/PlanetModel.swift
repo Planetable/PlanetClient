@@ -37,4 +37,8 @@ struct Planet: Codable, Identifiable {
     let lastPublished: Date
     let lastPublishedCID: String
     let ipns: String
+    
+    static func empty() -> Self {
+        return .init(id: UUID(), created: Date(), updated: Date(), name: "", about: "", templateName: "", lastPublished: Date(), lastPublishedCID: "", ipns: "")
+    }
 }

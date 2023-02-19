@@ -11,16 +11,32 @@ import SwiftUI
 struct PlanetMyPlanetsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
+    
+    @State private var isCreating: Bool = false
 
     var body: some View {
         NavigationStack(path: $appViewModel.planetsTabPath) {
             List {
                 ForEach(myPlanetsViewModel.myPlanets, id: \.id) { planet in
-                    Text(planet.name)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    NavigationLink(destination: PlanetMyPlanetInfoView(planet: planet)) {
+                        PlanetMyPlanetsItemView(planet: planet)
+                    }
                 }
             }
             .navigationTitle(PlanetAppTab.myPlanets.name())
+            .toolbar {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+                        isCreating.toggle()
+                    } label: {
+                        Image(systemName: "plus")
+                            .resizable()
+                    }
+                    .sheet(isPresented: $isCreating) {
+                        PlanetUpdatePlanetView(isCreating: true)
+                    }
+                }
+            }
             .refreshable {
                 Task(priority: .utility) {
                     do {
@@ -28,6 +44,13 @@ struct PlanetMyPlanetsView: View {
                     } catch {
                         debugPrint("failed to refresh: \(error)")
                     }
+                }
+            }
+            .task(priority: .utility) {
+                do {
+                    try await refreshAction()
+                } catch {
+                    debugPrint("failed to refresh: \(error)")
                 }
             }
         }
@@ -38,6 +61,7 @@ struct PlanetMyPlanetsView: View {
         await MainActor.run {
             self.myPlanetsViewModel.updateMyPlanets(planets)
         }
+        NotificationCenter.default.post(name: .reloadPlanets, object: nil)
     }
 }
 

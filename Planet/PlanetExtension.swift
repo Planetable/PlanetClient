@@ -22,6 +22,11 @@ extension URL {
 }
 
 
+extension Notification.Name {
+    static let reloadPlanets = Notification.Name("PlanetReloadPlanetsNotification")
+}
+
+
 extension NSError {
     static let serverIsInactive = NSError(domain: "planet.error", code: 10000)
 }

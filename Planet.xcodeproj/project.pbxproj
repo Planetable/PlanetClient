@@ -19,6 +19,10 @@
 		2AC7CC0829A13E360089C58C /* PlanetMyPlanetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0729A13E360089C58C /* PlanetMyPlanetsView.swift */; };
 		2AC7CC0B29A141EF0089C58C /* PlanetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */; };
 		2AC7CC0D29A143D90089C58C /* PlanetMyPlanetsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0C29A143D90089C58C /* PlanetMyPlanetsViewModel.swift */; };
+		2AC7CC0F29A153E50089C58C /* PlanetMyPlanetInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0E29A153E50089C58C /* PlanetMyPlanetInfoView.swift */; };
+		2AC7CC1329A156850089C58C /* PlanetUpdatePlanetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC1229A156850089C58C /* PlanetUpdatePlanetView.swift */; };
+		2AC7CC1529A1F3300089C58C /* PlanetMyPlanetsItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC1429A1F3300089C58C /* PlanetMyPlanetsItemView.swift */; };
+		2AC7CC1829A1F3A10089C58C /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC7CC1729A1F3A10089C58C /* CachedAsyncImage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +39,10 @@
 		2AC7CC0729A13E360089C58C /* PlanetMyPlanetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetMyPlanetsView.swift; sourceTree = "<group>"; };
 		2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetManager.swift; sourceTree = "<group>"; };
 		2AC7CC0C29A143D90089C58C /* PlanetMyPlanetsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetMyPlanetsViewModel.swift; sourceTree = "<group>"; };
+		2AC7CC0E29A153E50089C58C /* PlanetMyPlanetInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetMyPlanetInfoView.swift; sourceTree = "<group>"; };
+		2AC7CC1229A156850089C58C /* PlanetUpdatePlanetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetUpdatePlanetView.swift; sourceTree = "<group>"; };
+		2AC7CC1429A1F3300089C58C /* PlanetMyPlanetsItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetMyPlanetsItemView.swift; sourceTree = "<group>"; };
+		2AC7CC1929A1F8350089C58C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AC7CC1829A1F3A10089C58C /* CachedAsyncImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +76,7 @@
 		2AAF3E3C299E07B600CA60AD /* Planet */ = {
 			isa = PBXGroup;
 			children = (
+				2AC7CC1929A1F8350089C58C /* Info.plist */,
 				2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */,
 				2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */,
 				2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */,
@@ -118,7 +128,10 @@
 			isa = PBXGroup;
 			children = (
 				2AC7CC0729A13E360089C58C /* PlanetMyPlanetsView.swift */,
+				2AC7CC1429A1F3300089C58C /* PlanetMyPlanetsItemView.swift */,
+				2AC7CC0E29A153E50089C58C /* PlanetMyPlanetInfoView.swift */,
 				2AC7CC0C29A143D90089C58C /* PlanetMyPlanetsViewModel.swift */,
+				2AC7CC1229A156850089C58C /* PlanetUpdatePlanetView.swift */,
 			);
 			path = "My Planets";
 			sourceTree = "<group>";
@@ -139,6 +152,9 @@
 			dependencies = (
 			);
 			name = Planet;
+			packageProductDependencies = (
+				2AC7CC1729A1F3A10089C58C /* CachedAsyncImage */,
+			);
 			productName = Planet;
 			productReference = 2AAF3E3A299E07B600CA60AD /* Planet.app */;
 			productType = "com.apple.product-type.application";
@@ -167,6 +183,9 @@
 				Base,
 			);
 			mainGroup = 2AAF3E31299E07B600CA60AD;
+			packageReferences = (
+				2AC7CC1629A1F3A10089C58C /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
+			);
 			productRefGroup = 2AAF3E3B299E07B600CA60AD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -200,7 +219,10 @@
 				2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */,
 				2AAF3E50299E112300CA60AD /* PlanetAppView.swift in Sources */,
 				2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */,
+				2AC7CC0F29A153E50089C58C /* PlanetMyPlanetInfoView.swift in Sources */,
 				2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */,
+				2AC7CC1529A1F3300089C58C /* PlanetMyPlanetsItemView.swift in Sources */,
+				2AC7CC1329A156850089C58C /* PlanetUpdatePlanetView.swift in Sources */,
 				2AAF3E52299E11CE00CA60AD /* PlanetModel.swift in Sources */,
 				2AC7CC0B29A141EF0089C58C /* PlanetManager.swift in Sources */,
 			);
@@ -334,6 +356,7 @@
 				DEVELOPMENT_TEAM = 3SCMMGZXY8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Planet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Planet;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -368,6 +391,7 @@
 				DEVELOPMENT_TEAM = 3SCMMGZXY8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Planet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Planet;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -413,6 +437,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2AC7CC1629A1F3A10089C58C /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lorenzofiamingo/swiftui-cached-async-image";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2AC7CC1729A1F3A10089C58C /* CachedAsyncImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2AC7CC1629A1F3A10089C58C /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */;
+			productName = CachedAsyncImage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2AAF3E32299E07B600CA60AD /* Project object */;
 }
