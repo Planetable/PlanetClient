@@ -27,6 +27,7 @@ struct PlanetMyPlanetInfoView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text(planet.about == "" ? "No description" : planet.about)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(planet.about == "" ? .secondary : .primary)
         }
         .task(priority: .background) {
             NotificationCenter.default.post(name: .reloadPlanetAvatar(forID: planet.id), object: nil)

@@ -33,7 +33,7 @@ struct PlanetMyPlanetsView: View {
                             .resizable()
                     }
                     .sheet(isPresented: $isCreating) {
-                        PlanetUpdatePlanetView(isCreating: true)
+                        PlanetNewPlanetView()
                     }
                 }
             }
@@ -53,13 +53,24 @@ struct PlanetMyPlanetsView: View {
                     debugPrint("failed to refresh: \(error)")
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: .updatePlanets)) { _ in
+                Task(priority: .utility) {
+                    do {
+                        try await refreshAction()
+                    } catch {
+                        debugPrint("failed to refresh: \(error)")
+                    }
+                }
+            }
         }
     }
         
     private func refreshAction() async throws {
         let planets = try await PlanetManager.shared.getMyPlanets()
         await MainActor.run {
-            self.myPlanetsViewModel.updateMyPlanets(planets)
+            withAnimation {
+                self.myPlanetsViewModel.updateMyPlanets(planets)
+            }
         }
         NotificationCenter.default.post(name: .reloadPlanets, object: nil)
     }

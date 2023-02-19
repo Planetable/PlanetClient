@@ -34,9 +34,9 @@ struct Planet: Codable, Identifiable {
     let name: String
     let about: String
     let templateName: String
-    let lastPublished: Date
-    let lastPublishedCID: String
-    let ipns: String
+    let lastPublished: Date?
+    let lastPublishedCID: String?
+    let ipns: String?
     
     static func empty() -> Self {
         return .init(id: UUID(), created: Date(), updated: Date(), name: "", about: "", templateName: "", lastPublished: Date(), lastPublishedCID: "", ipns: "")

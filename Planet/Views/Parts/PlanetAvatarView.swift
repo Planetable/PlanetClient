@@ -54,10 +54,10 @@ struct PlanetAvatarView: View {
     
     @ViewBuilder
     private func planetAvatarPlaceholder() -> some View {
-        Image(systemName: "globe")
+        Image(systemName: "photo")
             .resizable()
+            .aspectRatio(contentMode: .fit)
             .frame(width: size.width, height: size.width)
-            .cornerRadius(size.width * 0.5)
     }
     
     private func reloadAvatar() async {

@@ -18,9 +18,9 @@ struct PlanetMyPlanetsItemView: View {
             VStack {
                 Text(planet.name)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text(planet.about)
+                Text(planet.about == "" ? "No description" : planet.about)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(planet.about == "" ? .secondary.opacity(0.5) : .secondary)
             }
             .multilineTextAlignment(.leading)
         }
