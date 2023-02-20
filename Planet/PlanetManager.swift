@@ -18,7 +18,7 @@ class PlanetManager: NSObject {
     func setup() {
     }
     
-    // MARK: - API Methods
+    // MARK: - API Methods -
     // MARK: - list my planets
     func getMyPlanets() async throws -> [Planet] {
         guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw NSError.serverIsInactive }
@@ -28,7 +28,7 @@ class PlanetManager: NSObject {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         if serverAuthenticationEnabled {
-            // Basic Authentication
+            // MARK: TODO: Basic Authentication
         }
         let (data, _) = try await URLSession.shared.data(for: request)
         let decoder = JSONDecoder()
@@ -45,7 +45,7 @@ class PlanetManager: NSObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         if serverAuthenticationEnabled {
-            // Basic Authentication
+            // MARK: TODO: Basic Authentication
         }
         let form: MultipartForm
         if avatarPath != "" {
@@ -73,5 +73,51 @@ class PlanetManager: NSObject {
                 NotificationCenter.default.post(name: .updatePlanets, object: nil)
             }
         }
+    }
+    
+    // MARK: - list my articles
+    func getMyArticles() async throws -> [PlanetArticle] {
+        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw NSError.serverIsInactive }
+        var planets = PlanetMyPlanetsViewModel.shared.myPlanets
+        if planets.count == 0 {
+            planets = try await getMyPlanets()
+        }
+        let planetIDs: [UUID] = planets.map() { p in
+            return p.id
+        }
+        guard planetIDs.count > 0 else { return [] }
+        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw NSError.serverIsInactive }
+        let serverURL = PlanetSettingsViewModel.shared.serverURL
+        let serverAuthenticationEnabled = PlanetSettingsViewModel.shared.serverAuthenticationEnabled
+        return await withTaskGroup(of: [PlanetArticle].self, body: { group in
+            var articles: [PlanetArticle] = []
+            // fetch articles from different planets inside task group.
+            for planetID in planetIDs {
+                let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planetID.uuidString)/articles")
+                group.addTask {
+                    do {
+                        let request = URLRequest(url: url)
+                        if serverAuthenticationEnabled {
+                            // MARK: TODO: Basic Authentication
+                        }
+                        let (data, _) = try await URLSession.shared.data(for: request)
+                        let decoder = JSONDecoder()
+                        let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
+                        return planetArticles.map() { p in
+                            var t = p
+                            t.planetID = planetID
+                            return t
+                        }
+                    } catch {
+                        debugPrint("failed to fetch articles for planet: \(planetID), error: \(error)")
+                        return []
+                    }
+                }
+            }
+            for await items in group {
+                articles.append(contentsOf: items)
+            }
+            return articles
+        })
     }
 }

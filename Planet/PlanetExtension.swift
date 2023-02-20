@@ -45,6 +45,16 @@ extension NSError {
 }
 
 
+extension Date {
+    func mmddyyyy() -> String {
+        let format = DateFormatter()
+        format.dateStyle = .medium
+        format.timeStyle = .none
+        return format.string(from: self)
+    }
+}
+
+
 extension Data {
     mutating func append(_ string: String) {
         self.append(string.data(using: .utf8, allowLossyConversion: true)!)

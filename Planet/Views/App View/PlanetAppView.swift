@@ -10,12 +10,15 @@ import SwiftUI
 
 struct PlanetAppView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
+    @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
     
     var body: some View {
         TabView(selection: $appViewModel.selectedTab) {
-            Text(PlanetAppTab.latest.name())
+            PlanetLatestView()
+                .environmentObject(appViewModel)
+                .environmentObject(latestViewModel)
                 .tabItem {
                     Label(PlanetAppTab.latest.name(), systemImage: "newspaper")
                 }
