@@ -34,6 +34,9 @@ extension URL {
 extension Notification.Name {
     static let updatePlanets = Notification.Name("PlanetUpdatePlanetsNotification")
     static let reloadPlanets = Notification.Name("PlanetReloadPlanetsNotification")
+    static let reloadArticles = Notification.Name("PlanetReloadArticlesNotification")
+    static let addAttachment = Notification.Name("PlanetArticleAddAttachmentNotification")
+    static let insertAttachment = Notification.Name("PlanetArticleInsertAttachmentNotification")
     static func reloadPlanetAvatar(forID id: UUID) -> Self {
         return Notification.Name("PlanetReloadPlanet-" + id.uuidString + "-" + "Notification")
     }

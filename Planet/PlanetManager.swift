@@ -120,4 +120,38 @@ class PlanetManager: NSObject {
             return articles
         })
     }
+    
+    // MARK: - create article
+    func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet) async throws {
+        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw NSError.serverIsInactive }
+        let serverURL = PlanetSettingsViewModel.shared.serverURL
+        let serverAuthenticationEnabled = PlanetSettingsViewModel.shared.serverAuthenticationEnabled
+        let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id.uuidString)/articles")
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        if serverAuthenticationEnabled {
+            // MARK: TODO: Basic Authentication
+        }
+        var form: MultipartForm = MultipartForm(parts: [
+            MultipartForm.Part(name: "title", value: title),
+            MultipartForm.Part(name: "date", value: Date().description),
+            MultipartForm.Part(name: "content", value: content)
+        ])
+        for attachment in attachments {
+            let attachmentName = attachment.url.lastPathComponent
+            let attachmentContentType = attachment.url.mimeType()
+            let attachmentData = try Data(contentsOf: attachment.url)
+            let formData = MultipartForm.Part(name: "attachment", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
+            form.parts.append(formData)
+        }
+        request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        let statusCode = (response as! HTTPURLResponse).statusCode
+        if statusCode == 200 {
+            try? await Task.sleep(for: .seconds(2))
+            await MainActor.run {
+                NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            }
+        }
+    }
 }

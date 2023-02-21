@@ -19,6 +19,7 @@ struct PlanetAppView: View {
             PlanetLatestView()
                 .environmentObject(appViewModel)
                 .environmentObject(latestViewModel)
+                .environmentObject(myPlanetsViewModel)
                 .tabItem {
                     Label(PlanetAppTab.latest.name(), systemImage: "newspaper")
                 }

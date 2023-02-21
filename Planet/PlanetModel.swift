@@ -27,7 +27,7 @@ enum PlanetAppTab: Int, Hashable {
 }
 
 
-struct Planet: Codable, Identifiable {
+struct Planet: Codable, Identifiable, Hashable {
     let id: UUID
     let created: Date
     let updated: Date
@@ -56,5 +56,19 @@ struct PlanetArticle: Codable, Identifiable {
     
     static func empty() -> Self {
         return .init(id: UUID(), created: Date(), title: "", content: "", summary: "", link: "", attachments: [])
+    }
+}
+
+
+struct PlanetArticleAttachment {
+    let id: UUID
+    let created: Date
+    let image: UIImage
+    let url: URL
+    
+    func markdownImageValue() -> String {
+        return """
+\n<img alt="\(url.deletingPathExtension().lastPathComponent)" src="\(url.lastPathComponent)">\n
+"""
     }
 }

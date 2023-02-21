@@ -16,10 +16,37 @@ struct PlanetMyPlanetsView: View {
 
     var body: some View {
         NavigationStack(path: $appViewModel.planetsTabPath) {
-            List {
-                ForEach(myPlanetsViewModel.myPlanets, id: \.id) { planet in
-                    NavigationLink(destination: PlanetMyPlanetInfoView(planet: planet)) {
-                        PlanetMyPlanetsItemView(planet: planet)
+            Group {
+                if myPlanetsViewModel.myPlanets.count == 0 {
+                    VStack {
+                        Text("No planets.")
+                            .foregroundColor(.secondary)
+                        Button {
+                            isCreating.toggle()
+                        } label: {
+                            Text("Create")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        Button {
+                            Task(priority: .utility) {
+                                do {
+                                    try await refreshAction()
+                                } catch {
+                                    debugPrint("failed to refresh: \(error)")
+                                }
+                            }
+                        } label: {
+                            Text("Reload")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                } else {
+                    List {
+                        ForEach(myPlanetsViewModel.myPlanets, id: \.id) { planet in
+                            NavigationLink(destination: PlanetMyPlanetInfoView(planet: planet)) {
+                                PlanetMyPlanetsItemView(planet: planet)
+                            }
+                        }
                     }
                 }
             }
@@ -32,7 +59,7 @@ struct PlanetMyPlanetsView: View {
                         Image(systemName: "plus")
                             .resizable()
                     }
-                    .sheet(isPresented: $isCreating) {
+                    .fullScreenCover(isPresented: $isCreating) {
                         PlanetNewPlanetView()
                     }
                 }

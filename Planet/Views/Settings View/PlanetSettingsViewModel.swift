@@ -19,9 +19,6 @@ class PlanetSettingsViewModel: ObservableObject {
 
     @Published var serverURL: String = UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? "" {
         didSet {
-            if !serverURL.hasPrefix("http") {
-                UserDefaults.standard.set("http://" + serverURL, forKey: .settingsServerURLKey)
-            }
             previousURL = nil
         }
     }

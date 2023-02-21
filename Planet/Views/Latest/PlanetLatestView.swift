@@ -11,6 +11,7 @@ import SwiftUI
 struct PlanetLatestView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
+    @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
 
     @State private var isCreating: Bool = false
 
@@ -46,6 +47,7 @@ struct PlanetLatestView: View {
                     .listStyle(.plain)
                 }
             }
+            .disabled(isCreating)
             .navigationTitle(PlanetAppTab.latest.name())
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -55,8 +57,9 @@ struct PlanetLatestView: View {
                         Image(systemName: "plus")
                             .resizable()
                     }
-                    .sheet(isPresented: $isCreating) {
+                    .fullScreenCover(isPresented: $isCreating) {
                         PlanetNewArticleView()
+                            .environmentObject(myPlanetsViewModel)
                     }
                 }
             }
@@ -74,6 +77,15 @@ struct PlanetLatestView: View {
                     try await refreshAction()
                 } catch {
                     debugPrint("failed to refresh: \(error)")
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
+                Task(priority: .utility) {
+                    do {
+                        try await refreshAction()
+                    } catch {
+                        debugPrint("failed to refresh: \(error)")
+                    }
                 }
             }
         }
