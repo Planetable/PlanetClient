@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import KeychainSwift
 
 
 class PlanetSettingsViewModel: ObservableObject {
@@ -37,16 +38,20 @@ class PlanetSettingsViewModel: ObservableObject {
             UserDefaults.standard.set(serverUsername, forKey: .settingsServerUsernameKey)
         }
     }
-    // MARK: TODO: store in keychain
-    @Published var serverPassword: String = UserDefaults.standard.string(forKey: .settingsServerPasswordKey) ?? "" {
+    @Published var serverPassword: String = "" {
         didSet {
-            UserDefaults.standard.set(serverPassword, forKey: .settingsServerPasswordKey)
+            let keychain = KeychainSwift()
+            keychain.set(serverPassword, forKey: .settingsServerPasswordKey)
         }
     }
     @Published var validatingServerStatus: Bool = false
 
     init() {
         debugPrint("Settings View Model Init.")
+        let keychain = KeychainSwift()
+        if let password = keychain.get(.settingsServerPasswordKey) {
+            serverPassword = password
+        }
     }
     
     // MARK: TODO: authentication

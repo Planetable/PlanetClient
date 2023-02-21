@@ -76,9 +76,11 @@ struct PlanetSettingsView: View {
                 Text("Server Username")
             }
             .disabled(!settingsViewModel.serverAuthenticationEnabled)
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
             .textFieldStyle(.roundedBorder)
             
-            TextField(text: $settingsViewModel.serverPassword) {
+            SecureField(text: $settingsViewModel.serverPassword) {
                 Text("Server Password")
             }
             .disabled(!settingsViewModel.serverAuthenticationEnabled)
@@ -87,7 +89,7 @@ struct PlanetSettingsView: View {
             Text("Planet Server Info")
                 .frame(maxWidth: .infinity, alignment: .leading)
         } footer: {
-            Text("Example: http://127.0.0.1:9191")
+            Text("Example: http://127.0.0.1:4321")
                 .disabled(true)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .font(.system(.footnote, design: .monospaced, weight: .light))

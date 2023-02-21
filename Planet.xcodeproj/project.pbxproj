@@ -33,6 +33,7 @@
 		2AC7CC2A29A38B9A0089C58C /* PlanetLatestItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2929A38B9A0089C58C /* PlanetLatestItemView.swift */; };
 		2AC7CC2C29A38E880089C58C /* PlanetArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */; };
 		2AC7CC2E29A3AA2E0089C58C /* PlanetArticleWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */; };
+		2AE1213F29A55B760086DD93 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2AE1213E29A55B760086DD93 /* KeychainSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AE1213F29A55B760086DD93 /* KeychainSwift in Frameworks */,
 				2AC7CC1829A1F3A10089C58C /* CachedAsyncImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -200,6 +202,7 @@
 			name = Planet;
 			packageProductDependencies = (
 				2AC7CC1729A1F3A10089C58C /* CachedAsyncImage */,
+				2AE1213E29A55B760086DD93 /* KeychainSwift */,
 			);
 			productName = Planet;
 			productReference = 2AAF3E3A299E07B600CA60AD /* Planet.app */;
@@ -231,6 +234,7 @@
 			mainGroup = 2AAF3E31299E07B600CA60AD;
 			packageReferences = (
 				2AC7CC1629A1F3A10089C58C /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
+				2AE1213D29A55B760086DD93 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			productRefGroup = 2AAF3E3B299E07B600CA60AD /* Products */;
 			projectDirPath = "";
@@ -503,6 +507,14 @@
 				kind = branch;
 			};
 		};
+		2AE1213D29A55B760086DD93 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -510,6 +522,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2AC7CC1629A1F3A10089C58C /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */;
 			productName = CachedAsyncImage;
+		};
+		2AE1213E29A55B760086DD93 /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2AE1213D29A55B760086DD93 /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
