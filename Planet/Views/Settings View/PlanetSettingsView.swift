@@ -17,12 +17,15 @@ struct PlanetSettingsView: View {
     var body: some View {
         NavigationStack(path: $appViewModel.settingsTabPath) {
             ScrollView {
-                serverInfoSection()
-                    .padding(.horizontal, 12)
-                Spacer(minLength: 48)
-                serverStatusSection()
-                    .padding(.horizontal, 12)
+                LazyVStack {
+                    serverInfoSection()
+                        .padding(.horizontal, 12)
+                    Spacer(minLength: 48)
+                    serverStatusSection()
+                        .padding(.horizontal, 12)
+                }
             }
+            .scrollDismissesKeyboard(.automatic)
             .navigationTitle(PlanetAppTab.settings.name())
             .frame(maxHeight: .infinity)
             .onReceive(settingsViewModel.timer) { t in
@@ -38,6 +41,16 @@ struct PlanetSettingsView: View {
                     let status = await self.settingsViewModel.serverIsOnline()
                     await MainActor.run {
                         self.serverOnlineStatus = status
+                    }
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button {
+                        dismissKeyboard()
+                    } label: {
+                        Text("Dismiss")
                     }
                 }
             }
@@ -80,6 +93,10 @@ struct PlanetSettingsView: View {
                 .font(.system(.footnote, design: .monospaced, weight: .light))
                 .foregroundColor(.secondary)
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            dismissKeyboard()
+        }
     }
     
     @ViewBuilder
@@ -99,6 +116,14 @@ struct PlanetSettingsView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            dismissKeyboard()
+        }
+    }
+    
+    func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
