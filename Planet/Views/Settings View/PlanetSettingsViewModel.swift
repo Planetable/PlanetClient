@@ -20,6 +20,11 @@ class PlanetSettingsViewModel: ObservableObject {
     @Published var serverURL: String = UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? "" {
         didSet {
             previousURL = nil
+            Task(priority: .background) {
+                if await self.serverIsOnline() {
+                    UserDefaults.standard.set(self.serverURL, forKey: .settingsServerURLKey)
+                }
+            }
         }
     }
     @Published var serverAuthenticationEnabled: Bool = UserDefaults.standard.bool(forKey: .settingsServerAuthenticationEnabledKey) {
