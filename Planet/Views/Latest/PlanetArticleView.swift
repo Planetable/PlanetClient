@@ -46,7 +46,7 @@ struct PlanetArticleView: View {
         guard await PlanetSettingsViewModel.shared.serverIsOnline() else { return }
         guard let planetID = article.planetID else { return }
         let serverURL = PlanetSettingsViewModel.shared.serverURL
-        let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planetID.uuidString)/public/\(article.id.uuidString)/index.html")
+        let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planetID.uuidString)/public/\(article.id)/index.html")
         await MainActor.run {
             self.articleURL = url.absoluteString
         }

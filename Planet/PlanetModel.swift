@@ -45,7 +45,7 @@ struct Planet: Codable, Identifiable, Hashable {
 
 
 struct PlanetArticle: Codable, Identifiable {
-    let id: UUID
+    let id: String
     let created: Date
     let title: String
     let content: String
@@ -55,7 +55,7 @@ struct PlanetArticle: Codable, Identifiable {
     var planetID: UUID?
     
     static func empty() -> Self {
-        return .init(id: UUID(), created: Date(), title: "", content: "", summary: "", link: "", attachments: [])
+        return .init(id: UUID().uuidString, created: Date(), title: "", content: "", summary: "", link: "", attachments: [])
     }
 }
 
