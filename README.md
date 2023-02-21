@@ -12,3 +12,4 @@ Next:
 - [ ] Edit an article
 - [ ] Basic authentication
 - [ ] Preview an article inside writer
+- [ ] Present API error with alert
