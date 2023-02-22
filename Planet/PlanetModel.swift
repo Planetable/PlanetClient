@@ -28,7 +28,7 @@ enum PlanetAppTab: Int, Hashable {
 
 
 struct Planet: Codable, Identifiable, Hashable {
-    let id: UUID
+    let id: String
     let created: Date
     let updated: Date
     let name: String
@@ -39,7 +39,7 @@ struct Planet: Codable, Identifiable, Hashable {
     let ipns: String?
     
     static func empty() -> Self {
-        return .init(id: UUID(), created: Date(), updated: Date(), name: "", about: "", templateName: "", lastPublished: Date(), lastPublishedCID: "", ipns: "")
+        return .init(id: UUID().uuidString, created: Date(), updated: Date(), name: "", about: "", templateName: "", lastPublished: Date(), lastPublishedCID: "", ipns: "")
     }
 }
 

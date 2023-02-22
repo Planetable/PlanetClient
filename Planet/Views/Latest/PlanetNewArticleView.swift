@@ -47,6 +47,7 @@ struct PlanetNewArticleView: View {
                     .onChange(of: selectedPlanetIndex) { newValue in
                         selectedPlanet = myPlanetsViewModel.myPlanets[newValue]
                     }
+                    .disabled(myPlanetsViewModel.myPlanets.count == 0)
                 }
                 .padding(.horizontal, 12)
                 .padding(.bottom, 8)
@@ -87,7 +88,7 @@ struct PlanetNewArticleView: View {
                     } label: {
                         Text("Save")
                     }
-                    .disabled(title == "")
+                    .disabled(title == "" || myPlanetsViewModel.myPlanets.count == 0)
                 }
             }
             .task(priority: .utility) {

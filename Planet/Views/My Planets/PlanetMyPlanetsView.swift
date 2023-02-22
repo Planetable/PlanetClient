@@ -13,6 +13,8 @@ struct PlanetMyPlanetsView: View {
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
     
     @State private var isCreating: Bool = false
+    @State private var isFailedRefreshing: Bool = false
+    @State private var errorMessage: String = ""
 
     var body: some View {
         NavigationStack(path: $appViewModel.planetsTabPath) {
@@ -28,13 +30,7 @@ struct PlanetMyPlanetsView: View {
                         }
                         .buttonStyle(.borderedProminent)
                         Button {
-                            Task(priority: .utility) {
-                                do {
-                                    try await refreshAction()
-                                } catch {
-                                    debugPrint("failed to refresh: \(error)")
-                                }
-                            }
+                            refreshAction(skipAlert: false)
                         } label: {
                             Text("Reload")
                         }
@@ -65,41 +61,43 @@ struct PlanetMyPlanetsView: View {
                 }
             }
             .refreshable {
-                Task(priority: .utility) {
-                    do {
-                        try await refreshAction()
-                    } catch {
-                        debugPrint("failed to refresh: \(error)")
-                    }
-                }
+                refreshAction(skipAlert: false)
             }
-            .task(priority: .utility) {
-                do {
-                    try await refreshAction()
-                } catch {
-                    debugPrint("failed to refresh: \(error)")
-                }
+            .task {
+                refreshAction()
             }
             .onReceive(NotificationCenter.default.publisher(for: .updatePlanets)) { _ in
-                Task(priority: .utility) {
-                    do {
-                        try await refreshAction()
-                    } catch {
-                        debugPrint("failed to refresh: \(error)")
-                    }
-                }
+                refreshAction()
+            }
+            .alert(isPresented: $isFailedRefreshing) {
+                Alert(title: Text("Failed to Reload"), message: Text(errorMessage), dismissButton: .cancel(Text("Dismiss")))
             }
         }
     }
         
-    private func refreshAction() async throws {
-        let planets = try await PlanetManager.shared.getMyPlanets()
-        await MainActor.run {
-            withAnimation {
-                self.myPlanetsViewModel.updateMyPlanets(planets)
+    private func refreshAction(skipAlert: Bool = true) {
+        Task(priority: .utility) {
+            do {
+                let planets = try await PlanetManager.shared.getMyPlanets()
+                await MainActor.run {
+                    withAnimation {
+                        self.myPlanetsViewModel.updateMyPlanets(planets)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    withAnimation {
+                        self.myPlanetsViewModel.updateMyPlanets([])
+                    }
+                }
+                guard skipAlert == false else { return }
+                self.isFailedRefreshing = true
+                self.errorMessage = error.localizedDescription
+            }
+            await MainActor.run {
+                NotificationCenter.default.post(name: .reloadPlanets, object: nil)
             }
         }
-        NotificationCenter.default.post(name: .reloadPlanets, object: nil)
     }
 }
 

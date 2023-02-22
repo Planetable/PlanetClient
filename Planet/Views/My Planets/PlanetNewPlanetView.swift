@@ -12,6 +12,8 @@ import PhotosUI
 struct PlanetNewPlanetView: View {
     @Environment(\.dismiss) private var dismiss
     
+    @State private var serverStatus: Bool = false
+    
     @State private var planetName: String = ""
     @State private var planetAbout: String = ""
     @State private var planetAvatarPath: String = ""
@@ -104,7 +106,13 @@ struct PlanetNewPlanetView: View {
                         } label: {
                             Text("Save")
                         }
-                        .disabled(planetName == "")
+                        .disabled(planetName == "" || !serverStatus)
+                    }
+                }
+                .task(priority: .background) {
+                    let status = await PlanetSettingsViewModel.shared.serverIsOnline()
+                    await MainActor.run {
+                        self.serverStatus = status
                     }
                 }
         }

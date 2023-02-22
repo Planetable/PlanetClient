@@ -22,7 +22,7 @@ struct PlanetAttachmentsView: View {
         didSet {
             Task(priority: .background) {
                 if let selectedPhotoData, let planet {
-                    let planetID = planet.id.uuidString
+                    let planetID = planet.id
                     let imageName = planetID.prefix(4) + "-" + String(UUID().uuidString.prefix(4)) + ".png"
                     let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(imageName)
                     do {

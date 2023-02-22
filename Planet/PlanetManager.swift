@@ -15,7 +15,13 @@ class PlanetManager: NSObject {
         debugPrint("Planet Manager Init.")
     }
     
-    func setup() {
+    func basicAuthenticationValue(username: String, password: String) throws -> String {
+        let loginString = "\(username):\(password)"
+        guard let loginData = loginString.data(using: .utf8) else {
+            throw NSError.serverAuthenticationInvalid
+        }
+        let base64LoginString = loginData.base64EncodedString()
+        return "Basic \(base64LoginString)"
     }
     
     // MARK: - API Methods -
@@ -28,12 +34,14 @@ class PlanetManager: NSObject {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         if serverAuthenticationEnabled {
-            // MARK: TODO: Basic Authentication
+            let serverUsername = PlanetSettingsViewModel.shared.serverUsername
+            let serverPassword = PlanetSettingsViewModel.shared.serverPassword
+            let loginValue = try? PlanetManager.shared.basicAuthenticationValue(username: serverUsername, password: serverPassword)
+            request.setValue(loginValue, forHTTPHeaderField: "Authorization")
         }
         let (data, _) = try await URLSession.shared.data(for: request)
         let decoder = JSONDecoder()
-        let planets = try decoder.decode([Planet].self, from: data)
-        return planets
+        return try decoder.decode([Planet].self, from: data)
     }
     
     // MARK: - create planet
@@ -45,7 +53,10 @@ class PlanetManager: NSObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         if serverAuthenticationEnabled {
-            // MARK: TODO: Basic Authentication
+            let serverUsername = PlanetSettingsViewModel.shared.serverUsername
+            let serverPassword = PlanetSettingsViewModel.shared.serverPassword
+            let loginValue = try? PlanetManager.shared.basicAuthenticationValue(username: serverUsername, password: serverPassword)
+            request.setValue(loginValue, forHTTPHeaderField: "Authorization")
         }
         let form: MultipartForm
         if avatarPath != "" {
@@ -82,7 +93,7 @@ class PlanetManager: NSObject {
         if planets.count == 0 {
             planets = try await getMyPlanets()
         }
-        let planetIDs: [UUID] = planets.map() { p in
+        let planetIDs: [String] = planets.map() { p in
             return p.id
         }
         guard planetIDs.count > 0 else { return [] }
@@ -93,19 +104,22 @@ class PlanetManager: NSObject {
             var articles: [PlanetArticle] = []
             // fetch articles from different planets inside task group.
             for planetID in planetIDs {
-                let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planetID.uuidString)/articles")
+                let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planetID)/articles")
                 group.addTask {
                     do {
-                        let request = URLRequest(url: url)
+                        var request = URLRequest(url: url)
                         if serverAuthenticationEnabled {
-                            // MARK: TODO: Basic Authentication
+                            let serverUsername = PlanetSettingsViewModel.shared.serverUsername
+                            let serverPassword = PlanetSettingsViewModel.shared.serverPassword
+                            let loginValue = try? PlanetManager.shared.basicAuthenticationValue(username: serverUsername, password: serverPassword)
+                            request.setValue(loginValue, forHTTPHeaderField: "Authorization")
                         }
                         let (data, _) = try await URLSession.shared.data(for: request)
                         let decoder = JSONDecoder()
                         let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
                         return planetArticles.map() { p in
                             var t = p
-                            t.planetID = planetID
+                            t.planetID = UUID(uuidString: planetID)
                             return t
                         }
                     } catch {
@@ -126,11 +140,14 @@ class PlanetManager: NSObject {
         guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw NSError.serverIsInactive }
         let serverURL = PlanetSettingsViewModel.shared.serverURL
         let serverAuthenticationEnabled = PlanetSettingsViewModel.shared.serverAuthenticationEnabled
-        let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id.uuidString)/articles")
+        let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id)/articles")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         if serverAuthenticationEnabled {
-            // MARK: TODO: Basic Authentication
+            let serverUsername = PlanetSettingsViewModel.shared.serverUsername
+            let serverPassword = PlanetSettingsViewModel.shared.serverPassword
+            let loginValue = try? PlanetManager.shared.basicAuthenticationValue(username: serverUsername, password: serverPassword)
+            request.setValue(loginValue, forHTTPHeaderField: "Authorization")
         }
         var form: MultipartForm = MultipartForm(parts: [
             MultipartForm.Part(name: "title", value: title),

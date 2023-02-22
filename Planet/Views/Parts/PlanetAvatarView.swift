@@ -63,7 +63,7 @@ struct PlanetAvatarView: View {
     private func reloadAvatar() async {
         let serverURL = PlanetSettingsViewModel.shared.serverURL
         if let url = URL(string: serverURL) {
-            let baseAvatarURL = url.appendingPathComponent("/v0/planets/my/").appendingPathComponent(planet.id.uuidString).appendingPathComponent("/public")
+            let baseAvatarURL = url.appendingPathComponent("/v0/planets/my/").appendingPathComponent(planet.id).appendingPathComponent("/public")
             let pngAvatarURL = baseAvatarURL.appendingPathComponent("avatar.png")
             await MainActor.run {
                 self.planetAvatarURL = pngAvatarURL

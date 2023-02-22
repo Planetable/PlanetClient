@@ -20,7 +20,7 @@ class PlanetSettingsViewModel: ObservableObject {
 
     @Published var serverURL: String = UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? "" {
         didSet {
-            previousURL = nil
+            resetPreviousServerInfo()
             Task(priority: .background) {
                 if await self.serverIsOnline() {
                     UserDefaults.standard.set(self.serverURL, forKey: .settingsServerURLKey)
@@ -30,16 +30,19 @@ class PlanetSettingsViewModel: ObservableObject {
     }
     @Published var serverAuthenticationEnabled: Bool = UserDefaults.standard.bool(forKey: .settingsServerAuthenticationEnabledKey) {
         didSet {
+            resetPreviousServerInfo()
             UserDefaults.standard.set(serverAuthenticationEnabled, forKey: .settingsServerAuthenticationEnabledKey)
         }
     }
     @Published var serverUsername: String = UserDefaults.standard.string(forKey: .settingsServerUsernameKey) ?? "" {
         didSet {
+            resetPreviousServerInfo()
             UserDefaults.standard.set(serverUsername, forKey: .settingsServerUsernameKey)
         }
     }
     @Published var serverPassword: String = "" {
         didSet {
+            resetPreviousServerInfo()
             let keychain = KeychainSwift()
             keychain.set(serverPassword, forKey: .settingsServerPasswordKey)
         }
@@ -54,30 +57,34 @@ class PlanetSettingsViewModel: ObservableObject {
         }
     }
     
-    // MARK: TODO: authentication
+    func resetPreviousServerInfo() {
+        previousURL = nil
+        previousStatus = false
+    }
+    
     func serverIsOnline() async -> Bool {
         if let url = URL(string: serverURL) {
             if let previousURL, previousURL == url, previousStatus {
                 return previousStatus
             }
-            debugPrint("validating server status...")
-            var request = URLRequest(url: url, cachePolicy: .reloadIgnoringCacheData, timeoutInterval: 1)
-            request.httpMethod = "HEAD"
+            var request = URLRequest(url: url.appendingPathComponent("/v0/planets/my"), cachePolicy: .reloadIgnoringCacheData, timeoutInterval: 1)
+            request.httpMethod = "GET"
+            if serverAuthenticationEnabled {
+                let loginValue = try? PlanetManager.shared.basicAuthenticationValue(username: serverUsername, password: serverPassword)
+                request.setValue(loginValue, forHTTPHeaderField: "Authorization")
+            }
             do {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 let responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-                let status = responseStatusCode == 404
+                let status = responseStatusCode == 200
                 previousStatus = status
                 previousURL = url
                 return status
             } catch {
-                previousStatus = false
-                previousURL = nil
-                debugPrint("failed to validate server status: \(error), will retry in 5 seconds...")
+                resetPreviousServerInfo()
             }
         } else {
-            previousStatus = false
-            previousURL = nil
+            resetPreviousServerInfo()
         }
         return false
     }

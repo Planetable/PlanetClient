@@ -36,10 +36,5 @@ struct PlanetArticleWebView: UIViewRepresentable {
         init(_ parent: PlanetArticleWebView) {
             self.parent = parent
         }
-        
-        func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-            debugPrint("web view did receive challenge: \(challenge)")
-            // MARK: TODO: Basic Authentication
-        }
     }
 }

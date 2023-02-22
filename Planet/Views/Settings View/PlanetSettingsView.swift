@@ -38,6 +38,7 @@ struct PlanetSettingsView: View {
             }
             .onAppear {
                 Task(priority: .background) {
+                    self.settingsViewModel.resetPreviousServerInfo()
                     let status = await self.settingsViewModel.serverIsOnline()
                     await MainActor.run {
                         self.serverOnlineStatus = status
