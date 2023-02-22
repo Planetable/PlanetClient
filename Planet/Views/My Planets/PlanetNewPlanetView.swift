@@ -141,19 +141,23 @@ struct PlanetNewPlanetView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(width: 96, height: 96, alignment: .center)
+                    .cornerRadius(48)
             } else {
                 if planetAvatarPath != "", let img = UIImage(contentsOfFile: planetAvatarPath) {
                     Image(uiImage: img)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .frame(width: 96, height: 96, alignment: .center)
+                        .cornerRadius(48)
                 } else {
                     Image(systemName: "photo")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .frame(width: 96, height: 96, alignment: .center)
                 }
             }
         }
-        .frame(width: 96, height: 96, alignment: .center)
         .padding(12)
     }
 }
