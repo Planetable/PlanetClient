@@ -160,6 +160,7 @@ class PlanetManager: NSObject {
             let attachmentData = try Data(contentsOf: attachment.url)
             let formData = MultipartForm.Part(name: "attachment", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
             form.parts.append(formData)
+            debugPrint("Create Article: attachment: \(attachmentName), contentType: \(attachmentContentType)")
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
