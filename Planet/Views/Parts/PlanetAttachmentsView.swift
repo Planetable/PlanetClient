@@ -32,7 +32,10 @@ struct PlanetAttachmentsView: View {
                         try selectedPhotoData.write(to: url)
                         if let image = UIImage(data: selectedPhotoData) {
                             await MainActor.run {
-                                self.uploadedImages.insert(PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url), at:0)
+                                let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+                                self.uploadedImages.insert(attachment, at:0)
+                                debugPrint("inserted image: \(imageName)")
+                                NotificationCenter.default.post(name: .addAttachment, object: attachment)
                             }
                         }
                     } catch {

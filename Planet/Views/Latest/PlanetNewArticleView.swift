@@ -79,6 +79,7 @@ struct PlanetNewArticleView: View {
                         guard let selectedPlanet else { return }
                         Task(priority: .userInitiated) {
                             do {
+                                debugPrint("Clicked save button: \(title), \(content), \(selectedAttachments.count), \(selectedPlanet.name)")
                                 try await PlanetManager.shared.createArticle(title: self.title, content: self.content, attachments: self.selectedAttachments, forPlanet: selectedPlanet)
                                 self.removeAttachments()
                             } catch {
@@ -104,6 +105,7 @@ struct PlanetNewArticleView: View {
                 if selectedAttachments.first(where: { $0.url == attachment.url }) == nil {
                     Task {
                         await MainActor.run {
+                            debugPrint("added attachment: \(attachment.url)")
                             self.selectedAttachments.append(attachment)
                         }
                     }

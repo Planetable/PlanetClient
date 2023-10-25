@@ -162,6 +162,7 @@ class PlanetManager: NSObject {
             form.parts.append(formData)
             debugPrint("Create Article: attachment: \(attachmentName), contentType: \(attachmentContentType)")
         }
+        debugPrint("Create Article: title: \(title), content: \(content) with \(attachments.count) attachments.")
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let statusCode = (response as! HTTPURLResponse).statusCode
