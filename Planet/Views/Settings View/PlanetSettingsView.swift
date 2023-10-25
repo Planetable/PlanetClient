@@ -105,12 +105,10 @@ struct PlanetSettingsView: View {
     @ViewBuilder
     private func serverStatusSection() -> some View {
         Section {
-            HStack {
-                Image(systemName: serverOnlineStatus ? "poweron" : "poweroff")
-                    .resizable()
+            HStack(spacing: 10) {
+                Circle()
                     .frame(width: 14, height: 14)
                     .foregroundColor(serverOnlineStatus ? .green : .gray)
-                    .cornerRadius(7)
                 if serverOnlineStatus {
                     Text("Server is running.")
                 } else {
