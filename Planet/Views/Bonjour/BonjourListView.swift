@@ -74,7 +74,13 @@ extension BonjourViewModel: NetServiceDelegate {
             if let ip = String(cString: hostname, encoding: .utf8) {
                 print("Service IP: \(ip), Port: \(sender.port)")
                 // Set this IP and port to settings view
-                PlanetSettingsViewModel.shared.serverURL = "http://\(ip):\(sender.port)"
+                let serverURL: String
+                if ip.contains(":") {
+                    serverURL = "http://[\(ip)]:\(sender.port)"
+                } else {
+                    serverURL = "http://\(ip):\(sender.port)"
+                }
+                PlanetSettingsViewModel.shared.serverURL = serverURL
                 PlanetAppViewModel.shared.showBonjourList = false
             }
         }
