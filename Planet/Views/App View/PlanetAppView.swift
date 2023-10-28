@@ -39,6 +39,9 @@ struct PlanetAppView: View {
                 }
                 .tag(PlanetAppTab.settings)
         }
+        .sheet(isPresented: $appViewModel.showBonjourList) {
+            BonjourListView()
+        }
     }
 }
 

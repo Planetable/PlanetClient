@@ -34,6 +34,7 @@
 		2AC7CC2C29A38E880089C58C /* PlanetArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */; };
 		2AC7CC2E29A3AA2E0089C58C /* PlanetArticleWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */; };
 		2AE1213F29A55B760086DD93 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2AE1213E29A55B760086DD93 /* KeychainSwift */; };
+		6A5EA27E2AECF9BA006DEBC1 /* BonjourListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5EA27D2AECF9BA006DEBC1 /* BonjourListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +65,7 @@
 		2AC7CC2929A38B9A0089C58C /* PlanetLatestItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetLatestItemView.swift; sourceTree = "<group>"; };
 		2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetArticleView.swift; sourceTree = "<group>"; };
 		2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetArticleWebView.swift; sourceTree = "<group>"; };
+		6A5EA27D2AECF9BA006DEBC1 /* BonjourListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +124,7 @@
 		2AC7CC0029A0AC960089C58C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				6A5EA27C2AECF97A006DEBC1 /* Bonjour */,
 				2AC7CC0329A0B4C80089C58C /* App View */,
 				2AC7CC2429A2AD5F0089C58C /* Latest */,
 				2AC7CC0929A13E3C0089C58C /* My Planets */,
@@ -182,6 +185,14 @@
 				2AC7CC2729A2AE9A0089C58C /* PlanetLatestViewModel.swift */,
 			);
 			path = Latest;
+			sourceTree = "<group>";
+		};
+		6A5EA27C2AECF97A006DEBC1 /* Bonjour */ = {
+			isa = PBXGroup;
+			children = (
+				6A5EA27D2AECF9BA006DEBC1 /* BonjourListView.swift */,
+			);
+			path = Bonjour;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -284,6 +295,7 @@
 				2AAF3E52299E11CE00CA60AD /* PlanetModel.swift in Sources */,
 				2AC7CC0B29A141EF0089C58C /* PlanetManager.swift in Sources */,
 				2AC7CC2829A2AE9A0089C58C /* PlanetLatestViewModel.swift in Sources */,
+				6A5EA27E2AECF9BA006DEBC1 /* BonjourListView.swift in Sources */,
 				2AC6A3A529A3F63A00636DC5 /* PlanetTextView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

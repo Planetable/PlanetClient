@@ -21,4 +21,6 @@ class PlanetAppViewModel: ObservableObject {
             UserDefaults.standard.set(selectedTab.rawValue, forKey: .settingsSelectedTabKey)
         }
     }
+    
+    @Published var showBonjourList = false
 }

@@ -23,6 +23,14 @@ struct PlanetSettingsView: View {
                     Spacer(minLength: 48)
                     serverStatusSection()
                         .padding(.horizontal, 12)
+                    
+                    Button {
+                        appViewModel.showBonjourList = true
+                    } label: {
+                        Text("Discover Nearby Servers")
+                    }
+                    .buttonStyle(.bordered)
+                    .padding(.vertical, 10)
                 }
             }
             .scrollDismissesKeyboard(.automatic)
