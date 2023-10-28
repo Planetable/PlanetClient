@@ -19,7 +19,7 @@ struct PlanetArticleWebView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> some UIView {
         let wv = WKWebView()
-        wv.customUserAgent = "Planet"
+        wv.customUserAgent = "Planet/0.0.1"
         wv.navigationDelegate = context.coordinator
         wv.load(URLRequest(url: url))
         return wv
