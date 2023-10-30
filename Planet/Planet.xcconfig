@@ -1,0 +1,13 @@
+//
+//  Planet.xcconfig
+//  Planet
+//
+//  Created by Xin Liu on 10/30/23.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+DEVELOPMENT_TEAM = 66KP7KX9MX;
+
+#include? "local.xcconfig"

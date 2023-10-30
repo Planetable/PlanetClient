@@ -35,6 +35,7 @@
 		2AC7CC2E29A3AA2E0089C58C /* PlanetArticleWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */; };
 		2AE1213F29A55B760086DD93 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2AE1213E29A55B760086DD93 /* KeychainSwift */; };
 		6A5EA27E2AECF9BA006DEBC1 /* BonjourListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5EA27D2AECF9BA006DEBC1 /* BonjourListView.swift */; };
+		6A30A4772AEFCE53007E763C /* Planet.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +67,7 @@
 		2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetArticleView.swift; sourceTree = "<group>"; };
 		2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetArticleWebView.swift; sourceTree = "<group>"; };
 		6A5EA27D2AECF9BA006DEBC1 /* BonjourListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourListView.swift; sourceTree = "<group>"; };
+		6A30A4762AEFCE53007E763C /* Planet.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Planet.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +111,7 @@
 				2AC7CC0029A0AC960089C58C /* Views */,
 				2AAF3E41299E07B700CA60AD /* Assets.xcassets */,
 				2AAF3E43299E07B700CA60AD /* Preview Content */,
+				6A30A4762AEFCE53007E763C /* Planet.xcconfig */,
 			);
 			path = Planet;
 			sourceTree = "<group>";
@@ -263,6 +266,7 @@
 			files = (
 				2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */,
 				2AAF3E42299E07B700CA60AD /* Assets.xcassets in Resources */,
+				6A30A4772AEFCE53007E763C /* Planet.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -419,13 +423,13 @@
 		};
 		2AAF3E49299E07B700CA60AD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Planet/Preview Content\"";
-				DEVELOPMENT_TEAM = 3SCMMGZXY8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Planet/Info.plist;
@@ -454,13 +458,13 @@
 		};
 		2AAF3E4A299E07B700CA60AD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Planet/Preview Content\"";
-				DEVELOPMENT_TEAM = 3SCMMGZXY8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Planet/Info.plist;
