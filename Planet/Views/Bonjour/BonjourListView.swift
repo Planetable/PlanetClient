@@ -64,6 +64,7 @@ extension BonjourViewModel: NetServiceBrowserDelegate {
         moreComing: Bool
     ) {
         DispatchQueue.main.async {
+            debugPrint("Bonjour: found new service: \(service)")
             self.services.append(service)
         }
     }
