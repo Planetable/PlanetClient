@@ -6,19 +6,20 @@
 //
 
 import Foundation
-import SwiftUI
 import KeychainSwift
-
+import SwiftUI
 
 class PlanetSettingsViewModel: ObservableObject {
     static let shared = PlanetSettingsViewModel()
-    
+
     let timer = Timer.publish(every: 2.5, on: .main, in: .common).autoconnect()
-    
+
     private var previousURL: URL?
     private var previousStatus: Bool = false
 
-    @Published var serverURL: String = UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? "" {
+    @Published var serverURL: String =
+        UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? ""
+    {
         didSet {
             resetPreviousServerInfo()
             Task(priority: .background) {
@@ -28,13 +29,21 @@ class PlanetSettingsViewModel: ObservableObject {
             }
         }
     }
-    @Published var serverAuthenticationEnabled: Bool = UserDefaults.standard.bool(forKey: .settingsServerAuthenticationEnabledKey) {
+    @Published var serverAuthenticationEnabled: Bool = UserDefaults.standard.bool(
+        forKey: .settingsServerAuthenticationEnabledKey
+    )
+    {
         didSet {
             resetPreviousServerInfo()
-            UserDefaults.standard.set(serverAuthenticationEnabled, forKey: .settingsServerAuthenticationEnabledKey)
+            UserDefaults.standard.set(
+                serverAuthenticationEnabled,
+                forKey: .settingsServerAuthenticationEnabledKey
+            )
         }
     }
-    @Published var serverUsername: String = UserDefaults.standard.string(forKey: .settingsServerUsernameKey) ?? "" {
+    @Published var serverUsername: String =
+        UserDefaults.standard.string(forKey: .settingsServerUsernameKey) ?? ""
+    {
         didSet {
             resetPreviousServerInfo()
             UserDefaults.standard.set(serverUsername, forKey: .settingsServerUsernameKey)
@@ -56,21 +65,36 @@ class PlanetSettingsViewModel: ObservableObject {
             serverPassword = password
         }
     }
-    
+
     func resetPreviousServerInfo() {
         previousURL = nil
         previousStatus = false
     }
-    
+
     func serverIsOnline() async -> Bool {
         if let url = URL(string: serverURL) {
             if let previousURL, previousURL == url, previousStatus {
                 return previousStatus
             }
-            var request = URLRequest(url: url.appendingPathComponent("/v0/planets/my"), cachePolicy: .reloadIgnoringCacheData, timeoutInterval: 1)
+            let requestIdURL = url.appendingPathComponent("/v0/id")
+            let data = try? Data(contentsOf: requestIdURL)
+            if let data = data, let currentNodeID = String(data: data, encoding: .utf8) {
+                Task { @MainActor in
+                    PlanetAppViewModel.shared.currentNodeID = currentNodeID
+                }
+                debugPrint("Current Node ID is: \(currentNodeID)")
+            }
+            var request = URLRequest(
+                url: url.appendingPathComponent("/v0/planets/my"),
+                cachePolicy: .reloadIgnoringCacheData,
+                timeoutInterval: 5
+            )
             request.httpMethod = "GET"
             if serverAuthenticationEnabled {
-                let loginValue = try? PlanetManager.shared.basicAuthenticationValue(username: serverUsername, password: serverPassword)
+                let loginValue = try? PlanetManager.shared.basicAuthenticationValue(
+                    username: serverUsername,
+                    password: serverPassword
+                )
                 request.setValue(loginValue, forHTTPHeaderField: "Authorization")
             }
             do {
@@ -80,10 +104,12 @@ class PlanetSettingsViewModel: ObservableObject {
                 previousStatus = status
                 previousURL = url
                 return status
-            } catch {
+            }
+            catch {
                 resetPreviousServerInfo()
             }
-        } else {
+        }
+        else {
             resetPreviousServerInfo()
         }
         return false

@@ -7,23 +7,20 @@
 
 import SwiftUI
 
-
 struct PlanetSettingsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
-    
+
     @State private var serverOnlineStatus: Bool = false
-    
+
     var body: some View {
         NavigationStack(path: $appViewModel.settingsTabPath) {
             ScrollView {
                 LazyVStack {
                     serverInfoSection()
-                        .padding(.horizontal, 12)
                     Spacer(minLength: 48)
                     serverStatusSection()
-                        .padding(.horizontal, 12)
-                    
+
                     Button {
                         appViewModel.showBonjourList = true
                     } label: {
@@ -32,6 +29,7 @@ struct PlanetSettingsView: View {
                     .buttonStyle(.bordered)
                     .padding(.vertical, 10)
                 }
+                .padding()
             }
             .scrollDismissesKeyboard(.automatic)
             .navigationTitle(PlanetAppTab.settings.name())
@@ -65,7 +63,7 @@ struct PlanetSettingsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private func serverInfoSection() -> some View {
         Section {
@@ -77,10 +75,10 @@ struct PlanetSettingsView: View {
             .disableAutocorrection(true)
             .textInputAutocapitalization(.never)
             .keyboardType(.URL)
-            
+
             Toggle("Server Authentication", isOn: $settingsViewModel.serverAuthenticationEnabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
+
             TextField(text: $settingsViewModel.serverUsername) {
                 Text("Server Username")
             }
@@ -88,7 +86,7 @@ struct PlanetSettingsView: View {
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
             .textFieldStyle(.roundedBorder)
-            
+
             SecureField(text: $settingsViewModel.serverPassword) {
                 Text("Server Password")
             }
@@ -109,30 +107,51 @@ struct PlanetSettingsView: View {
             dismissKeyboard()
         }
     }
-    
+
     @ViewBuilder
     private func serverStatusSection() -> some View {
         Section {
-            HStack(spacing: 10) {
-                Circle()
-                    .frame(width: 14, height: 14)
-                    .foregroundColor(serverOnlineStatus ? .green : .gray)
-                if serverOnlineStatus {
-                    Text("Server is running.")
-                } else {
-                    Text("Server is inactive.")
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
+                    Circle()
+                        .frame(width: 14, height: 14)
+                        .foregroundColor(serverOnlineStatus ? .green : .gray)
+                    if serverOnlineStatus {
+                        Text("Server is connected.")
+                    }
+                    else {
+                        Text("Server is not connected.")
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                if let nodeID = appViewModel.currentNodeID {
+                    HStack(spacing: 10) {
+                        Circle()
+                            .frame(width: 14, height: 14)
+                            .foregroundColor(.clear)
+                        Text("\(nodeID)")
+                            .font(.system(.footnote, design: .monospaced, weight: .light))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .transition(.move(edge: .top))
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+
         }
         .contentShape(Rectangle())
         .onTapGesture {
             dismissKeyboard()
         }
     }
-    
+
     func dismissKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
+        )
     }
 }
 
