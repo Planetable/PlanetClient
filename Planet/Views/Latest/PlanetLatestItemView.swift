@@ -18,10 +18,10 @@ struct PlanetLatestItemView: View {
                     Text(article.title)
                         .font(.headline)
                         .foregroundColor(.primary)
-                    if article.summary.count > 0 {
-                        Text(article.summary.prefix(280))
+                    if let summary = article.summary, summary.count > 0 {
+                        Text(summary.prefix(280))
                             .foregroundColor(.secondary)
-                        if article.summary.count < 40 {
+                        if let summary =  article.summary, summary.count < 40 {
                             Spacer()
                         }
                     } else if article.content.count > 0 {
