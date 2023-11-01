@@ -13,3 +13,17 @@ Next:
 - [ ] Edit a planet
 - [ ] Edit an article
 - [ ] Preview an article inside writer
+
+## Running Locally
+
+```sh
+$ git clone https://github.com/Planetable/PlanetMobile app
+$ cd app
+# update developer settings, replacing with your Apple Developer Team ID
+$ printf "DEVELOPMENT_TEAM = <your team id> \
+         \nCODE_SIGN_STYLE = Automatic" > Planet/local.xcconfig
+# open in Xcode
+$ open Planet.xcodeproj/
+```
+
+In Xcode, press run and it should work.
