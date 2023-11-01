@@ -81,7 +81,6 @@ class PlanetManager: NSObject {
     
     // MARK: - list my articles
     func getMyArticles() async throws -> [PlanetArticle] {
-        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw NSError.serverIsInactive }
         var planets = PlanetMyPlanetsViewModel.shared.myPlanets
         if planets.count == 0 {
             planets = try await getMyPlanets()
@@ -90,9 +89,6 @@ class PlanetManager: NSObject {
             return p.id
         }
         guard planetIDs.count > 0 else { return [] }
-        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw NSError.serverIsInactive }
-        let serverURL = PlanetSettingsViewModel.shared.serverURL
-        let serverAuthenticationEnabled = PlanetSettingsViewModel.shared.serverAuthenticationEnabled
         return await withTaskGroup(of: [PlanetArticle].self, body: { group in
             var articles: [PlanetArticle] = []
             // fetch articles from different planets inside task group.
