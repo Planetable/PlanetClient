@@ -69,6 +69,7 @@ class PlanetSettingsViewModel: ObservableObject {
     func resetPreviousServerInfo() {
         previousURL = nil
         previousStatus = false
+        PlanetAppViewModel.shared.currentNodeID = nil
     }
 
     func serverIsOnline() async -> Bool {
