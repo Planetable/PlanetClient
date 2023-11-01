@@ -15,6 +15,131 @@ struct PlanetSettingsView: View {
 
     var body: some View {
         NavigationStack(path: $appViewModel.settingsTabPath) {
+            Form {
+                Section(
+                    header: Text("Server Info"),
+                    footer: Text("Current Server URL: \($settingsViewModel.serverURL.wrappedValue)")
+                ) {
+                    Picker("Protocol", selection: $settingsViewModel.serverProtocol) {
+                        Text("http").tag("http")
+                        Text("https").tag("https")
+                    }.pickerStyle(.navigationLink)
+
+                    LabeledContent {
+                        TextField(
+                            "Host",
+                            text: $settingsViewModel.serverHost,
+                            prompt: Text("Host name or IP address")
+                        )
+                        .multilineTextAlignment(.trailing)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+
+                    } label: {
+                        Text("Host")
+                    }
+
+                    LabeledContent {
+                        TextField(
+                            "Port",
+                            text: $settingsViewModel.serverPort,
+                            prompt: Text("Port")
+                        )
+                        .multilineTextAlignment(.trailing)
+                        .keyboardType(.numberPad)
+                    } label: {
+                        Text("Port")
+                    }
+                }
+
+                Section(header: Text("Authentication")) {
+                    Toggle("Authentication", isOn: $settingsViewModel.serverAuthenticationEnabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    TextField(
+                        "Username",
+                        text: $settingsViewModel.serverUsername,
+                        prompt: Text("Username")
+                    )
+                    .disabled(!settingsViewModel.serverAuthenticationEnabled)
+
+                    SecureField(
+                        "Password",
+                        text: $settingsViewModel.serverPassword,
+                        prompt: Text("Password")
+                    )
+                    .disabled(!settingsViewModel.serverAuthenticationEnabled)
+                }
+
+                Section(header: Text("Bonjour")) {
+
+                    Button {
+                        appViewModel.showBonjourList = true
+                    } label: {
+                        Text("Discover Nearby Servers")
+                    }
+                }
+
+                Section(header: Text("Server Status")) {
+                    HStack {
+                        HStack(spacing: 10) {
+                            Circle()
+                                .frame(width: 14, height: 14)
+                                .foregroundColor(serverOnlineStatus ? .green : .gray)
+                            if serverOnlineStatus {
+                                Text("Server is connected.")
+                            }
+                            else {
+                                Text("Server is not connected.")
+                            }
+                        }
+                    }
+                    if let nodeID = appViewModel.currentNodeID {
+                        HStack(spacing: 10) {
+                            Circle()
+                                .frame(width: 14, height: 14)
+                                .foregroundColor(.clear)
+                            Text("\(nodeID)")
+                                .font(.system(.callout, design: .monospaced))
+                                .onTapGesture {
+                                    UIPasteboard.general.string = nodeID
+                                }
+                        }
+                    }
+                }
+            }
+            // Disabled navigation title for saving vertical space.
+            // .navigationTitle(PlanetAppTab.settings.name())
+            .onReceive(settingsViewModel.timer) { t in
+                Task(priority: .background) {
+                    let status = await self.settingsViewModel.serverIsOnline()
+                    await MainActor.run {
+                        self.serverOnlineStatus = status
+                    }
+                }
+            }
+            .onAppear {
+                Task(priority: .background) {
+                    self.settingsViewModel.resetPreviousServerInfo()
+                    let status = await self.settingsViewModel.serverIsOnline()
+                    await MainActor.run {
+                        self.serverOnlineStatus = status
+                    }
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button {
+                        dismissKeyboard()
+                    } label: {
+                        Text("Dismiss")
+                    }
+                }
+            }
+        }
+        /*
+        NavigationStack(path: $appViewModel.settingsTabPath) {
             ScrollView {
                 LazyVStack {
                     serverInfoSection()
@@ -62,6 +187,7 @@ struct PlanetSettingsView: View {
                 }
             }
         }
+        */
     }
 
     @ViewBuilder

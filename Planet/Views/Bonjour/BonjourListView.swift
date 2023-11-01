@@ -138,7 +138,8 @@ extension BonjourViewModel: NetServiceDelegate {
                 else {
                     serverURL = "http://\(ip):\(sender.port)"
                 }
-                PlanetSettingsViewModel.shared.serverURL = serverURL
+                PlanetSettingsViewModel.shared.serverHost = ip
+                PlanetSettingsViewModel.shared.serverPort = "\(sender.port)"
                 PlanetAppViewModel.shared.showBonjourList = false
             }
         }

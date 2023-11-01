@@ -29,6 +29,33 @@ class PlanetSettingsViewModel: ObservableObject {
             }
         }
     }
+    @Published var serverProtocol: String =
+        UserDefaults.standard.string(forKey: .settingsServerProtocolKey) ?? "http"
+    {
+        didSet {
+            resetPreviousServerInfo()
+            UserDefaults.standard.set(serverProtocol, forKey: .settingsServerProtocolKey)
+            setServerURL()
+        }
+    }
+    @Published var serverHost: String =
+        UserDefaults.standard.string(forKey: .settingsServerHostKey) ?? ""
+    {
+        didSet {
+            resetPreviousServerInfo()
+            UserDefaults.standard.set(serverHost, forKey: .settingsServerHostKey)
+            setServerURL()
+        }
+    }
+    @Published var serverPort: String =
+        UserDefaults.standard.string(forKey: .settingsServerPortKey) ?? "8086"
+    {
+        didSet {
+            resetPreviousServerInfo()
+            UserDefaults.standard.set(serverPort, forKey: .settingsServerPortKey)
+            setServerURL()
+        }
+    }
     @Published var serverAuthenticationEnabled: Bool = UserDefaults.standard.bool(
         forKey: .settingsServerAuthenticationEnabledKey
     )
@@ -66,10 +93,24 @@ class PlanetSettingsViewModel: ObservableObject {
         }
     }
 
+    func setServerURL() {
+        if serverProtocol.isEmpty || serverHost.isEmpty {
+            return
+        }
+        var url = serverProtocol + "://" + serverHost
+        if !serverPort.isEmpty {
+            url += ":" + serverPort
+        }
+        serverURL = url
+
+    }
+
     func resetPreviousServerInfo() {
-        previousURL = nil
-        previousStatus = false
-        PlanetAppViewModel.shared.currentNodeID = nil
+        Task { @MainActor in
+            previousURL = nil
+            previousStatus = false
+            PlanetAppViewModel.shared.currentNodeID = nil
+        }
     }
 
     func serverIsOnline() async -> Bool {
