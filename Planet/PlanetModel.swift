@@ -41,6 +41,12 @@ struct Planet: Codable, Identifiable, Hashable {
     static func empty() -> Self {
         return .init(id: UUID().uuidString, created: Date(), updated: Date(), name: "", about: "", templateName: "", lastPublished: Date(), lastPublishedCID: "", ipns: "")
     }
+
+    var nameInitials: String {
+        let initials = name.components(separatedBy: .whitespaces).map { $0.prefix(1).capitalized }
+            .joined()
+        return String(initials.prefix(2))
+    }
 }
 
 

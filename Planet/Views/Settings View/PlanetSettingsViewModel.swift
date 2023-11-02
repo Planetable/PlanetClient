@@ -109,7 +109,8 @@ class PlanetSettingsViewModel: ObservableObject {
         Task { @MainActor in
             previousURL = nil
             previousStatus = false
-            PlanetAppViewModel.shared.currentNodeID = nil
+            // TODO: Implement a multi-server management flow
+            // PlanetAppViewModel.shared.currentNodeID = nil
         }
     }
 
@@ -124,7 +125,7 @@ class PlanetSettingsViewModel: ObservableObject {
                 Task { @MainActor in
                     PlanetAppViewModel.shared.currentNodeID = currentNodeID
                 }
-                debugPrint("Current Node ID is: \(currentNodeID)")
+                debugPrint("👌 Connected. Current Node ID is: \(currentNodeID)")
             }
             var request = URLRequest(
                 url: url.appendingPathComponent("/v0/planets/my"),

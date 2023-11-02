@@ -47,10 +47,24 @@ struct PlanetAvatarView: View {
     
     @ViewBuilder
     private func planetAvatarPlaceholder() -> some View {
-        Image(systemName: "photo")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: size.width, height: size.width)
+        Text(planet.nameInitials)
+            .font(Font.custom("Arial Rounded MT Bold", size: size.width / 2))
+            .foregroundColor(Color.white)
+            .contentShape(Rectangle())
+            .frame(width: size.width, height: size.height, alignment: .center)
+            .background(
+                LinearGradient(
+                    gradient: ViewUtils.getPresetGradient(from: planet.id),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .cornerRadius(size.width / 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: size.width / 2)
+                    .stroke(Color("BorderColor"), lineWidth: 0.5)
+            )
+            .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
     }
     
     private func loadAvatar() async {
@@ -72,11 +86,14 @@ struct PlanetAvatarView: View {
             return nil
         }
         let myPlanetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent("My").appendingPathComponent(planet.id)
-        do {
-            try FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true)
-        } catch {
-            debugPrint("Failed to create directory for my planet: \(error)")
-            return nil
+        if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
+            do {
+                try FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true)
+                debugPrint("Created directory for my planet: \(myPlanetPath)")
+            } catch {
+                debugPrint("Failed to create directory for my planet: \(error)")
+                return nil
+            }
         }
         return myPlanetPath.appendingPathComponent("avatar.png")
     }

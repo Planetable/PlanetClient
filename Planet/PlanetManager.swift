@@ -39,6 +39,30 @@ class PlanetManager: NSObject {
         return "Basic \(base64LoginString)"
     }
 
+    func getPlanetPath(forID planetID: String) -> URL? {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else {
+            return nil
+        }
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let myPlanetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent("My").appendingPathComponent(planetID)
+        if FileManager.default.fileExists(atPath: myPlanetPath.path) == false {
+            try? FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true, attributes: nil)
+            debugPrint("Folder created at path: \(myPlanetPath.path)")
+        } else {
+            debugPrint("Folder exists at path: \(myPlanetPath.path)")
+        }
+        return myPlanetPath
+    }
+
+    func getPlanetArticlesPath(forID planetID: String) -> URL? {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else {
+            return nil
+        }
+        let planetPath = getPlanetPath(forID: planetID)
+        let myPlanetArticlesPath = planetPath?.appendingPathComponent("articles.json")
+        return myPlanetArticlesPath
+    }
+
     // MARK: - API Methods -
     // MARK: - list my planets
     func getMyPlanets() async throws -> [Planet] {
@@ -99,11 +123,21 @@ class PlanetManager: NSObject {
                         let (data, _) = try await URLSession.shared.data(for: request)
                         let decoder = JSONDecoder()
                         let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
-                        return planetArticles.map() { p in
+                        let result = planetArticles.map() { p in
                             var t = p
                             t.planetID = UUID(uuidString: planetID)
                             return t
                         }
+                        // Save articles to:
+                        // /Documents/:node_id/My/:planet_id/articles.json
+                        if let articlesPath = self.getPlanetArticlesPath(forID: planetID) {
+                            let encoder = JSONEncoder()
+                            encoder.outputFormatting = .prettyPrinted
+                            let data = try encoder.encode(result)
+                            try data.write(to: articlesPath)
+                            debugPrint("Saved articles to path: \(articlesPath.path)")
+                        }
+                        return result
                     } catch {
                         debugPrint("failed to fetch articles for planet: \(planetID), error: \(error)")
                         return []
