@@ -36,6 +36,11 @@ struct PlanetAvatarView: View {
                 planetAvatarPlaceholder()
             }
             .frame(width: size.width)
+            .overlay(
+                RoundedRectangle(cornerRadius: size.width / 2)
+                    .stroke(Color("BorderColor"), lineWidth: 0.5)
+            )
+            .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)    
         } else {
             planetAvatarPlaceholder()
         }
