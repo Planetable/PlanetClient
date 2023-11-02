@@ -8,7 +8,6 @@
 import SwiftUI
 import CachedAsyncImage
 
-
 struct PlanetAvatarView: View {
     var planet: Planet
     var size: CGSize = CGSize(width: 36, height: 36)
@@ -17,20 +16,9 @@ struct PlanetAvatarView: View {
 
     var body: some View {
         planetAvatarView()
-            .onReceive(NotificationCenter.default.publisher(for: .reloadPlanets)) { _ in
-                Task(priority: .background) {
-                    await MainActor.run {
-                        planetAvatarURL = nil
-                    }
-                    await reloadAvatar()
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .reloadPlanetAvatar(forID: planet.id))) { _ in
-                Task(priority: .background) {
-                    await MainActor.run {
-                        planetAvatarURL = nil
-                    }
-                    await reloadAvatar()
+            .onAppear {
+                Task {
+                    await loadAvatar()
                 }
             }
     }
@@ -38,7 +26,7 @@ struct PlanetAvatarView: View {
     @ViewBuilder
     private func planetAvatarView() -> some View {
         if let planetAvatarURL {
-            CachedAsyncImage(url: planetAvatarURL) { image in
+            AsyncImage(url: planetAvatarURL) { image in
                 image
                     .interpolation(.high)
                     .resizable()
@@ -61,17 +49,59 @@ struct PlanetAvatarView: View {
             .frame(width: size.width, height: size.width)
     }
     
-    private func reloadAvatar() async {
-        let serverURL = PlanetSettingsViewModel.shared.serverURL
-        if let url = URL(string: serverURL) {
-            let baseAvatarURL = url.appendingPathComponent("/v0/planets/my/").appendingPathComponent(planet.id).appendingPathComponent("/public")
-            let pngAvatarURL = baseAvatarURL.appendingPathComponent("avatar.png")
+    private func loadAvatar() async {
+        guard let localAvatarURL = localAvatarURL(for: planet) else {
+            return
+        }
+        if FileManager.default.fileExists(atPath: localAvatarURL.path) {
             await MainActor.run {
-                self.planetAvatarURL = pngAvatarURL
+                self.planetAvatarURL = localAvatarURL
             }
+            return
+        }
+        await downloadAndStoreAvatar(from: remoteAvatarURL(for: planet), to: localAvatarURL)
+    }
+    
+    private func localAvatarURL(for planet: Planet) -> URL? {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
+              let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let myPlanetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent("My").appendingPathComponent(planet.id)
+        do {
+            try FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true)
+        } catch {
+            debugPrint("Failed to create directory for my planet: \(error)")
+            return nil
+        }
+        return myPlanetPath.appendingPathComponent("avatar.png")
+    }
+    
+    private func remoteAvatarURL(for planet: Planet) -> URL? {
+        guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
+            return nil
+        }
+        return serverURL
+            .appendingPathComponent("/v0/planets/my/")
+            .appendingPathComponent(planet.id)
+            .appendingPathComponent("/public/avatar.png")
+    }
+    
+    private func downloadAndStoreAvatar(from remoteURL: URL?, to localURL: URL) async {
+        guard let remoteURL = remoteURL,
+              let data = try? await Data(contentsOf: remoteURL) else {
+            return
+        }
+        do {
+            try data.write(to: localURL)
+            debugPrint("Wrote avatar data to \(localURL)")
+            await MainActor.run {
+                self.planetAvatarURL = localURL
+            }
+        } catch {
+            debugPrint("Failed to write avatar data to \(localURL): \(error)")
         }
     }
-
 }
 
 struct PlanetAvatarView_Previews: PreviewProvider {

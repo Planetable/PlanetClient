@@ -29,9 +29,6 @@ struct PlanetMyPlanetInfoView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundColor(planet.about == "" ? .secondary : .primary)
         }
-        .task(priority: .background) {
-            NotificationCenter.default.post(name: .reloadPlanetAvatar(forID: planet.id), object: nil)
-        }
         .toolbar {
             // MARK: TODO: Edit planet info.
             ToolbarItemGroup(placement: .navigationBarTrailing) {
