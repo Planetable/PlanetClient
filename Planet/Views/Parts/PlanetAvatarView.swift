@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import CachedAsyncImage
 
 struct PlanetAvatarView: View {
     var planet: Planet
