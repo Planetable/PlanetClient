@@ -18,10 +18,14 @@ struct PlanetLatestView: View {
     @State private var errorMessage: String = ""
 
     var body: some View {
+        /* First, load what is already on disk, then attempt to pull the latest content from the remote source.
+        */
         NavigationStack(path: $appViewModel.latestTabPath) {
             Group {
                 if latestViewModel.myArticles.count == 0 {
                     VStack {
+                        // TODO: Redesign the way to present empty state.
+                        /*
                         Text("No articles.")
                             .foregroundColor(.secondary)
                         Button {
@@ -30,6 +34,7 @@ struct PlanetLatestView: View {
                             Text("Reload")
                         }
                         .buttonStyle(.borderedProminent)
+                        */
                     }
                 } else {
                     List {
@@ -63,13 +68,27 @@ struct PlanetLatestView: View {
                 refreshAction(skipAlert: false)
             }
             .task {
-                refreshAction()
+                load()
             }
             .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
                 refreshAction()
             }
             .alert(isPresented: $isFailedRefreshing) {
                 Alert(title: Text("Failed to Reload"), message: Text(errorMessage), dismissButton: .cancel(Text("Dismiss")))
+            }
+        }
+    }
+
+    private func load() {
+        Task(priority: .utility) {
+            do {
+                let articles = try await PlanetManager.shared.loadMyArticles()
+                await MainActor.run {
+                    withAnimation {
+                        self.latestViewModel.updateMyArticles(articles)
+                    }
+                }
+            } catch {
             }
         }
     }

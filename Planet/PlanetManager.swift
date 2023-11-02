@@ -104,6 +104,40 @@ class PlanetManager: NSObject {
     }
     
     // MARK: - list my articles
+    func loadMyArticles() async throws -> [PlanetArticle] {
+        var planets = PlanetMyPlanetsViewModel.shared.myPlanets
+        if planets.count == 0 {
+            planets = try await getMyPlanets()
+        }
+        let planetIDs: [String] = planets.map() { p in
+            return p.id
+        }
+        guard planetIDs.count > 0 else { return [] }
+        return await withTaskGroup(of: [PlanetArticle].self, body: { group in
+            var articles: [PlanetArticle] = []
+            for planetID in planetIDs {
+                group.addTask {
+                    do {
+                        // Load articles from disk
+                        if let articlesPath = self.getPlanetArticlesPath(forID: planetID) {
+                            let data = try Data(contentsOf: articlesPath)
+                            let decoder = JSONDecoder()
+                            let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
+                            return planetArticles
+                        }
+                        return []
+                    } catch {
+                        debugPrint("failed to load articles for planet: \(planetID), error: \(error)")
+                        return []
+                    }
+                }
+            }
+            for await items in group {
+                articles.append(contentsOf: items)
+            }
+            return articles
+        })
+    }
     func getMyArticles() async throws -> [PlanetArticle] {
         var planets = PlanetMyPlanetsViewModel.shared.myPlanets
         if planets.count == 0 {
