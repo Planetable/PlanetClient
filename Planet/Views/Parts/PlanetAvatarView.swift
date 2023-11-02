@@ -40,6 +40,7 @@ struct PlanetAvatarView: View {
         if let planetAvatarURL {
             CachedAsyncImage(url: planetAvatarURL) { image in
                 image
+                    .interpolation(.high)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .cornerRadius(size.width * 0.5)
