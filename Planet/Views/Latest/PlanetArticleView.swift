@@ -17,8 +17,6 @@ struct PlanetArticleView: View {
         Group {
             if let articleURL, let url = URL(string: articleURL) {
                 PlanetArticleWebView(url: url)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(article.title)
             } else {
                 VStack {
                     Text("Failed to load article.")
@@ -34,6 +32,9 @@ struct PlanetArticleView: View {
                 }
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(article.title)
+        .ignoresSafeArea(edges: .vertical)
         .task {
             await self.reloadAction()
         }
