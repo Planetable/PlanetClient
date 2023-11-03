@@ -35,28 +35,13 @@ struct PlanetNewArticleView: View {
                                 ForEach(myPlanetsViewModel.myPlanets.indices, id: \.self) {
                                     index in
                                     let planet = myPlanetsViewModel.myPlanets[index]
-                                    HStack(spacing: 12) {
-                                        planet.avatarView(.medium)
-                                        HStack {
-                                            Text(planet.name)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                            // Show a green checkmark.fill for selected Planet
-                                            if selectedPlanetIndex == index {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .renderingMode(.original)
-                                                    .frame(width: 8, height: 8)
-                                            }
+                                    planet.listItemView(showCheckmark: selectedPlanetIndex == index)
+                                        .onTapGesture {
+                                            selectedPlanetIndex = index
+                                            selectedPlanet = planet
+                                            debugPrint("selected planet: \(planet)")
+                                            isPickerPresented = false  // Assuming you want to dismiss the view on selection
                                         }
-                                        .alignmentGuide(.listRowSeparatorLeading) { _ in
-                                            0
-                                        }
-                                    }
-                                    .onTapGesture {
-                                        selectedPlanetIndex = index
-                                        selectedPlanet = planet
-                                        debugPrint("selected planet: \(planet)")
-                                        isPickerPresented = false  // Assuming you want to dismiss the view on selection
-                                    }
                                 }
                             }
                             .navigationTitle("Select a Planet")

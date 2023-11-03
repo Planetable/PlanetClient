@@ -8,37 +8,36 @@
 import Foundation
 import SwiftUI
 
-
 enum PlanetAppTab: Int, Hashable {
     case latest
     case myPlanets
     case settings
-    
+
     func name() -> String {
         switch self {
-            case .latest:
-                return "Latest"
-            case .myPlanets:
-                return "My Planets"
-            case .settings:
-                return "Settings"
+        case .latest:
+            return "Latest"
+        case .myPlanets:
+            return "My Planets"
+        case .settings:
+            return "Settings"
         }
     }
 }
 
 enum PlanetAvatarSize {
     case small  // 24
-    case medium // 48
+    case medium  // 48
     case large  // 96
 
     var size: CGSize {
         switch self {
-            case .small:
-                return CGSize(width: 24, height: 24)
-            case .medium:
-                return CGSize(width: 48, height: 48)
-            case .large:
-                return CGSize(width: 96, height: 96)
+        case .small:
+            return CGSize(width: 24, height: 24)
+        case .medium:
+            return CGSize(width: 48, height: 48)
+        case .large:
+            return CGSize(width: 96, height: 96)
         }
     }
 }
@@ -53,23 +52,39 @@ struct Planet: Codable, Identifiable, Hashable {
     let lastPublished: Date?
     let lastPublishedCID: String?
     let ipns: String?
-    
+
     static func getPlanet(forID planetID: String) -> Self? {
-        if let planetPath = PlanetManager.shared.getPlanetPath(forID: planetID), let planetData = FileManager.default.contents(atPath: planetPath.appendingPathComponent("planet.json").path) {
+        if let planetPath = PlanetManager.shared.getPlanetPath(forID: planetID),
+            let planetData = FileManager.default.contents(
+                atPath: planetPath.appendingPathComponent("planet.json").path
+            )
+        {
             do {
                 let planet = try JSONDecoder().decode(Planet.self, from: planetData)
                 return planet
-            } catch {
+            }
+            catch {
                 print("Error decoding planet: \(error)")
             }
-        } else {
+        }
+        else {
             print("Error getting planet path for ID: \(planetID)")
         }
         return nil
     }
 
     static func empty() -> Self {
-        return .init(id: UUID().uuidString, created: Date(), updated: Date(), name: "", about: "", templateName: "", lastPublished: Date(), lastPublishedCID: "", ipns: "")
+        return .init(
+            id: UUID().uuidString,
+            created: Date(),
+            updated: Date(),
+            name: "",
+            about: "",
+            templateName: "",
+            lastPublished: Date(),
+            lastPublishedCID: "",
+            ipns: ""
+        )
     }
 
     var nameInitials: String {
@@ -84,30 +99,72 @@ struct Planet: Codable, Identifiable, Hashable {
 
     private func localAvatarURL() -> URL? {
         guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
-              let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            let documentsDirectory = FileManager.default.urls(
+                for: .documentDirectory,
+                in: .userDomainMask
+            ).first
+        else {
             return nil
         }
-        let myPlanetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent("My").appendingPathComponent(self.id)
+        let myPlanetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent(
+            "My"
+        ).appendingPathComponent(self.id)
         if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
             do {
-                try FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true)
+                try FileManager.default.createDirectory(
+                    at: myPlanetPath,
+                    withIntermediateDirectories: true
+                )
                 debugPrint("Created directory for my planet: \(myPlanetPath)")
-            } catch {
+            }
+            catch {
                 debugPrint("Failed to create directory for my planet: \(error)")
                 return nil
             }
         }
         return myPlanetPath.appendingPathComponent("avatar.png")
     }
-    
+
     private func remoteAvatarURL() -> URL? {
         guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
             return nil
         }
-        return serverURL
+        return
+            serverURL
             .appendingPathComponent("/v0/planets/my/")
             .appendingPathComponent(self.id)
             .appendingPathComponent("/public/avatar.png")
+    }
+
+    @ViewBuilder
+    func listItemView(showCheckmark: Bool = false) -> some View {
+        HStack(spacing: 12) {
+            avatarView(.medium)
+            VStack {
+                Text(self.name)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(self.about == "" ? "No description" : self.about)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(self.about == "" ? .secondary.opacity(0.5) : .secondary)
+            }
+            .alignmentGuide(.listRowSeparatorLeading) { _ in
+                0
+            }
+            .multilineTextAlignment(.leading)
+            if showCheckmark {
+                Image(systemName: "checkmark.circle.fill")
+                    .renderingMode(.original)
+                    .frame(width: 8, height: 8)
+            }
+        }
+        .contentShape(Rectangle())
+        .frame(
+            maxWidth: .infinity,
+            minHeight: 48,
+            idealHeight: 48,
+            maxHeight: 96,
+            alignment: .leading
+        )
     }
 
     @ViewBuilder
@@ -132,12 +189,13 @@ struct Planet: Codable, Identifiable, Hashable {
                 RoundedRectangle(cornerRadius: size.width / 2)
                     .stroke(Color("BorderColor"), lineWidth: 0.5)
             )
-            .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)    
-        } else {
+            .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+        }
+        else {
             planetAvatarPlaceholder(size: size)
         }
     }
-    
+
     @ViewBuilder
     private func planetAvatarPlaceholder(size: CGSize) -> some View {
         Text(self.nameInitials)
@@ -161,7 +219,6 @@ struct Planet: Codable, Identifiable, Hashable {
     }
 }
 
-
 struct PlanetArticle: Codable, Identifiable {
     let id: String
     let created: Date
@@ -171,22 +228,29 @@ struct PlanetArticle: Codable, Identifiable {
     let link: String
     let attachments: [String]?
     var planetID: UUID?
-    
+
     static func empty() -> Self {
-        return .init(id: UUID().uuidString, created: Date(), title: "", content: "", summary: "", link: "", attachments: [])
+        return .init(
+            id: UUID().uuidString,
+            created: Date(),
+            title: "",
+            content: "",
+            summary: "",
+            link: "",
+            attachments: []
+        )
     }
 }
-
 
 struct PlanetArticleAttachment {
     let id: UUID
     let created: Date
     let image: UIImage
     let url: URL
-    
+
     func markdownImageValue() -> String {
         return """
-\n<img alt="\(url.deletingPathExtension().lastPathComponent)" src="\(url.lastPathComponent)">\n
-"""
+            \n<img alt="\(url.deletingPathExtension().lastPathComponent)" src="\(url.lastPathComponent)">\n
+            """
     }
 }

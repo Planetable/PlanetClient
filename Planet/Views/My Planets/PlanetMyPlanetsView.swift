@@ -40,7 +40,7 @@ struct PlanetMyPlanetsView: View {
                     List {
                         ForEach(myPlanetsViewModel.myPlanets, id: \.id) { planet in
                             NavigationLink(destination: PlanetMyPlanetInfoView(planet: planet)) {
-                                PlanetMyPlanetsItemView(planet: planet)
+                                planet.listItemView()
                             }
                         }
                     }
