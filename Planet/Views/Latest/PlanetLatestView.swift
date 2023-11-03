@@ -83,6 +83,11 @@ struct PlanetLatestView: View {
         Task(priority: .utility) {
             do {
                 let articles = try await PlanetManager.shared.loadMyArticles()
+                if articles.count == 0 {
+                    Task(priority: .userInitiated) {
+                        await refreshAction(skipAlert: true)
+                    }
+                }
                 await MainActor.run {
                     withAnimation {
                         self.latestViewModel.updateMyArticles(articles)

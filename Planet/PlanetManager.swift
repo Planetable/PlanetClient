@@ -48,8 +48,6 @@ class PlanetManager: NSObject {
         if FileManager.default.fileExists(atPath: myPlanetPath.path) == false {
             try? FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true, attributes: nil)
             debugPrint("Folder created at path: \(myPlanetPath.path)")
-        } else {
-            debugPrint("Folder exists at path: \(myPlanetPath.path)")
         }
         return myPlanetPath
     }
@@ -69,7 +67,19 @@ class PlanetManager: NSObject {
         var request = try await createRequest(with: "/v0/planets/my", method: "GET")
         let (data, _) = try await URLSession.shared.data(for: request)
         let decoder = JSONDecoder()
-        return try decoder.decode([Planet].self, from: data)
+        let planets = try decoder.decode([Planet].self, from: data)
+        // Save planets to:
+        // /Documents/:node_id/My/:planet_id/planet.json
+        for planet in planets {
+            if let planetPath = getPlanetPath(forID: planet.id) {
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = .prettyPrinted
+                let data = try encoder.encode(planet)
+                try data.write(to: planetPath.appendingPathComponent("planet.json"))
+                debugPrint("Saved planet to path: \(planetPath.path)/planet.json")
+            }
+        }
+        return planets
     }
     
     // MARK: - create planet
