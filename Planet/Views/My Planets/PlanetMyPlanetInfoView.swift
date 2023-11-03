@@ -16,7 +16,7 @@ struct PlanetMyPlanetInfoView: View {
     var body: some View {
         List {
             Section {
-                PlanetAvatarView(planet: planet, size: CGSize(width: 96, height: 96))
+                planet.avatarView(.large)
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .listRowBackground(Color.clear)

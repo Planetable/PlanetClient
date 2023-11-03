@@ -26,6 +26,22 @@ enum PlanetAppTab: Int, Hashable {
     }
 }
 
+enum PlanetAvatarSize {
+    case small  // 24
+    case medium // 48
+    case large  // 96
+
+    var size: CGSize {
+        switch self {
+            case .small:
+                return CGSize(width: 24, height: 24)
+            case .medium:
+                return CGSize(width: 48, height: 48)
+            case .large:
+                return CGSize(width: 96, height: 96)
+        }
+    }
+}
 
 struct Planet: Codable, Identifiable, Hashable {
     let id: String
@@ -92,6 +108,11 @@ struct Planet: Codable, Identifiable, Hashable {
             .appendingPathComponent("/v0/planets/my/")
             .appendingPathComponent(self.id)
             .appendingPathComponent("/public/avatar.png")
+    }
+
+    @ViewBuilder
+    func avatarView(_ size: PlanetAvatarSize) -> some View {
+        avatarView(size: size.size)
     }
 
     @ViewBuilder

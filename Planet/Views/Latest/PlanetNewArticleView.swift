@@ -26,10 +26,8 @@ struct PlanetNewArticleView: View {
                         isPickerPresented = true
                     }) {
                         if let planet = selectedPlanet {
-                            // PlanetAvatarView(planet: planet, size: CGSize(width: 48, height: 48))
-                            planet.avatarView(size: CGSize(width: 48, height: 48))
+                            planet.avatarView(.medium)
                         }
-
                     }
                     .sheet(isPresented: $isPickerPresented) {
                         NavigationView {
@@ -38,20 +36,21 @@ struct PlanetNewArticleView: View {
                                     index in
                                     let planet = myPlanetsViewModel.myPlanets[index]
                                     HStack(spacing: 12) {
-                                        PlanetAvatarView(
-                                            planet: planet,
-                                            size: CGSize(width: 48, height: 48)
-                                        )
-                                        Text(planet.name)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                        // Show a green checkmark.fill for selected Planet
-                                        if selectedPlanetIndex == index {
-                                            Image(systemName: "checkmark.circle.fill")
-                                            .renderingMode(.original)
-                                            .frame(width: 8, height: 8)
+                                        planet.avatarView(.medium)
+                                        HStack {
+                                            Text(planet.name)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                            // Show a green checkmark.fill for selected Planet
+                                            if selectedPlanetIndex == index {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .renderingMode(.original)
+                                                    .frame(width: 8, height: 8)
+                                            }
+                                        }
+                                        .alignmentGuide(.listRowSeparatorLeading) { _ in
+                                            0
                                         }
                                     }
-                                    .padding(.horizontal, 12)
                                     .onTapGesture {
                                         selectedPlanetIndex = index
                                         selectedPlanet = planet

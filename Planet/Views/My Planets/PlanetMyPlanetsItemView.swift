@@ -13,7 +13,7 @@ struct PlanetMyPlanetsItemView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            PlanetAvatarView(planet: planet)
+            planet.avatarView(.medium)
             VStack {
                 Text(planet.name)
                     .frame(maxWidth: .infinity, alignment: .leading)
