@@ -20,11 +20,16 @@ struct PlanetAvatarView: View {
                     await loadAvatar()
                 }
             }
+            .onChange(of: planet) { newValue in
+                Task {
+                    await loadAvatar()
+                }
+            }
     }
     
     @ViewBuilder
     private func planetAvatarView() -> some View {
-        if let planetAvatarURL {
+        if let planetAvatarURL = planetAvatarURL {
             AsyncImage(url: planetAvatarURL) { image in
                 image
                     .interpolation(.high)

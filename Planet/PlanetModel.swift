@@ -61,6 +61,83 @@ struct Planet: Codable, Identifiable, Hashable {
             .joined()
         return String(initials.prefix(2))
     }
+
+    var avatarURL: URL? {
+        return localAvatarURL()
+    }
+
+    private func localAvatarURL() -> URL? {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
+              let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let myPlanetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent("My").appendingPathComponent(self.id)
+        if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
+            do {
+                try FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true)
+                debugPrint("Created directory for my planet: \(myPlanetPath)")
+            } catch {
+                debugPrint("Failed to create directory for my planet: \(error)")
+                return nil
+            }
+        }
+        return myPlanetPath.appendingPathComponent("avatar.png")
+    }
+    
+    private func remoteAvatarURL() -> URL? {
+        guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
+            return nil
+        }
+        return serverURL
+            .appendingPathComponent("/v0/planets/my/")
+            .appendingPathComponent(self.id)
+            .appendingPathComponent("/public/avatar.png")
+    }
+
+    @ViewBuilder
+    func avatarView(size: CGSize) -> some View {
+        if let avatarURL = avatarURL {
+            AsyncImage(url: avatarURL) { image in
+                image
+                    .interpolation(.high)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .cornerRadius(size.width * 0.5)
+            } placeholder: {
+                planetAvatarPlaceholder(size: size)
+            }
+            .frame(width: size.width)
+            .overlay(
+                RoundedRectangle(cornerRadius: size.width / 2)
+                    .stroke(Color("BorderColor"), lineWidth: 0.5)
+            )
+            .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)    
+        } else {
+            planetAvatarPlaceholder(size: size)
+        }
+    }
+    
+    @ViewBuilder
+    private func planetAvatarPlaceholder(size: CGSize) -> some View {
+        Text(self.nameInitials)
+            .font(Font.custom("Arial Rounded MT Bold", size: size.width / 2))
+            .foregroundColor(Color.white)
+            .contentShape(Rectangle())
+            .frame(width: size.width, height: size.height, alignment: .center)
+            .background(
+                LinearGradient(
+                    gradient: ViewUtils.getPresetGradient(from: UUID(uuidString: self.id)!),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .cornerRadius(size.width / 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: size.width / 2)
+                    .stroke(Color("BorderColor"), lineWidth: 0.5)
+            )
+            .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+    }
 }
 
 

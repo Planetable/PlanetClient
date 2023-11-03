@@ -7,62 +7,95 @@
 
 import SwiftUI
 
-
 struct PlanetNewArticleView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
-    
+
     @State private var selectedPlanetIndex: Int = 0
     @State private var selectedPlanet: Planet?
     @State private var selectedAttachments: [PlanetArticleAttachment] = []
     @State private var title: String = ""
     @State private var content: String = ""
-    
+    @State private var isPickerPresented: Bool = false
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                HStack {
-                    Text("Title:")
-                        .frame(width: 50, alignment: .trailing)
-                    Spacer(minLength: 10)
+                HStack(spacing: 12) {
+                    Button(action: {
+                        isPickerPresented = true
+                    }) {
+                        if let planet = selectedPlanet {
+                            // PlanetAvatarView(planet: planet, size: CGSize(width: 48, height: 48))
+                            planet.avatarView(size: CGSize(width: 48, height: 48))
+                        }
+
+                    }
+                    .sheet(isPresented: $isPickerPresented) {
+                        NavigationView {
+                            List {
+                                ForEach(myPlanetsViewModel.myPlanets.indices, id: \.self) {
+                                    index in
+                                    let planet = myPlanetsViewModel.myPlanets[index]
+                                    HStack(spacing: 12) {
+                                        PlanetAvatarView(
+                                            planet: planet,
+                                            size: CGSize(width: 48, height: 48)
+                                        )
+                                        Text(planet.name)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                        // Show a green checkmark.fill for selected Planet
+                                        if selectedPlanetIndex == index {
+                                            Image(systemName: "checkmark.circle.fill")
+                                            .renderingMode(.original)
+                                            .frame(width: 8, height: 8)
+                                        }
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .onTapGesture {
+                                        selectedPlanetIndex = index
+                                        selectedPlanet = planet
+                                        debugPrint("selected planet: \(planet)")
+                                        isPickerPresented = false  // Assuming you want to dismiss the view on selection
+                                    }
+                                }
+                            }
+                            .navigationTitle("Select a Planet")
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button("Done") {
+                                        isPickerPresented = false
+                                    }
+                                }
+                            }
+                            .disabled(myPlanetsViewModel.myPlanets.count == 0)
+
+                        }
+                    }
+
                     TextField("Title", text: $title)
                         .textFieldStyle(.plain)
                 }
                 .padding(.horizontal, 12)
-                .padding(.top, 4)
+                .padding(.bottom, 12)
 
-                HStack {
-                    Text("From:")
-                        .frame(width: 50, alignment: .trailing)
-                    Spacer(minLength: 10)
-                    Picker("Choose Planet", selection: $selectedPlanetIndex) {
-                        ForEach(0..<myPlanetsViewModel.myPlanets.count, id: \.self) { index in
-                            let name = myPlanetsViewModel.myPlanets[index].name
-                            Text(name)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .tag(index)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .onChange(of: selectedPlanetIndex) { newValue in
-                        selectedPlanet = myPlanetsViewModel.myPlanets[newValue]
-                    }
-                    .disabled(myPlanetsViewModel.myPlanets.count == 0)
-                }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 8)
-                
                 Divider()
                     .padding(.vertical, 0)
-                
+
                 PlanetTextView(text: $content)
                     .padding(.horizontal, 12)
-                
+
                 PlanetAttachmentsView(planet: $selectedPlanet)
                     .frame(height: 48)
             }
-            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .leading)
-            .navigationTitle("New Article")
+            .frame(
+                minWidth: 0,
+                maxWidth: .infinity,
+                minHeight: 0,
+                maxHeight: .infinity,
+                alignment: .leading
+            )
+            .navigationTitle("New Post")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
@@ -79,15 +112,23 @@ struct PlanetNewArticleView: View {
                         guard let selectedPlanet else { return }
                         Task(priority: .userInitiated) {
                             do {
-                                debugPrint("Clicked save button: \(title), \(content), \(selectedAttachments.count), \(selectedPlanet.name)")
-                                try await PlanetManager.shared.createArticle(title: self.title, content: self.content, attachments: self.selectedAttachments, forPlanet: selectedPlanet)
+                                debugPrint(
+                                    "Clicked save button: \(title), \(content), \(selectedAttachments.count), \(selectedPlanet.name)"
+                                )
+                                try await PlanetManager.shared.createArticle(
+                                    title: self.title,
+                                    content: self.content,
+                                    attachments: self.selectedAttachments,
+                                    forPlanet: selectedPlanet
+                                )
                                 self.removeAttachments()
-                            } catch {
+                            }
+                            catch {
                                 debugPrint("failed to save article: \(error)")
                             }
                         }
                     } label: {
-                        Text("Save")
+                        Text("Send")
                     }
                     .disabled(title == "" || myPlanetsViewModel.myPlanets.count == 0)
                 }
@@ -95,8 +136,10 @@ struct PlanetNewArticleView: View {
             .task(priority: .utility) {
                 do {
                     try await refreshAction()
-                    self.selectedPlanet = self.myPlanetsViewModel.myPlanets[self.selectedPlanetIndex]
-                } catch {
+                    self.selectedPlanet =
+                        self.myPlanetsViewModel.myPlanets[self.selectedPlanetIndex]
+                }
+                catch {
                     debugPrint("failed to refresh: \(error)")
                 }
             }
@@ -118,14 +161,14 @@ struct PlanetNewArticleView: View {
             }
         }
     }
-    
+
     private func refreshAction() async throws {
         let planets = try await PlanetManager.shared.getMyPlanets()
         await MainActor.run {
             self.myPlanetsViewModel.updateMyPlanets(planets)
         }
     }
-    
+
     private func removeAttachments() {
         for attachment in selectedAttachments {
             try? FileManager.default.removeItem(at: attachment.url)
