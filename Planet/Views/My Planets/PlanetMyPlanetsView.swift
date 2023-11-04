@@ -55,7 +55,7 @@ struct PlanetMyPlanetsView: View {
                         Image(systemName: "plus")
                             .resizable()
                     }
-                    .fullScreenCover(isPresented: $isCreating) {
+                    .sheet(isPresented: $isCreating) {
                         PlanetNewPlanetView()
                     }
                 }
