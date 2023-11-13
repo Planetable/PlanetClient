@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2A4CD10129A40B160085F6CC /* PlanetAttachmentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4CD10029A40B160085F6CC /* PlanetAttachmentsView.swift */; };
+		2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */; };
+		2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B22B01FF26001303A7 /* PlanetError.swift */; };
 		2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */; };
 		2AAF3E42299E07B700CA60AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AAF3E41299E07B700CA60AD /* Assets.xcassets */; };
 		2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */; };
@@ -31,7 +33,6 @@
 		2AC7CC2A29A38B9A0089C58C /* PlanetLatestItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2929A38B9A0089C58C /* PlanetLatestItemView.swift */; };
 		2AC7CC2C29A38E880089C58C /* PlanetArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */; };
 		2AC7CC2E29A3AA2E0089C58C /* PlanetArticleWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */; };
-		2AE1213F29A55B760086DD93 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2AE1213E29A55B760086DD93 /* KeychainSwift */; };
 		6A30A4772AEFCE53007E763C /* Planet.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */; };
 		6A4F52502AF4128000323A81 /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4F524F2AF4128000323A81 /* ViewUtils.swift */; };
 		6A5EA27E2AECF9BA006DEBC1 /* BonjourListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5EA27D2AECF9BA006DEBC1 /* BonjourListView.swift */; };
@@ -40,6 +41,8 @@
 
 /* Begin PBXFileReference section */
 		2A4CD10029A40B160085F6CC /* PlanetAttachmentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAttachmentsView.swift; sourceTree = "<group>"; };
+		2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		2A9C28B22B01FF26001303A7 /* PlanetError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetError.swift; sourceTree = "<group>"; };
 		2AAF3E3A299E07B600CA60AD /* Planet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetApp.swift; sourceTree = "<group>"; };
 		2AAF3E41299E07B700CA60AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -76,7 +79,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2AE1213F29A55B760086DD93 /* KeychainSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,6 +110,8 @@
 				2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */,
 				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
 				2AC7CC2029A240AE0089C58C /* PlanetHelper.swift */,
+				2A9C28B22B01FF26001303A7 /* PlanetError.swift */,
+				2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */,
 				2AC7CC0029A0AC960089C58C /* Views */,
 				6A73C0B42AF5CCE100EEF711 /* Models */,
 				2AAF3E41299E07B700CA60AD /* Assets.xcassets */,
@@ -224,7 +228,6 @@
 			);
 			name = Planet;
 			packageProductDependencies = (
-				2AE1213E29A55B760086DD93 /* KeychainSwift */,
 			);
 			productName = Planet;
 			productReference = 2AAF3E3A299E07B600CA60AD /* Planet.app */;
@@ -255,7 +258,6 @@
 			);
 			mainGroup = 2AAF3E31299E07B600CA60AD;
 			packageReferences = (
-				2AE1213D29A55B760086DD93 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			productRefGroup = 2AAF3E3B299E07B600CA60AD /* Products */;
 			projectDirPath = "";
@@ -305,6 +307,8 @@
 				2AC7CC2329A2AD510089C58C /* PlanetLatestView.swift in Sources */,
 				2AAF3E52299E11CE00CA60AD /* PlanetModel.swift in Sources */,
 				2AC7CC0B29A141EF0089C58C /* PlanetManager.swift in Sources */,
+				2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */,
+				2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */,
 				2AC7CC2829A2AE9A0089C58C /* PlanetLatestViewModel.swift in Sources */,
 				6A5EA27E2AECF9BA006DEBC1 /* BonjourListView.swift in Sources */,
 				2AC6A3A529A3F63A00636DC5 /* PlanetTextView.swift in Sources */,
@@ -521,25 +525,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		2AE1213D29A55B760086DD93 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/evgenyneu/keychain-swift";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		2AE1213E29A55B760086DD93 /* KeychainSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2AE1213D29A55B760086DD93 /* XCRemoteSwiftPackageReference "keychain-swift" */;
-			productName = KeychainSwift;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2AAF3E32299E07B600CA60AD /* Project object */;
 }

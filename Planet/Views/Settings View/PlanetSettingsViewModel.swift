@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import KeychainSwift
 import SwiftUI
+
 
 class PlanetSettingsViewModel: ObservableObject {
     static let shared = PlanetSettingsViewModel()
@@ -79,17 +79,22 @@ class PlanetSettingsViewModel: ObservableObject {
     @Published var serverPassword: String = "" {
         didSet {
             resetPreviousServerInfo()
-            let keychain = KeychainSwift()
-            keychain.set(serverPassword, forKey: .settingsServerPasswordKey)
+            do {
+                try KeychainHelper.shared.saveValue(serverPassword, forKey: .settingsServerPasswordKey)
+            } catch {
+                debugPrint("failed to save server password into keychain: \(error)")
+            }
         }
     }
     @Published var validatingServerStatus: Bool = false
 
     init() {
         debugPrint("Settings View Model Init.")
-        let keychain = KeychainSwift()
-        if let password = keychain.get(.settingsServerPasswordKey) {
+        do {
+            let password = try KeychainHelper.shared.loadValue(forKey: .settingsServerPasswordKey)
             serverPassword = password
+        } catch {
+            debugPrint("failed to load server password from keychain: \(error)")
         }
     }
 
