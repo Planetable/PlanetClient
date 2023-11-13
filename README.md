@@ -12,6 +12,7 @@ Basic Features:
 Next:
 - [ ] Edit a planet
 - [ ] Edit an article
+- [ ] Support basic offline usage
 - [ ] Preview an article inside writer
 
 ## Running Locally
