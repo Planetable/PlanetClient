@@ -12,7 +12,7 @@ import SwiftUI
 class PlanetSettingsViewModel: ObservableObject {
     static let shared = PlanetSettingsViewModel()
 
-    let timer = Timer.publish(every: 2.5, on: .main, in: .common).autoconnect()
+    let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 
     private var previousURL: URL?
     private var previousStatus: Bool = false
@@ -116,9 +116,6 @@ class PlanetSettingsViewModel: ObservableObject {
 
     func serverIsOnline() async -> Bool {
         if let url = URL(string: serverURL) {
-            if let previousURL, previousURL == url, previousStatus {
-                return previousStatus
-            }
             let requestIdURL = url.appendingPathComponent("/v0/id")
             let data = try? Data(contentsOf: requestIdURL)
             if let data = data, let currentNodeID = String(data: data, encoding: .utf8) {
