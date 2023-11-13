@@ -43,12 +43,6 @@ extension Notification.Name {
 }
 
 
-extension NSError {
-    static let serverIsInactive = NSError(domain: "planet.error", code: 10000)
-    static let serverAuthenticationInvalid = NSError(domain: "planet.error", code: 10001)
-}
-
-
 extension Date {
     func mmddyyyy() -> String {
         let format = DateFormatter()

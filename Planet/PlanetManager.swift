@@ -16,7 +16,7 @@ class PlanetManager: NSObject {
     }
 
     private func createRequest(with path: String, method: String) async throws -> URLRequest {
-        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw NSError.serverIsInactive }
+        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw PlanetError.PublicAPIServerIsInactive }
         let serverURL = PlanetSettingsViewModel.shared.serverURL
         let url = URL(string: serverURL)!.appendingPathComponent(path)
         var request = URLRequest(url: url)
@@ -33,7 +33,7 @@ class PlanetManager: NSObject {
     func basicAuthenticationValue(username: String, password: String) throws -> String {
         let loginString = "\(username):\(password)"
         guard let loginData = loginString.data(using: .utf8) else {
-            throw NSError.serverAuthenticationInvalid
+            throw PlanetError.PublicAPIServerAuthenticationInvalid
         }
         let base64LoginString = loginData.base64EncodedString()
         return "Basic \(base64LoginString)"
