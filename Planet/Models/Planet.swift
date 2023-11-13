@@ -77,7 +77,10 @@ struct Planet: Codable, Identifiable, Hashable {
     }
 
     var avatarURL: URL? {
-        return localAvatarURL()
+        if let url = localAvatarURL(), FileManager.default.fileExists(atPath: url.path) {
+            return url
+        }
+        return remoteAvatarURL()
     }
 
     private func localAvatarURL() -> URL? {
@@ -157,25 +160,38 @@ struct Planet: Codable, Identifiable, Hashable {
 
     @ViewBuilder
     func avatarView(size: CGSize) -> some View {
-        if let avatarURL = avatarURL {
-            AsyncImage(url: avatarURL) { image in
-                image
-                    .interpolation(.high)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .cornerRadius(size.width * 0.5)
-            } placeholder: {
+        Group {
+            if let avatarURL = avatarURL {
+                AsyncImage(url: avatarURL) { image in
+                    image
+                        .interpolation(.high)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .cornerRadius(size.width * 0.5)
+                } placeholder: {
+                    planetAvatarPlaceholder(size: size)
+                }
+                .frame(width: size.width)
+                .overlay(
+                    RoundedRectangle(cornerRadius: size.width / 2)
+                        .stroke(Color("BorderColor"), lineWidth: 0.5)
+                )
+                .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+            }
+            else {
                 planetAvatarPlaceholder(size: size)
             }
-            .frame(width: size.width)
-            .overlay(
-                RoundedRectangle(cornerRadius: size.width / 2)
-                    .stroke(Color("BorderColor"), lineWidth: 0.5)
-            )
-            .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
         }
-        else {
-            planetAvatarPlaceholder(size: size)
+        .task(id: id, priority: .background) {
+            guard let url = remoteAvatarURL(), let local = localAvatarURL() else { return }
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                if !FileManager.default.fileExists(atPath: local.path) {
+                    try data.write(to: local)
+                }
+            } catch {
+                debugPrint("failed to download avatar from url: \(url), error: \(error)")
+            }
         }
     }
 
