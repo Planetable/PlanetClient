@@ -128,8 +128,6 @@ extension BonjourViewModel: NetServiceDelegate {
             NI_NUMERICHOST
         ) == 0 {
             if let ip = String(cString: hostname, encoding: .utf8) {
-                print("Service IP: \(ip), Port: \(sender.port)")
-
                 // Set this IP and port to settings view
                 let serverURL: String
                 if ip.contains(":") {
@@ -138,6 +136,7 @@ extension BonjourViewModel: NetServiceDelegate {
                 else {
                     serverURL = "http://\(ip):\(sender.port)"
                 }
+                debugPrint("Service IP: \(ip), Port: \(sender.port), URL: \(serverURL)")
                 PlanetSettingsViewModel.shared.serverHost = ip
                 PlanetSettingsViewModel.shared.serverPort = "\(sender.port)"
                 PlanetAppViewModel.shared.showBonjourList = false

@@ -115,7 +115,7 @@ struct PlanetAvatarView: View {
     
     private func downloadAndStoreAvatar(from remoteURL: URL?, to localURL: URL) async {
         guard let remoteURL = remoteURL,
-              let data = try? await Data(contentsOf: remoteURL) else {
+              let data = try? Data(contentsOf: remoteURL) else {
             return
         }
         do {

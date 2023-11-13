@@ -33,7 +33,6 @@
 		2AC7CC2A29A38B9A0089C58C /* PlanetLatestItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2929A38B9A0089C58C /* PlanetLatestItemView.swift */; };
 		2AC7CC2C29A38E880089C58C /* PlanetArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */; };
 		2AC7CC2E29A3AA2E0089C58C /* PlanetArticleWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */; };
-		6A30A4772AEFCE53007E763C /* Planet.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */; };
 		6A4F52502AF4128000323A81 /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4F524F2AF4128000323A81 /* ViewUtils.swift */; };
 		6A5EA27E2AECF9BA006DEBC1 /* BonjourListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5EA27D2AECF9BA006DEBC1 /* BonjourListView.swift */; };
 		6A73C0B62AF5CCFB00EEF711 /* Planet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A73C0B52AF5CCFB00EEF711 /* Planet.swift */; };
@@ -241,7 +240,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1420;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					2AAF3E39299E07B600CA60AD = {
 						CreatedOnToolsVersion = 14.2;
@@ -275,7 +274,6 @@
 			files = (
 				2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */,
 				2AAF3E42299E07B700CA60AD /* Assets.xcassets in Resources */,
-				6A30A4772AEFCE53007E763C /* Planet.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,6 +353,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -415,6 +414,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

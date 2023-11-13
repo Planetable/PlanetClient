@@ -53,7 +53,7 @@ class PlanetManager: NSObject {
     }
 
     func getPlanetArticlesPath(forID planetID: String) -> URL? {
-        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else {
+        guard let _ = PlanetAppViewModel.shared.currentNodeID else {
             return nil
         }
         let planetPath = getPlanetPath(forID: planetID)
@@ -64,7 +64,7 @@ class PlanetManager: NSObject {
     // MARK: - API Methods -
     // MARK: - list my planets
     func getMyPlanets() async throws -> [Planet] {
-        var request = try await createRequest(with: "/v0/planets/my", method: "GET")
+        let request = try await createRequest(with: "/v0/planets/my", method: "GET")
         let (data, _) = try await URLSession.shared.data(for: request)
         let decoder = JSONDecoder()
         let planets = try decoder.decode([Planet].self, from: data)
@@ -163,7 +163,7 @@ class PlanetManager: NSObject {
             for planetID in planetIDs {
                 group.addTask {
                     do {
-                        var request = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
+                        let request = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
                         let (data, _) = try await URLSession.shared.data(for: request)
                         let decoder = JSONDecoder()
                         let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
