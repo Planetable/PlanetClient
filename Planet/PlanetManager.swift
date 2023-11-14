@@ -146,7 +146,20 @@ class PlanetManager: NSObject {
 
     // MARK: - delete planet
     func deletePlanet(id: String) async throws {
-        // MARK: TODO: - delete api
+        let request = try await createRequest(with: "/v0/planets/my/\(id)", method: "DELETE")
+        let (_, response) = try await URLSession.shared.data(for: request)
+        let statusCode = (response as! HTTPURLResponse).statusCode
+        if statusCode == 200 {
+            try? await Task.sleep(for: .seconds(2))
+            await MainActor.run {
+                NotificationCenter.default.post(name: .updatePlanets, object: nil)
+            }
+            try? await Task.sleep(for: .seconds(1))
+            guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let planetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent("My").appendingPathComponent(id)
+            try? FileManager.default.removeItem(at: planetPath)
+        }
     }
 
     // MARK: - list my articles
