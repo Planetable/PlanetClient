@@ -112,7 +112,38 @@ class PlanetManager: NSObject {
             }
         }
     }
-    
+
+    // MARK: - modify planet
+    func modifyPlanet(id: String, name: String, about: String, avatarPath: String) async throws {
+        var request = try await createRequest(with: "/v0/planets/my/\(id)", method: "POST")
+        let form: MultipartForm
+        if avatarPath != "" {
+            let url = URL(fileURLWithPath: avatarPath)
+            let imageName = url.lastPathComponent
+            let contentType = url.mimeType()
+            let data = try Data(contentsOf: url)
+            form = MultipartForm(parts: [
+                MultipartForm.Part(name: "name", value: name),
+                MultipartForm.Part(name: "about", value: about),
+                MultipartForm.Part(name: "avatar", data: data, filename: imageName, contentType: contentType)
+            ])
+        } else {
+            form = MultipartForm(parts: [
+                MultipartForm.Part(name: "name", value: name),
+                MultipartForm.Part(name: "about", value: about)
+            ])
+        }
+        request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        let statusCode = (response as! HTTPURLResponse).statusCode
+        if statusCode == 200 {
+            try? await Task.sleep(for: .seconds(2))
+            await MainActor.run {
+                NotificationCenter.default.post(name: .updatePlanets, object: nil)
+            }
+        }
+    }
+
     // MARK: - list my articles
     func loadMyArticles() async throws -> [PlanetArticle] {
         var planets = PlanetMyPlanetsViewModel.shared.myPlanets
