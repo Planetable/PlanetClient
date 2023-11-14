@@ -151,22 +151,12 @@ struct PlanetMyPlanetInfoView: View {
                 .buttonStyle(.bordered)
 
                 Button {
-                    Task(priority: .background) {
-                        let url = URL(fileURLWithPath: planetAvatarPath)
-                        do {
-                            try FileManager.default.removeItem(atPath: url.path)
-                        } catch {
-                            debugPrint("failed to remove avatar: \(url)")
-                        }
-                        await MainActor.run {
-                            self.selectedItem = nil
-                            self.selectedPhotoData = nil
-                            if let avatarURL = self.planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
-                                self.planetAvatarPath = avatarURL.path
-                            } else {
-                                self.planetAvatarPath = ""
-                            }
-                        }
+                    selectedItem = nil
+                    selectedPhotoData = nil
+                    if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
+                        planetAvatarPath = avatarURL.path
+                    } else {
+                        planetAvatarPath = ""
                     }
                 } label: {
                     Text("Reset")
