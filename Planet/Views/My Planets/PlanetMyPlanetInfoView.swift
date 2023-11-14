@@ -141,25 +141,26 @@ struct PlanetMyPlanetInfoView: View {
     @ViewBuilder
     private func avatarEditView() -> some View {
         VStack(spacing: 20) {
+
             Group {
                 if let selectedPhotoData, let image = UIImage(data: selectedPhotoData) {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        .frame(width: PlanetAvatarSize.large.size.width, height: PlanetAvatarSize.large.size.height, alignment: .center)
+                        .clipShape(.circle)
                 } else {
                     if planetAvatarPath != "", let img = UIImage(contentsOfFile: planetAvatarPath) {
                         Image(uiImage: img)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
+                            .frame(width: PlanetAvatarSize.large.size.width, height: PlanetAvatarSize.large.size.height, alignment: .center)
+                            .clipShape(.circle)
                     } else {
-                        Image(systemName: "photo")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
+                        planet.planetAvatarPlaceholder(size: PlanetAvatarSize.large.size)
                     }
                 }
             }
-            .frame(width: PlanetAvatarSize.large.size.width, height: PlanetAvatarSize.large.size.height, alignment: .center)
-            .clipShape(.circle)
 
             HStack(spacing: 20) {
                 PhotosPicker(selection: $selectedItem, matching: .any(of: [.images, .not(.livePhotos)])) {

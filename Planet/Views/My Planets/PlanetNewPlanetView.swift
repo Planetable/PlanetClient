@@ -120,7 +120,7 @@ struct PlanetNewPlanetView: View {
                             }
                         }
                     } label: {
-                        Text("Save")
+                        Text("Create")
                     }
                     .disabled(planetName == "" || !serverStatus)
                 }

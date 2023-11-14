@@ -196,7 +196,7 @@ struct Planet: Codable, Identifiable, Hashable {
     }
 
     @ViewBuilder
-    private func planetAvatarPlaceholder(size: CGSize) -> some View {
+    func planetAvatarPlaceholder(size: CGSize) -> some View {
         Text(self.nameInitials)
             .font(Font.custom("Arial Rounded MT Bold", size: size.width / 2))
             .foregroundColor(Color.white)
