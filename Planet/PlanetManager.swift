@@ -144,6 +144,11 @@ class PlanetManager: NSObject {
         }
     }
 
+    // MARK: - delete planet
+    func deletePlanet(id: String) async throws {
+        // MARK: TODO: - delete api
+    }
+
     // MARK: - list my articles
     func loadMyArticles() async throws -> [PlanetArticle] {
         var planets = PlanetMyPlanetsViewModel.shared.myPlanets

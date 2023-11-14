@@ -3,9 +3,12 @@ import PhotosUI
 
 
 struct PlanetMyPlanetInfoView: View {
+    @Environment(\.dismiss) private var dismiss
+
     var planet: Planet
     
     @State private var isEdit: Bool = false
+    @State private var isDelete: Bool = false
     @State private var serverStatus: Bool = false
 
     @State private var planetName: String = ""
@@ -47,6 +50,34 @@ struct PlanetMyPlanetInfoView: View {
                 TextField("About", text: $planetAbout)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .textFieldStyle(.plain)
+
+                Section {
+                    Button(role: .destructive) {
+                        isDelete.toggle()
+                    } label: {
+                        Text("Delete Planet")
+                    }
+                }
+                .confirmationDialog("Delete Planet", isPresented: $isDelete) {
+                    Button(role: .cancel) {
+                    } label: {
+                        Text("Cancel")
+                    }
+                    Button(role: .destructive) {
+                        dismiss()
+                        Task(priority: .userInitiated) {
+                            do {
+                                try await PlanetManager.shared.deletePlanet(id: self.planet.id)
+                            } catch {
+                                debugPrint("failed to update planet info: \(error)")
+                            }
+                        }
+                    } label: {
+                        Text("Delete Planet")
+                    }
+                } message: {
+                    Text("Are you sure you want to delete \(planet.name)? This action cannot to undone.")
+                }
             } else {
                 Section {
                     planet.avatarView(.large)
