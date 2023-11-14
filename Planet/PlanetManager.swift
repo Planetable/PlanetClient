@@ -76,7 +76,6 @@ class PlanetManager: NSObject {
                 encoder.outputFormatting = .prettyPrinted
                 let data = try encoder.encode(planet)
                 try data.write(to: planetPath.appendingPathComponent("planet.json"))
-                debugPrint("Saved planet to path: \(planetPath.path)/planet.json")
             }
         }
         return planets
@@ -137,6 +136,13 @@ class PlanetManager: NSObject {
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
+            if let planetPath = getPlanetPath(forID: id) {
+                let planetAvatarPath = planetPath.appendingPathComponent("avatar.png")
+                if FileManager.default.fileExists(atPath: planetAvatarPath.path) {
+                    try? FileManager.default.removeItem(at: planetAvatarPath)
+                    try? FileManager.default.copyItem(at: URL(fileURLWithPath: avatarPath), to: planetAvatarPath)
+                }
+            }
             try? await Task.sleep(for: .seconds(2))
             await MainActor.run {
                 NotificationCenter.default.post(name: .updatePlanets, object: nil)

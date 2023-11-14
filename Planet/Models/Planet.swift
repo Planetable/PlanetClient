@@ -166,12 +166,13 @@ struct Planet: Codable, Identifiable, Hashable {
                     image
                         .interpolation(.high)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(size.width * 0.5)
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: size.width, height: size.height)
+                        .clipShape(.circle)
                 } placeholder: {
                     planetAvatarPlaceholder(size: size)
                 }
-                .frame(width: size.width)
+                .frame(width: size.width, height: size.height)
                 .overlay(
                     RoundedRectangle(cornerRadius: size.width / 2)
                         .stroke(Color("BorderColor"), lineWidth: 0.5)

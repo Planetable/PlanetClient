@@ -80,15 +80,23 @@ struct PlanetMyPlanetInfoView: View {
                 }
             } else {
                 Section {
-                    planet.avatarView(.large)
+                    if planetAvatarPath != "", let img = UIImage(contentsOfFile: planetAvatarPath) {
+                        Image(uiImage: img)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: PlanetAvatarSize.large.size.width, height: PlanetAvatarSize.large.size.height, alignment: .center)
+                            .clipShape(.circle)
+                    } else {
+                        planet.planetAvatarPlaceholder(size: PlanetAvatarSize.large.size)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
 
-                Text(planet.name)
+                Text(planetName)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text(planet.about == "" ? "No description" : planet.about)
+                Text(planetAbout == "" ? "No description" : planetAbout)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .foregroundColor(planet.about == "" ? .secondary : .primary)
             }
@@ -98,7 +106,7 @@ struct PlanetMyPlanetInfoView: View {
                 if isEdit {
                     Button {
                         withAnimation {
-                            isEdit = false
+                            isEdit.toggle()
                         }
                         planetName = planet.name
                         planetAbout = planet.about
@@ -110,22 +118,34 @@ struct PlanetMyPlanetInfoView: View {
                     } label: {
                         Text("Cancel")
                     }
-                }
-                Button {
-                    withAnimation {
-                        isEdit.toggle()
-                    }
-                    Task(priority: .userInitiated) {
-                        do {
-                            try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, avatarPath: self.planetAvatarPath)
-                        } catch {
-                            debugPrint("failed to update planet info: \(error)")
+                    Button {
+                        Task(priority: .userInitiated) {
+                            withAnimation {
+                                self.isEdit.toggle()
+                            }
+                            do {
+                                try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, avatarPath: self.planetAvatarPath)
+                                if let avatarURL = self.planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
+                                    self.planetAvatarPath = avatarURL.path
+                                }
+                            } catch {
+                                debugPrint("failed to update planet info: \(error)")
+                            }
                         }
+                    } label: {
+                        Text("Save")
                     }
-                } label: {
-                    Text(isEdit ? "Save" : "Edit")
+                    .disabled(planetName == "" || !serverStatus)
+                } else {
+                    Button {
+                        withAnimation {
+                            isEdit.toggle()
+                        }
+                    } label: {
+                        Text("Edit")
+                    }
+                    .disabled(planetName == "" || !serverStatus)
                 }
-                .disabled(planetName == "" || !serverStatus)
             }
         }
         .task {
@@ -141,7 +161,6 @@ struct PlanetMyPlanetInfoView: View {
     @ViewBuilder
     private func avatarEditView() -> some View {
         VStack(spacing: 20) {
-
             Group {
                 if let selectedPhotoData, let image = UIImage(data: selectedPhotoData) {
                     Image(uiImage: image)
