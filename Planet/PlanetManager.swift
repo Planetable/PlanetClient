@@ -136,7 +136,9 @@ class PlanetManager: NSObject {
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
+            var shouldReloadAvatar: Bool = false
             if avatarPath != "", let planetPath = getPlanetPath(forID: id) {
+                shouldReloadAvatar = true
                 let planetAvatarPath = planetPath.appendingPathComponent("avatar.png")
                 if FileManager.default.fileExists(atPath: planetAvatarPath.path) {
                     try? FileManager.default.removeItem(at: planetAvatarPath)
@@ -146,6 +148,11 @@ class PlanetManager: NSObject {
             try? await Task.sleep(for: .seconds(2))
             await MainActor.run {
                 NotificationCenter.default.post(name: .updatePlanets, object: nil)
+            }
+            if shouldReloadAvatar {
+                Task { @MainActor in
+                    NotificationCenter.default.post(name: .reloadAvatar(byID: id), object: nil)
+                }
             }
         }
     }

@@ -183,17 +183,6 @@ struct Planet: Codable, Identifiable, Hashable {
                 planetAvatarPlaceholder(size: size)
             }
         }
-        .task(id: id, priority: .background) {
-            guard let url = remoteAvatarURL(), let local = localAvatarURL() else { return }
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                if !FileManager.default.fileExists(atPath: local.path) {
-                    try data.write(to: local)
-                }
-            } catch {
-                debugPrint("failed to download avatar from url: \(url), error: \(error)")
-            }
-        }
     }
 
     @ViewBuilder

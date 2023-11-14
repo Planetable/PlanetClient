@@ -39,6 +39,10 @@ extension Notification.Name {
     static let reloadArticles = Notification.Name("PlanetReloadArticlesNotification")
     static let addAttachment = Notification.Name("PlanetArticleAddAttachmentNotification")
     static let insertAttachment = Notification.Name("PlanetArticleInsertAttachmentNotification")
+
+    static func reloadAvatar(byID id: String) -> Notification.Name {
+        return Notification.Name("PlanetReloadAvatarNotification-\(id)")
+    }
 }
 
 
