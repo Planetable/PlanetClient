@@ -68,7 +68,7 @@ struct PlanetLatestView: View {
                 refreshAction(skipAlert: false)
             }
             .task {
-                load()
+                refreshAction(skipAlert: false)
             }
             .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
                 refreshAction()
@@ -79,25 +79,6 @@ struct PlanetLatestView: View {
         }
     }
 
-    private func load() {
-        Task(priority: .utility) {
-            do {
-                let articles = try await PlanetManager.shared.loadMyArticles()
-                if articles.count == 0 {
-                    Task(priority: .userInitiated) {
-                        self.refreshAction(skipAlert: true)
-                    }
-                }
-                await MainActor.run {
-                    withAnimation {
-                        self.latestViewModel.updateMyArticles(articles)
-                    }
-                }
-            } catch {
-            }
-        }
-    }
-    
     private func refreshAction(skipAlert: Bool = true) {
         Task(priority: .utility) {
             do {
