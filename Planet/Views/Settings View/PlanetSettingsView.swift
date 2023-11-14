@@ -138,56 +138,6 @@ struct PlanetSettingsView: View {
                 }
             }
         }
-        /*
-        NavigationStack(path: $appViewModel.settingsTabPath) {
-            ScrollView {
-                LazyVStack {
-                    serverInfoSection()
-                    Spacer(minLength: 48)
-                    serverStatusSection()
-
-                    Button {
-                        appViewModel.showBonjourList = true
-                    } label: {
-                        Text("Discover Nearby Servers")
-                    }
-                    .buttonStyle(.bordered)
-                    .padding(.vertical, 10)
-                }
-                .padding()
-            }
-            .scrollDismissesKeyboard(.automatic)
-            .navigationTitle(PlanetAppTab.settings.name())
-            .frame(maxHeight: .infinity)
-            .onReceive(settingsViewModel.timer) { t in
-                Task(priority: .background) {
-                    let status = await self.settingsViewModel.serverIsOnline()
-                    await MainActor.run {
-                        self.serverOnlineStatus = status
-                    }
-                }
-            }
-            .onAppear {
-                Task(priority: .background) {
-                    self.settingsViewModel.resetPreviousServerInfo()
-                    let status = await self.settingsViewModel.serverIsOnline()
-                    await MainActor.run {
-                        self.serverOnlineStatus = status
-                    }
-                }
-            }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button {
-                        dismissKeyboard()
-                    } label: {
-                        Text("Dismiss")
-                    }
-                }
-            }
-        }
-        */
     }
 
     @ViewBuilder
