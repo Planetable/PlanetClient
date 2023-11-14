@@ -114,15 +114,16 @@ struct PlanetMyPlanetInfoView: View {
                 if let selectedPhotoData, let image = UIImage(data: selectedPhotoData) {
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
+                        .aspectRatio(contentMode: .fill)
                 } else {
                     if planetAvatarPath != "", let img = UIImage(contentsOfFile: planetAvatarPath) {
                         Image(uiImage: img)
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
+                            .aspectRatio(contentMode: .fill)
                     } else {
                         Image(systemName: "photo")
                             .resizable()
+                            .aspectRatio(contentMode: .fill)
                     }
                 }
             }
