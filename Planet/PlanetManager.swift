@@ -146,11 +146,11 @@ class PlanetManager: NSObject {
                 }
             }
             try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
+            DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .updatePlanets, object: nil)
             }
             if shouldReloadAvatar {
-                Task { @MainActor in
+                DispatchQueue.main.async {
                     NotificationCenter.default.post(name: .reloadAvatar(byID: id), object: nil)
                 }
             }
