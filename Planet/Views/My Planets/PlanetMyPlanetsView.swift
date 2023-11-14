@@ -94,9 +94,6 @@ struct PlanetMyPlanetsView: View {
                 self.isFailedRefreshing = true
                 self.errorMessage = error.localizedDescription
             }
-            await MainActor.run {
-                NotificationCenter.default.post(name: .reloadPlanets, object: nil)
-            }
         }
     }
 }

@@ -124,8 +124,12 @@ struct PlanetMyPlanetInfoView: View {
                                 self.isEdit.toggle()
                             }
                             do {
-                                try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, avatarPath: self.planetAvatarPath)
                                 if let avatarURL = self.planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
+                                    if avatarURL.path == self.planetAvatarPath {
+                                        try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, avatarPath: "")
+                                    } else {
+                                        try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, avatarPath: self.planetAvatarPath)
+                                    }
                                     self.planetAvatarPath = avatarURL.path
                                 }
                             } catch {

@@ -136,7 +136,7 @@ class PlanetManager: NSObject {
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
-            if let planetPath = getPlanetPath(forID: id) {
+            if avatarPath != "", let planetPath = getPlanetPath(forID: id) {
                 let planetAvatarPath = planetPath.appendingPathComponent("avatar.png")
                 if FileManager.default.fileExists(atPath: planetAvatarPath.path) {
                     try? FileManager.default.removeItem(at: planetAvatarPath)
@@ -203,6 +203,7 @@ class PlanetManager: NSObject {
             return articles
         })
     }
+
     func getMyArticles() async throws -> [PlanetArticle] {
         var planets = PlanetMyPlanetsViewModel.shared.myPlanets
         if planets.count == 0 {
