@@ -174,9 +174,9 @@
 			isa = PBXGroup;
 			children = (
 				2AC6A3A429A3F63A00636DC5 /* PlanetTextView.swift */,
+				2AC8D6E82B03BE5400AA0E32 /* PlanetAvatarView.swift */,
 				2A4CD10029A40B160085F6CC /* PlanetAttachmentsView.swift */,
 				6A4F524F2AF4128000323A81 /* ViewUtils.swift */,
-				2AC8D6E82B03BE5400AA0E32 /* PlanetAvatarView.swift */,
 			);
 			path = Parts;
 			sourceTree = "<group>";

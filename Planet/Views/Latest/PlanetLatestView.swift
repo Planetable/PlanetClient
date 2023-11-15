@@ -25,7 +25,6 @@ struct PlanetLatestView: View {
                 if latestViewModel.myArticles.count == 0 {
                     VStack {
                         // TODO: Redesign the way to present empty state.
-                        /*
                         Text("No articles.")
                             .foregroundColor(.secondary)
                         Button {
@@ -34,7 +33,6 @@ struct PlanetLatestView: View {
                             Text("Reload")
                         }
                         .buttonStyle(.borderedProminent)
-                        */
                     }
                 } else {
                     List {
@@ -68,7 +66,7 @@ struct PlanetLatestView: View {
                 refreshAction(skipAlert: false)
             }
             .task {
-                refreshAction(skipAlert: false)
+                refreshAction()
             }
             .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
                 refreshAction()

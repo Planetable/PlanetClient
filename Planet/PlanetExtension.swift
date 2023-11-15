@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import UniformTypeIdentifiers
 
 
@@ -59,5 +60,21 @@ extension Date {
 extension Data {
     mutating func append(_ string: String) {
         self.append(string.data(using: .utf8, allowLossyConversion: true)!)
+    }
+}
+
+
+extension UIImage {
+    func resizeToSquare(size: CGSize) -> UIImage? {
+        let originalSize = self.size
+        let smallestDimension = min(originalSize.width, originalSize.height)
+        let squareOrigin = CGPoint(x: (originalSize.width - smallestDimension) / 2.0, y: (originalSize.height - smallestDimension) / 2.0)
+        let squareSize = CGSize(width: smallestDimension, height: smallestDimension)
+        let squareCroppedImage = self.cgImage?.cropping(to: CGRect(origin: squareOrigin, size: squareSize))
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let resizedImage = renderer.image { _ in
+            UIImage(cgImage: squareCroppedImage!).draw(in: CGRect(origin: .zero, size: size))
+        }
+        return resizedImage
     }
 }
