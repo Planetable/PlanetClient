@@ -1,7 +1,7 @@
 import SwiftUI
 
 
-class PlanetAvatarCacheManager: NSObject {
+private class PlanetAvatarCacheManager: NSObject {
     static let shared = PlanetAvatarCacheManager()
 
     private var avatarCache: NSCache<NSString, UIImage>
