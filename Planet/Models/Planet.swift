@@ -155,35 +155,36 @@ struct Planet: Codable, Identifiable, Hashable {
 
     @ViewBuilder
     func avatarView(_ size: PlanetAvatarSize) -> some View {
-        avatarView(size: size.size)
+//        avatarView(size: size.size)
+        PlanetAvatarView(planet: self, size: size.size)
     }
 
-    @ViewBuilder
-    func avatarView(size: CGSize) -> some View {
-        Group {
-            if let avatarURL = avatarURL {
-                AsyncImage(url: avatarURL) { image in
-                    image
-                        .interpolation(.high)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: size.width, height: size.height)
-                        .clipShape(.circle)
-                } placeholder: {
-                    planetAvatarPlaceholder(size: size)
-                }
-                .frame(width: size.width, height: size.height)
-                .overlay(
-                    RoundedRectangle(cornerRadius: size.width / 2)
-                        .stroke(Color("BorderColor"), lineWidth: 0.5)
-                )
-                .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
-            }
-            else {
-                planetAvatarPlaceholder(size: size)
-            }
-        }
-    }
+//    @ViewBuilder
+//    func avatarView(size: CGSize) -> some View {
+//        Group {
+//            if let avatarURL = avatarURL {
+//                AsyncImage(url: avatarURL) { image in
+//                    image
+//                        .interpolation(.high)
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fill)
+//                        .frame(width: size.width, height: size.height)
+//                        .clipShape(.circle)
+//                } placeholder: {
+//                    planetAvatarPlaceholder(size: size)
+//                }
+//                .frame(width: size.width, height: size.height)
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: size.width / 2)
+//                        .stroke(Color("BorderColor"), lineWidth: 0.5)
+//                )
+//                .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+//            }
+//            else {
+//                planetAvatarPlaceholder(size: size)
+//            }
+//        }
+//    }
 
     @ViewBuilder
     func planetAvatarPlaceholder(size: CGSize) -> some View {

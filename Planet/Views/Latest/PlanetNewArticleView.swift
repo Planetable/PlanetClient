@@ -53,7 +53,6 @@ struct PlanetNewArticleView: View {
                                 }
                             }
                             .disabled(myPlanetsViewModel.myPlanets.count == 0)
-
                         }
                     }
 

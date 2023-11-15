@@ -76,6 +76,31 @@ class PlanetManager: NSObject {
                 encoder.outputFormatting = .prettyPrinted
                 let data = try encoder.encode(planet)
                 try data.write(to: planetPath.appendingPathComponent("planet.json"))
+                debugPrint("saved planet: \(planetPath)")
+
+                // Always download planet avatar from remote
+                guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
+                    continue
+                }
+                let remoteAvatarURL = serverURL
+                    .appendingPathComponent("/v0/planets/my/")
+                    .appendingPathComponent(planet.id)
+                    .appendingPathComponent("/public/avatar.png")
+                let localAvatarURL = planetPath.appendingPathComponent("avatar.png")
+                if FileManager.default.fileExists(atPath: localAvatarURL.path) {
+                    try? FileManager.default.removeItem(at: localAvatarURL)
+                }
+                do {
+                    let (data, _) = try await URLSession.shared.data(from: remoteAvatarURL)
+                    if !FileManager.default.fileExists(atPath: localAvatarURL.path) {
+                        try data.write(to: localAvatarURL)
+                        DispatchQueue.main.async {
+                            NotificationCenter.default.post(name: .reloadAvatar(byID: planet.id), object: nil)
+                        }
+                    }
+                } catch {
+                    debugPrint("failed to download avatar from url: \(remoteAvatarURL), error: \(error)")
+                }
             }
         }
         return planets

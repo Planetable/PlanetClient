@@ -207,6 +207,7 @@ struct PlanetMyPlanetInfoView: View {
                 .buttonStyle(.bordered)
 
                 Button {
+                    // MARK: TODO: delete avatar image.
                     selectedItem = nil
                     selectedPhotoData = nil
                     if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {

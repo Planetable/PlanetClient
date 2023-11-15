@@ -14,7 +14,7 @@ struct PlanetLatestItemView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
-                PlanetAvatarView(planet: planet, size: PlanetAvatarSize.medium.size)
+                planet.avatarView(.medium)
             }
             VStack(alignment: .leading, spacing: 4) {
                 VStack(alignment: .leading) {

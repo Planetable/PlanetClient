@@ -1,6 +1,38 @@
 import SwiftUI
 
 
+class PlanetAvatarCacheManager: NSObject {
+    static let shared = PlanetAvatarCacheManager()
+
+    private var avatarCache: NSCache<NSString, UIImage>
+
+    override init() {
+        avatarCache = NSCache<NSString, UIImage>()
+        avatarCache.totalCostLimit = 20 * 1024 * 1024
+        super.init()
+    }
+
+    func getAvatar(byPlanetID id: String, andSize size: CGSize) -> UIImage? {
+        let key = cacheKey(byID: id, andSize: size)
+        return avatarCache.object(forKey: key)
+    }
+
+    func setAvatar(_ image: UIImage, forPlanetID id: String, andSize size: CGSize) {
+        let key = cacheKey(byID: id, andSize: size)
+        avatarCache.setObject(image, forKey: key)
+    }
+
+    func removeAvatar(byPlanetID id: String, andSize size: CGSize) {
+        let key = cacheKey(byID: id, andSize: size)
+        avatarCache.removeObject(forKey: key)
+    }
+
+    private func cacheKey(byID id: String, andSize size: CGSize) -> NSString {
+        return ("\(id)-\(size.width)x\(size.height)" as NSString)
+    }
+}
+
+
 struct PlanetAvatarView: View {
 
     var planet: Planet
@@ -8,17 +40,15 @@ struct PlanetAvatarView: View {
 
     @State private var img: UIImage?
 
-    private var imageCache: NSCache<NSString, UIImage>
-
-    init(imageCache: NSCache<NSString, UIImage> = NSCache<NSString, UIImage>(), planet: Planet, size: CGSize, img: UIImage? = nil) {
-        self.imageCache = imageCache
+    init(planet: Planet, size: CGSize) {
         self.planet = planet
         self.size = size
-        self.img = img
+        if let image = PlanetAvatarCacheManager.shared.getAvatar(byPlanetID: planet.id, andSize: size) {
+            self.img = image
+        }
     }
 
     var body: some View {
-        let cacheKey = "\(size.width)x\(size.height)" as NSString
         Group {
             if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
                 if let img {
@@ -30,8 +60,8 @@ struct PlanetAvatarView: View {
                 } else {
                     ProgressView()
                         .progressViewStyle(.circular)
-                        .task(priority: .background) {
-                            if let cachedImage = self.imageCache.object(forKey: cacheKey) {
+                        .task(priority: .utility) {
+                            if let cachedImage = PlanetAvatarCacheManager.shared.getAvatar(byPlanetID: self.planet.id, andSize: self.size) {
                                 await MainActor.run {
                                     self.img = cachedImage
                                 }
@@ -40,7 +70,7 @@ struct PlanetAvatarView: View {
                             let image = UIImage(contentsOfFile: avatarURL.path)
                             if let resized = image?.resizeToSquare(size: size) {
                                 Task(priority: .background) {
-                                    self.imageCache.setObject(resized, forKey: cacheKey)
+                                    PlanetAvatarCacheManager.shared.setAvatar(resized, forPlanetID: self.planet.id, andSize: self.size)
                                 }
                                 await MainActor.run {
                                     self.img = resized
@@ -59,18 +89,18 @@ struct PlanetAvatarView: View {
         .frame(width: size.width, height: size.height, alignment: .center)
         .onReceive(NotificationCenter.default.publisher(for: .reloadAvatar(byID: planet.id))) { _ in
             Task { @MainActor in
+                PlanetAvatarCacheManager.shared.removeAvatar(byPlanetID: self.planet.id, andSize: self.size)
                 self.img = nil
-                self.imageCache.removeObject(forKey: cacheKey)
             }
         }
     }
 
     private func downloadAvatarFromRemote() async {
         guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
-            let documentsDirectory = FileManager.default.urls(
+              let documentsDirectory = FileManager.default.urls(
                 for: .documentDirectory,
                 in: .userDomainMask
-            ).first
+              ).first
         else {
             return
         }

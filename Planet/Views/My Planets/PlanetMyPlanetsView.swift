@@ -40,29 +40,7 @@ struct PlanetMyPlanetsView: View {
                     List {
                         ForEach(myPlanetsViewModel.myPlanets, id: \.id) { planet in
                             NavigationLink(destination: PlanetMyPlanetInfoView(planet: planet)) {
-                                HStack(spacing: 12) {
-                                    PlanetAvatarView(planet: planet, size: PlanetAvatarSize.medium.size)
-                                    VStack {
-                                        Text(planet.name)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                        Text(planet.about == "" ? "No description" : planet.about)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .foregroundColor(planet.about == "" ? .secondary.opacity(0.5) : .secondary)
-                                    }
-                                    .alignmentGuide(.listRowSeparatorLeading) { _ in
-                                        0
-                                    }
-                                    .multilineTextAlignment(.leading)
-                                }
-                                .contentShape(Rectangle())
-                                .frame(
-                                    maxWidth: .infinity,
-                                    minHeight: 48,
-                                    idealHeight: 48,
-                                    maxHeight: 96,
-                                    alignment: .leading
-                                )
-
+                                planet.listItemView()
                             }
                         }
                     }
