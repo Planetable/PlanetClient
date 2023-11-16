@@ -284,4 +284,47 @@ class PlanetManager: NSObject {
             }
         }
     }
+    
+    // MARK: - modify article
+    func modifyArticle(id: String, title: String, content: String, attachments: [PlanetArticleAttachment], planetID: String) async throws {
+        // POST /v0/planets/my/:uuid/articles/:uuid
+        var request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "POST")
+        var form: MultipartForm = MultipartForm(parts: [
+            MultipartForm.Part(name: "title", value: title),
+            MultipartForm.Part(name: "date", value: Date().description),
+            MultipartForm.Part(name: "content", value: content)
+        ])
+        for attachment in attachments {
+            let attachmentName = attachment.url.lastPathComponent
+            let attachmentContentType = attachment.url.mimeType()
+            let attachmentData = try Data(contentsOf: attachment.url)
+            let formData = MultipartForm.Part(name: "attachment", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
+            form.parts.append(formData)
+            debugPrint("Modify Article: attachment: \(attachmentName), contentType: \(attachmentContentType)")
+        }
+        debugPrint("Modify Article: title: \(title), content: \(content) with \(attachments.count) attachments.")
+        request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        let statusCode = (response as! HTTPURLResponse).statusCode
+        if statusCode == 200 {
+            try? await Task.sleep(for: .seconds(2))
+            await MainActor.run {
+                NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            }
+        }
+    }
+    
+    // MARK: - delete article
+    func deleteArticle(id: String, planetID: String) async throws {
+        // DELETE /v0/planets/my/:uuid/articles/:uuid
+        let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "DELETE")
+        let (_, response) = try await URLSession.shared.data(for: request)
+        let statusCode = (response as! HTTPURLResponse).statusCode
+        if statusCode == 200 {
+            try? await Task.sleep(for: .seconds(2))
+            await MainActor.run {
+                NotificationCenter.default.post(name: .updatePlanets, object: nil)
+            }
+        }
+    }
 }

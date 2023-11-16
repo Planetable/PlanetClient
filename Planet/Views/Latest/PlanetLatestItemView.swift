@@ -9,13 +9,12 @@ import SwiftUI
 
 
 struct PlanetLatestItemView: View {
+    var planet: Planet
     var article: PlanetArticle
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
-                planet.avatarView(.medium)
-            }
+            planet.avatarView(.medium)
             VStack(alignment: .leading, spacing: 4) {
                 VStack(alignment: .leading) {
                     Text(article.title)
@@ -47,11 +46,5 @@ struct PlanetLatestItemView: View {
             }
         }
         .contentShape(Rectangle())
-    }
-}
-
-struct PlanetLatestItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        PlanetLatestItemView(article: .empty())
     }
 }

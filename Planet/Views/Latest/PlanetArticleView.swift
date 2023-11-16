@@ -9,9 +9,15 @@ import SwiftUI
 
 
 struct PlanetArticleView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var planet: Planet
     var article: PlanetArticle
     
     @State private var articleURL: String?
+    @State private var isEdit: Bool = false
+    @State private var isShare: Bool = false
+    @State private var isDelete: Bool = false
     
     var body: some View {
         Group {
@@ -38,6 +44,35 @@ struct PlanetArticleView: View {
         .task {
             await self.reloadAction()
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    optionsMenu()
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+        .confirmationDialog("Delete Planet", isPresented: $isDelete) {
+                Button(role: .cancel) {
+                } label: {
+                    Text("Cancel")
+                }
+                Button(role: .destructive) {
+                    Task(priority: .userInitiated) {
+                        do {
+                            try await PlanetManager.shared.deleteArticle(id: article.id, planetID: planet.id)
+                            self.dismiss()
+                        } catch {
+                            debugPrint("failed to delete article: \(article.title), error: \(error)")
+                        }
+                    }
+                } label: {
+                    Text("Delete Article")
+                }
+            } message: {
+                Text("Are you sure you want to delete \(article.title)? This action cannot to undone.")
+            }
     }
     
     private func reloadAction() async {
@@ -52,10 +87,26 @@ struct PlanetArticleView: View {
             self.articleURL = url.absoluteString
         }
     }
-}
-
-struct PlanetArticleView_Previews: PreviewProvider {
-    static var previews: some View {
-        PlanetArticleView(article: .empty())
+    
+    @ViewBuilder
+    private func optionsMenu() -> some View {
+        VStack {
+            Button {
+                
+            } label: {
+                Label("Edit", systemImage: "pencil.circle")
+            }
+            Button {
+                
+            } label: {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+            Divider()
+            Button(role: .destructive) {
+                isDelete.toggle()
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
 }

@@ -37,10 +37,12 @@ struct PlanetLatestView: View {
                 } else {
                     List {
                         ForEach(latestViewModel.myArticles, id: \.id) { article in
-                            NavigationLink(destination: PlanetArticleView(article: article)) {
-                                PlanetLatestItemView(article: article)
+                            if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
+                                NavigationLink(destination: PlanetArticleView(planet: planet, article: article)) {
+                                    PlanetLatestItemView(planet: planet, article: article)
+                                }
+                                .listRowSeparator(.hidden)
                             }
-                            .listRowSeparator(.hidden)
                         }
                     }
                     .listStyle(.plain)
