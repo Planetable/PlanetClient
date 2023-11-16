@@ -30,30 +30,7 @@ struct PlanetNewArticleView: View {
                         }
                     }
                     .sheet(isPresented: $isPickerPresented) {
-                        NavigationView {
-                            List {
-                                ForEach(myPlanetsViewModel.myPlanets.indices, id: \.self) {
-                                    index in
-                                    let planet = myPlanetsViewModel.myPlanets[index]
-                                    planet.listItemView(showCheckmark: selectedPlanetIndex == index)
-                                        .onTapGesture {
-                                            selectedPlanetIndex = index
-                                            selectedPlanet = planet
-                                            debugPrint("selected planet: \(planet)")
-                                            isPickerPresented = false  // Assuming you want to dismiss the view on selection
-                                        }
-                                }
-                            }
-                            .navigationTitle("Select a Planet")
-                            .toolbar {
-                                ToolbarItem(placement: .confirmationAction) {
-                                    Button("Done") {
-                                        isPickerPresented = false
-                                    }
-                                }
-                            }
-                            .disabled(myPlanetsViewModel.myPlanets.count == 0)
-                        }
+                        planetPickerView()
                     }
 
                     TextField("Title", text: $title)
@@ -142,6 +119,34 @@ struct PlanetNewArticleView: View {
                     }
                 }
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func planetPickerView() -> some View {
+        NavigationView {
+            List {
+                ForEach(myPlanetsViewModel.myPlanets.indices, id: \.self) {
+                    index in
+                    let planet = myPlanetsViewModel.myPlanets[index]
+                    planet.listItemView(showCheckmark: selectedPlanetIndex == index)
+                        .onTapGesture {
+                            selectedPlanetIndex = index
+                            selectedPlanet = planet
+                            debugPrint("selected planet: \(planet)")
+                            isPickerPresented = false  // Assuming you want to dismiss the view on selection
+                        }
+                }
+            }
+            .navigationTitle("Select a Planet")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        isPickerPresented = false
+                    }
+                }
+            }
+            .disabled(myPlanetsViewModel.myPlanets.count == 0)
         }
     }
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A4CD10129A40B160085F6CC /* PlanetAttachmentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4CD10029A40B160085F6CC /* PlanetAttachmentsView.swift */; };
+		2A6A01602B062E6C007D3DD0 /* PlanetEditArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */; };
 		2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */; };
 		2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B22B01FF26001303A7 /* PlanetError.swift */; };
 		2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */; };
@@ -40,6 +41,7 @@
 
 /* Begin PBXFileReference section */
 		2A4CD10029A40B160085F6CC /* PlanetAttachmentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAttachmentsView.swift; sourceTree = "<group>"; };
+		2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetEditArticleView.swift; sourceTree = "<group>"; };
 		2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		2A9C28B22B01FF26001303A7 /* PlanetError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetError.swift; sourceTree = "<group>"; };
 		2AAF3E3A299E07B600CA60AD /* Planet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -189,6 +191,7 @@
 				2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */,
 				2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */,
 				2AC7CC2529A2AE6B0089C58C /* PlanetNewArticleView.swift */,
+				2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */,
 				2AC7CC2729A2AE9A0089C58C /* PlanetLatestViewModel.swift */,
 			);
 			path = Latest;
@@ -295,6 +298,7 @@
 				2AC8D6E92B03BE5400AA0E32 /* PlanetAvatarView.swift in Sources */,
 				2AAF3E50299E112300CA60AD /* PlanetAppView.swift in Sources */,
 				2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */,
+				2A6A01602B062E6C007D3DD0 /* PlanetEditArticleView.swift in Sources */,
 				2AC7CC0F29A153E50089C58C /* PlanetMyPlanetInfoView.swift in Sources */,
 				2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */,
 				2A4CD10129A40B160085F6CC /* PlanetAttachmentsView.swift in Sources */,

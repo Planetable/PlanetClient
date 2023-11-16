@@ -257,6 +257,17 @@ class PlanetManager: NSObject {
         })
     }
     
+    // MARK: - download article
+    func downloadArticle(id: String, planetID: String) async throws {
+        // GET /v0/planets/my/:uuid/articles/:uuid
+        let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let statusCode = (response as! HTTPURLResponse).statusCode
+        if statusCode == 200 {
+            debugPrint("downloaded article: \(data.count), \(request)")
+        }
+    }
+    
     // MARK: - create article
     func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet) async throws {
         var request = try await createRequest(with: "/v0/planets/my/\(planet.id)/articles", method: "POST")
