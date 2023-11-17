@@ -17,7 +17,7 @@ class PlanetManager: NSObject {
     }
 
     private func createRequest(with path: String, method: String) async throws -> URLRequest {
-        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw PlanetError.PublicAPIServerIsInactive }
+        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw PlanetError.APIServerIsInactiveError }
         let serverURL = PlanetSettingsViewModel.shared.serverURL
         let url = URL(string: serverURL)!.appendingPathComponent(path)
         var request = URLRequest(url: url)
@@ -34,7 +34,7 @@ class PlanetManager: NSObject {
     func basicAuthenticationValue(username: String, password: String) throws -> String {
         let loginString = "\(username):\(password)"
         guard let loginData = loginString.data(using: .utf8) else {
-            throw PlanetError.PublicAPIServerAuthenticationInvalid
+            throw PlanetError.APIServerAuthenticationInvalidError
         }
         let base64LoginString = loginData.base64EncodedString()
         return "Basic \(base64LoginString)"
@@ -276,7 +276,9 @@ class PlanetManager: NSObject {
         // GET /v0/planets/my/:uuid/articles/:uuid
         let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
         let (data, response) = try await URLSession.shared.data(for: request)
-        guard 
+        let statusCode = (response as! HTTPURLResponse).statusCode
+        guard statusCode == 200 else { throw PlanetError.APIArticleNotFoundError }
+        guard
             let articlePath = getPlanetArticlePath(forID: planetID, articleID: id),
             let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL)
         else { return }
@@ -305,7 +307,6 @@ class PlanetManager: NSObject {
                 try? attachmentData.write(to: attachmentPath)
             }
         }
-        let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
@@ -363,9 +364,8 @@ class PlanetManager: NSObject {
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
             }
         }
     }
@@ -377,6 +377,9 @@ class PlanetManager: NSObject {
         let (_, response) = try await URLSession.shared.data(for: request)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
+            if let articlePath = getPlanetArticlePath(forID: planetID, articleID: id) {
+                try? FileManager.default.removeItem(at: articlePath)
+            }
             try? await Task.sleep(for: .seconds(2))
             await MainActor.run {
                 NotificationCenter.default.post(name: .updatePlanets, object: nil)

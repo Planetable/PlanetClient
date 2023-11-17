@@ -11,8 +11,7 @@ import PhotosUI
 
 struct PlanetAttachmentsView: View {
     @Binding var planet: Planet?
-    
-    @State private var isUploading: Bool = false
+
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
     @State private var uploadedImages: [PlanetArticleAttachment] = []

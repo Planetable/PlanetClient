@@ -27,9 +27,10 @@ enum PlanetError: Error {
     case PublishedServiceFolderPermissionError
     case MovePublishingPlanetArticleError
     case WalletConnectV2ProjectIDMissingError
-    case PublicAPIError
-    case PublicAPIServerIsInactive
-    case PublicAPIServerAuthenticationInvalid
+    case APIError
+    case APIServerIsInactiveError
+    case APIServerAuthenticationInvalidError
+    case APIArticleNotFoundError
     case KeyManagerSavingKeyError
     case KeyManagerLoadingKeyError
     case KeyManagerDeletingKeyError
@@ -95,12 +96,14 @@ extension PlanetError: LocalizedError {
             return NSLocalizedString("Move Publishing Planet Article Error", comment: "")
         case .WalletConnectV2ProjectIDMissingError:
             return NSLocalizedString("Wallet Connect V2 Project ID Missing Error", comment: "")
-        case .PublicAPIError:
-            return NSLocalizedString("Public API Error", comment: "")
-        case .PublicAPIServerIsInactive:
-            return NSLocalizedString("Public API Server Is Inactive", comment: "")
-        case .PublicAPIServerAuthenticationInvalid:
-            return NSLocalizedString("Public API Server Authentication Invalid", comment: "")
+        case .APIError:
+            return NSLocalizedString("API Error", comment: "")
+        case .APIServerIsInactiveError:
+            return NSLocalizedString("API Server Is Inactive", comment: "")
+        case .APIServerAuthenticationInvalidError:
+            return NSLocalizedString("API Server Authentication Invalid", comment: "")
+        case .APIArticleNotFoundError:
+            return NSLocalizedString("API Article Not Found", comment: "")
         case .KeyManagerSavingKeyError:
             return NSLocalizedString("Key Manager Saving Key Error", comment: "")
         case .KeyManagerLoadingKeyError:
