@@ -13,7 +13,7 @@ struct PlanetArticleView: View {
     
     var planet: Planet
     var article: PlanetArticle
-    
+
     @State private var articleURL: String?
     @State private var isEdit: Bool = false
     @State private var isShare: Bool = false
@@ -76,9 +76,15 @@ struct PlanetArticleView: View {
         } message: {
             Text("Are you sure you want to delete \(article.title)? This action cannot to undone.")
         }
+        .onReceive(NotificationCenter.default.publisher(for: .reloadArticle(byID: article.id))) { _ in
+            Task {
+                await self.reloadAction()
+            }
+        }
     }
     
     private func reloadAction() async {
+        // MARK: TODO: use local content
         await MainActor.run {
             self.articleURL = nil
         }

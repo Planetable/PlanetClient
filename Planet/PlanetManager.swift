@@ -61,6 +61,20 @@ class PlanetManager: NSObject {
         let myPlanetArticlesPath = planetPath?.appendingPathComponent("articles.json")
         return myPlanetArticlesPath
     }
+    
+    func getPlanetArticlePath(forID planetID: String, articleID: String) -> URL? {
+        guard let _ = PlanetAppViewModel.shared.currentNodeID else {
+            return nil
+        }
+        guard let planetPath = getPlanetPath(forID: planetID) else {
+            return nil
+        }
+        let articlePath = planetPath.appending(path: articleID)
+        if FileManager.default.fileExists(atPath: articlePath.path) == false {
+            try? FileManager.default.createDirectory(at: articlePath, withIntermediateDirectories: true)
+        }
+        return articlePath
+    }
 
     // MARK: - API Methods -
     // MARK: - list my planets
@@ -262,9 +276,40 @@ class PlanetManager: NSObject {
         // GET /v0/planets/my/:uuid/articles/:uuid
         let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
         let (data, response) = try await URLSession.shared.data(for: request)
+        guard 
+            let articlePath = getPlanetArticlePath(forID: planetID, articleID: id),
+            let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL)
+        else { return }
+        let articleInfoPath = articlePath.appending(path: "article.json")
+        try data.write(to: articleInfoPath)
+        let decoder = JSONDecoder()
+        var planetArticle = try decoder.decode(PlanetArticle.self, from: data)
+        planetArticle.planetID = UUID(uuidString: planetID)
+        // download html and attachments, replace if exists.
+        let articlePublicURL = serverURL
+            .appending(path: "/v0/planets/my/")
+            .appending(path: planetID)
+            .appending(path: "/public/")
+            .appending(path: id)
+        let articleURL = articlePublicURL.appending(path: "index.html")
+        let articleIndexPath = articlePath.appending(path: "index.html")
+        let (articleData, _) = try await URLSession.shared.data(from: articleURL)
+        try? FileManager.default.removeItem(at: articleIndexPath)
+        try articleData.write(to: articleIndexPath)
+        for a in planetArticle.attachments ?? [] {
+            let attachmentURL = articlePublicURL.appending(path: a)
+            let attachmentPath = articlePath.appending(path: a)
+            Task.detached(priority: .background) {
+                let (attachmentData, _) = try await URLSession.shared.data(from: attachmentURL)
+                try? FileManager.default.removeItem(at: attachmentPath)
+                try? attachmentData.write(to: attachmentPath)
+            }
+        }
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
-            debugPrint("downloaded article: \(data.count), \(request)")
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
+            }
         }
     }
     
