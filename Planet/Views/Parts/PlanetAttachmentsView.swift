@@ -33,7 +33,6 @@ struct PlanetAttachmentsView: View {
                             await MainActor.run {
                                 let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
                                 self.uploadedImages.insert(attachment, at:0)
-                                debugPrint("inserted image: \(imageName)")
                                 NotificationCenter.default.post(name: .addAttachment, object: attachment)
                             }
                         }

@@ -6,6 +6,8 @@ struct PlanetEditArticleView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
     
+    static let editAttachment: String = "edit_attachment"
+    
     var planet: Planet
     var article: PlanetArticle
     
@@ -91,6 +93,7 @@ struct PlanetEditArticleView: View {
                             catch {
                                 debugPrint("failed to save article: \(error)")
                             }
+                            self.cleanupEditAttachments()
                         }
                     } label: {
                         Text("Save")
@@ -113,9 +116,8 @@ struct PlanetEditArticleView: View {
                     Task { @MainActor in
                         self.uploadedImages = finalLocalAttachments
                         self.initAttachments = finalLocalAttachments
-                        // copy init attachments to [articlePath]/init_attachments for restore when cancel editing.
                         Task(priority: .background) {
-                            let initPath = articlePath.appending(path: "init_attachments")
+                            let initPath = articlePath.appending(path: Self.editAttachment)
                             try? FileManager.default.createDirectory(at: initPath, withIntermediateDirectories: true)
                             for a in finalLocalAttachments {
                                 let filename = a.url.lastPathComponent
@@ -186,7 +188,13 @@ struct PlanetEditArticleView: View {
             }
             Button {
                 if let tappedIndex {
-                    NotificationCenter.default.post(name: .addAttachment, object: uploadedImages[tappedIndex])
+                    let attachment = uploadedImages[tappedIndex]
+                    Task {
+                        await MainActor.run {
+                            NotificationCenter.default.post(name: .insertAttachment, object: attachment)
+                        }
+                    }
+
                 }
             } label: {
                 Text("Insert Attachment")
@@ -208,16 +216,24 @@ struct PlanetEditArticleView: View {
     
     private func restoreAttachments() {
         guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
-        let initPath = articlePath.appending(path: "init_attachments")
-        guard initAttachments.count > 0, FileManager.default.fileExists(atPath: initPath.path) else { return }
+        let editPath = articlePath.appending(path: Self.editAttachment)
+        defer {
+            try? FileManager.default.removeItem(at: editPath)
+        }
+        guard initAttachments.count > 0, FileManager.default.fileExists(atPath: editPath.path) else { return }
         for attachment in initAttachments {
             let filename = attachment.url.lastPathComponent
-            let aPath = initPath.appending(path: filename)
+            let aPath = editPath.appending(path: filename)
             let previousPath = articlePath.appending(path: filename)
             if !FileManager.default.fileExists(atPath: previousPath.path) {
                 try? FileManager.default.copyItem(at: aPath, to: previousPath)
             }
         }
-        try? FileManager.default.removeItem(at: initPath)
+    }
+    
+    private func cleanupEditAttachments() {
+        guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
+        let editPath = articlePath.appending(path: Self.editAttachment)
+        try? FileManager.default.removeItem(at: editPath)
     }
 }
