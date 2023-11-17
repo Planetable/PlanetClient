@@ -91,8 +91,6 @@ class PlanetManager: NSObject {
                 encoder.outputFormatting = .prettyPrinted
                 let data = try encoder.encode(planet)
                 try data.write(to: planetPath.appendingPathComponent("planet.json"))
-                debugPrint("saved planet: \(planetPath)")
-
                 // Always download planet avatar from remote
                 guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
                     continue
@@ -255,7 +253,6 @@ class PlanetManager: NSObject {
                             encoder.outputFormatting = .prettyPrinted
                             let data = try encoder.encode(result)
                             try data.write(to: articlesPath)
-                            debugPrint("Saved articles to path: \(articlesPath.path)")
                         }
                         return result
                     } catch {
@@ -289,23 +286,29 @@ class PlanetManager: NSObject {
         planetArticle.planetID = UUID(uuidString: planetID)
         // download html and attachments, replace if exists.
         let articlePublicURL = serverURL
-            .appending(path: "/v0/planets/my/")
+            .appending(path: "/v0/planets/my")
             .appending(path: planetID)
-            .appending(path: "/public/")
+            .appending(path: "/public")
             .appending(path: id)
         let articleURL = articlePublicURL.appending(path: "index.html")
         let articleIndexPath = articlePath.appending(path: "index.html")
         let (articleData, _) = try await URLSession.shared.data(from: articleURL)
         try? FileManager.default.removeItem(at: articleIndexPath)
         try articleData.write(to: articleIndexPath)
-        for a in planetArticle.attachments ?? [] {
-            let attachmentURL = articlePublicURL.appending(path: a)
-            let attachmentPath = articlePath.appending(path: a)
-            Task.detached(priority: .background) {
-                let (attachmentData, _) = try await URLSession.shared.data(from: attachmentURL)
-                try? FileManager.default.removeItem(at: attachmentPath)
-                try? attachmentData.write(to: attachmentPath)
+        if let attachments = planetArticle.attachments, attachments.count > 0 {
+            await withThrowingTaskGroup(of: Void.self) { group in
+                for a in attachments {
+                    let attachmentURL = articlePublicURL.appending(path: a)
+                    let attachmentPath = articlePath.appending(path: a)
+                    group.addTask(priority: .background) {
+                        let (attachmentData, _) = try await URLSession.shared.data(from: attachmentURL)
+                        debugPrint("download attachment: \(attachmentURL)")
+                        try? FileManager.default.removeItem(at: attachmentPath)
+                        try? attachmentData.write(to: attachmentPath)
+                    }
+                }
             }
+            debugPrint("downloaded all attachments.")
         }
         if statusCode == 200 {
             DispatchQueue.main.async {
@@ -359,14 +362,12 @@ class PlanetManager: NSObject {
             form.parts.append(formData)
             debugPrint("Modify Article: attachment: \(attachmentName), contentType: \(attachmentContentType)")
         }
-        debugPrint("Modify Article: title: \(title), content: \(content) with \(attachments.count) attachments.")
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
-            }
+            debugPrint("modified, about to download article ...")
+            try? await self.downloadArticle(id: id, planetID: planetID)
         }
     }
     
