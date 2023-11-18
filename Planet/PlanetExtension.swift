@@ -19,6 +19,10 @@ extension String {
     static let settingsServerAuthenticationEnabledKey = "PlanetSettingsServerAuthenticationEnabledKey"
     static let settingsServerUsernameKey = "PlanetSettingsServerUsernameKey"
     static let settingsServerPasswordKey = "PlanetSettingsServerPasswordKey"
+    
+    static func editingArticleKey(byID id: String) -> String {
+        return "PlanetEditingArticleKey-\(id)"
+    }
 }
 
 
@@ -40,6 +44,14 @@ extension Notification.Name {
     static let reloadArticles = Notification.Name("PlanetReloadArticlesNotification")
     static let addAttachment = Notification.Name("PlanetArticleAddAttachmentNotification")
     static let insertAttachment = Notification.Name("PlanetArticleInsertAttachmentNotification")
+    
+    static func startEditingArticle(byID id: String) -> Notification.Name {
+        return Notification.Name("PlanetStartEditingArticleNotification-\(id)")
+    }
+    
+    static func endEditingArticle(byID id: String) -> Notification.Name {
+        return Notification.Name("PlanetEndEditingArticleNotification-\(id)")
+    }
 
     static func reloadArticle(byID id: String) -> Notification.Name {
         return Notification.Name("PlanetReloadArticleNotification-\(id)")

@@ -347,6 +347,11 @@ class PlanetManager: NSObject {
     
     // MARK: - modify article
     func modifyArticle(id: String, title: String, content: String, attachments: [PlanetArticleAttachment], planetID: String) async throws {
+        let editKey = String.editingArticleKey(byID: id)
+        DispatchQueue.main.async {
+            UserDefaults.standard.setValue(1, forKey: editKey)
+            NotificationCenter.default.post(name: .startEditingArticle(byID: id), object: nil)
+        }
         // POST /v0/planets/my/:uuid/articles/:uuid
         var request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "POST")
         var form: MultipartForm = MultipartForm(parts: [
@@ -366,8 +371,12 @@ class PlanetManager: NSObject {
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
-            debugPrint("modified, about to download article ...")
+            try? await Task.sleep(for: .seconds(2))
             try? await self.downloadArticle(id: id, planetID: planetID)
+        }
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
+            UserDefaults.standard.removeObject(forKey: editKey)
         }
     }
     

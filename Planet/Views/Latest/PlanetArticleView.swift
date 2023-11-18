@@ -16,8 +16,15 @@ struct PlanetArticleView: View {
 
     @State private var articleURL: String?
     @State private var isEdit: Bool = false
+    @State private var isWaitingEdit: Bool = false
     @State private var isShare: Bool = false
     @State private var isDelete: Bool = false
+    
+    init(planet: Planet, article: PlanetArticle) {
+        _isWaitingEdit = State(wrappedValue: UserDefaults.standard.value(forKey: .editingArticleKey(byID: article.id)) != nil)
+        self.planet = planet
+        self.article = article
+    }
     
     var body: some View {
         Group {
@@ -42,14 +49,20 @@ struct PlanetArticleView: View {
         .navigationTitle(article.title)
         .ignoresSafeArea(edges: .vertical)
         .task {
+            debugPrint("on task reload action")
             await self.reloadAction()
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    optionsMenu()
-                } label: {
-                    Image(systemName: "ellipsis.circle")
+                if isWaitingEdit {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                } else {
+                    Menu {
+                        optionsMenu()
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
                 }
             }
         }
@@ -78,11 +91,27 @@ struct PlanetArticleView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .reloadArticle(byID: article.id))) { _ in
             debugPrint("reloading article: \(article.id)")
+            Task {
+                await self.reloadAction()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .startEditingArticle(byID: article.id))) { _ in
+            Task { @MainActor in
+                self.isWaitingEdit = true
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .endEditingArticle(byID: article.id))) { _ in
+            Task { @MainActor in
+                self.isWaitingEdit = false
+            }
+        }
+        .alert(isPresented: $isWaitingEdit) {
+            Alert(title: Text("Updating Post"), message: Text("Please wait for a few seconds"), dismissButton: .cancel(Text("Dismiss")))
         }
     }
     
     private func reloadAction() async {
-        // MARK: TODO: use local content
+        debugPrint("reloading...")
         await MainActor.run {
             self.articleURL = nil
         }
@@ -93,6 +122,7 @@ struct PlanetArticleView: View {
         await MainActor.run {
             self.articleURL = url.absoluteString
         }
+        debugPrint("reloaded: \(url.absoluteString)")
     }
     
     @ViewBuilder
