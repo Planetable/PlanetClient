@@ -19,7 +19,7 @@ class PlanetManager: NSObject {
     private func createRequest(with path: String, method: String) async throws -> URLRequest {
         guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw PlanetError.APIServerIsInactiveError }
         let serverURL = PlanetSettingsViewModel.shared.serverURL
-        let url = URL(string: serverURL)!.appendingPathComponent(path)
+        let url = URL(string: serverURL)!.appending(path: path)
         var request = URLRequest(url: url)
         request.httpMethod = method
         if PlanetSettingsViewModel.shared.serverAuthenticationEnabled {
@@ -45,8 +45,11 @@ class PlanetManager: NSObject {
             return nil
         }
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let myPlanetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent("My").appendingPathComponent(planetID)
-        if FileManager.default.fileExists(atPath: myPlanetPath.path) == false {
+        let myPlanetPath = documentsDirectory
+            .appending(path: nodeID)
+            .appending(path: "My")
+            .appending(path: planetID)
+        if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
             try? FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true, attributes: nil)
             debugPrint("Folder created at path: \(myPlanetPath.path)")
         }
@@ -58,7 +61,7 @@ class PlanetManager: NSObject {
             return nil
         }
         let planetPath = getPlanetPath(forID: planetID)
-        let myPlanetArticlesPath = planetPath?.appendingPathComponent("articles.json")
+        let myPlanetArticlesPath = planetPath?.appending(path: "articles.json")
         return myPlanetArticlesPath
     }
     
@@ -90,16 +93,16 @@ class PlanetManager: NSObject {
                 let encoder = JSONEncoder()
                 encoder.outputFormatting = .prettyPrinted
                 let data = try encoder.encode(planet)
-                try data.write(to: planetPath.appendingPathComponent("planet.json"))
+                try data.write(to: planetPath.appending(path: "planet.json"))
                 // Always download planet avatar from remote
                 guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
                     continue
                 }
                 let remoteAvatarURL = serverURL
-                    .appendingPathComponent("/v0/planets/my/")
-                    .appendingPathComponent(planet.id)
-                    .appendingPathComponent("/public/avatar.png")
-                let localAvatarURL = planetPath.appendingPathComponent("avatar.png")
+                    .appending(path: "/v0/planets/my/")
+                    .appending(path: planet.id)
+                    .appending(path: "/public/avatar.png")
+                let localAvatarURL = planetPath.appending(path: "avatar.png")
                 do {
                     let (data, _) = try await URLSession.shared.data(from: remoteAvatarURL)
                     // Compare remote with local avatar, ignore replace and reload avatar if bytes count equals.
@@ -205,7 +208,7 @@ class PlanetManager: NSObject {
             var shouldReloadAvatar: Bool = false
             if avatarPath != "", let planetPath = getPlanetPath(forID: id) {
                 shouldReloadAvatar = true
-                let planetAvatarPath = planetPath.appendingPathComponent("avatar.png")
+                let planetAvatarPath = planetPath.appending(path: "avatar.png")
                 if FileManager.default.fileExists(atPath: planetAvatarPath.path) {
                     try? FileManager.default.removeItem(at: planetAvatarPath)
                     try? FileManager.default.copyItem(at: URL(fileURLWithPath: avatarPath), to: planetAvatarPath)
@@ -236,7 +239,10 @@ class PlanetManager: NSObject {
             try? await Task.sleep(for: .seconds(1))
             guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let planetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent("My").appendingPathComponent(id)
+            let planetPath = documentsDirectory
+                .appending(path: nodeID)
+                .appending(path: "My")
+                .appending(path: id)
             try? FileManager.default.removeItem(at: planetPath)
         }
     }

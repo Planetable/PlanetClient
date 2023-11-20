@@ -39,7 +39,7 @@ struct Planet: Codable, Identifiable, Hashable {
     static func getPlanet(forID planetID: String) -> Self? {
         if let planetPath = PlanetManager.shared.getPlanetPath(forID: planetID),
             let planetData = FileManager.default.contents(
-                atPath: planetPath.appendingPathComponent("planet.json").path
+                atPath: planetPath.appending(path: "planet.json").path
             )
         {
             do {
@@ -92,9 +92,10 @@ struct Planet: Codable, Identifiable, Hashable {
         else {
             return nil
         }
-        let myPlanetPath = documentsDirectory.appendingPathComponent(nodeID).appendingPathComponent(
-            "My"
-        ).appendingPathComponent(self.id)
+        let myPlanetPath = documentsDirectory
+            .appending(path: nodeID)
+            .appending(path: "My")
+            .appending(path: self.id)
         if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
             do {
                 try FileManager.default.createDirectory(
@@ -108,18 +109,17 @@ struct Planet: Codable, Identifiable, Hashable {
                 return nil
             }
         }
-        return myPlanetPath.appendingPathComponent("avatar.png")
+        return myPlanetPath.appending(path: "avatar.png")
     }
 
     private func remoteAvatarURL() -> URL? {
         guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
             return nil
         }
-        return
-            serverURL
-            .appendingPathComponent("/v0/planets/my/")
-            .appendingPathComponent(self.id)
-            .appendingPathComponent("/public/avatar.png")
+        return serverURL
+            .appending(path: "/v0/planets/my/")
+            .appending(path: self.id)
+            .appending(path: "/public/avatar.png")
     }
 
     @ViewBuilder

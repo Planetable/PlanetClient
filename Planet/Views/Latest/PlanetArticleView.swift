@@ -26,7 +26,7 @@ struct PlanetArticleView: View {
         self.planet = planet
         self.article = article
         let serverURL = PlanetSettingsViewModel.shared.serverURL
-        let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
+        let url = URL(string: serverURL)!.appending(path: "/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
         self.articleURL = url
     }
     
@@ -43,7 +43,6 @@ struct PlanetArticleView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(article.title)
-        .ignoresSafeArea(edges: .vertical)
         .task {
             debugPrint("on task reload action")
             await self.reloadAction()
@@ -116,7 +115,7 @@ struct PlanetArticleView: View {
         }
         if await PlanetSettingsViewModel.shared.serverIsOnline() {
             let serverURL = PlanetSettingsViewModel.shared.serverURL
-            let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
+            let url = URL(string: serverURL)!.appending(path: "/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
             await MainActor.run {
                 self.articleURL = url
             }

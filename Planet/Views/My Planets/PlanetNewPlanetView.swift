@@ -16,7 +16,7 @@ struct PlanetNewPlanetView: View {
         didSet {
             if let selectedPhotoData {
                 let imageName = String(UUID().uuidString.prefix(4)) + ".png"
-                let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(imageName)
+                let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
                 do {
                     if FileManager.default.fileExists(atPath: url.path) {
                         try FileManager.default.removeItem(at: url)

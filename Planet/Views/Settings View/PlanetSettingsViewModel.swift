@@ -118,7 +118,7 @@ class PlanetSettingsViewModel: ObservableObject {
 
     func serverIsOnline() async -> Bool {
         if let url = URL(string: serverURL) {
-            let requestIdURL = url.appendingPathComponent("/v0/id")
+            let requestIdURL = url.appending(path: "/v0/id")
             let data = try? Data(contentsOf: requestIdURL)
             if let data = data, let currentNodeID = String(data: data, encoding: .utf8) {
                 Task { @MainActor in
@@ -127,7 +127,7 @@ class PlanetSettingsViewModel: ObservableObject {
                 debugPrint("👌 Connected. Current Node ID is: \(currentNodeID)")
             }
             var request = URLRequest(
-                url: url.appendingPathComponent("/v0/planets/my"),
+                url: url.appending(path: "/v0/planets/my"),
                 cachePolicy: .reloadIgnoringCacheData,
                 timeoutInterval: 5
             )

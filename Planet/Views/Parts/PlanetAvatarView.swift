@@ -105,17 +105,17 @@ struct PlanetAvatarView: View {
             return
         }
         let myPlanetPath = documentsDirectory
-            .appendingPathComponent(nodeID)
-            .appendingPathComponent("My")
-            .appendingPathComponent(planet.id)
+            .appending(path: nodeID)
+            .appending(path: "My")
+            .appending(path: planet.id)
         guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
             return
         }
         let remoteAvatarURL = serverURL
-            .appendingPathComponent("/v0/planets/my/")
-            .appendingPathComponent(planet.id)
-            .appendingPathComponent("/public/avatar.png")
-        let localAvatarURL = myPlanetPath.appendingPathComponent("avatar.png")
+            .appending(path: "/v0/planets/my/")
+            .appending(path: planet.id)
+            .appending(path: "/public/avatar.png")
+        let localAvatarURL = myPlanetPath.appending(path: "avatar.png")
         guard !FileManager.default.fileExists(atPath: localAvatarURL.path) else {
             return
         }

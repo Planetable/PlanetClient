@@ -20,7 +20,7 @@ struct PlanetMyPlanetInfoView: View {
         didSet {
             if let selectedPhotoData {
                 let imageName = String(UUID().uuidString.prefix(4)) + ".png"
-                let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(imageName)
+                let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
                 do {
                     if FileManager.default.fileExists(atPath: url.path) {
                         try FileManager.default.removeItem(at: url)
@@ -44,12 +44,23 @@ struct PlanetMyPlanetInfoView: View {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
 
-                TextField("Name", text: $planetName)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .textFieldStyle(.plain)
-                TextField("About", text: $planetAbout)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .textFieldStyle(.plain)
+                Section {
+                    TextField("Name", text: $planetName)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .textFieldStyle(.plain)
+                } header: {
+                    Text("Name")
+                }
+                .textCase(.none)
+
+                Section {
+                    TextField("About", text: $planetAbout)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .textFieldStyle(.plain)
+                } header: {
+                    Text("Description")
+                }
+                .textCase(.none)
 
                 Section {
                     Button(role: .destructive) {
@@ -94,11 +105,22 @@ struct PlanetMyPlanetInfoView: View {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
 
-                Text(planetName)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Text(planetAbout == "" ? "No description" : planetAbout)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(planet.about == "" ? .secondary : .primary)
+                Section {
+                    Text(planetName)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } header: {
+                    Text("Name")
+                }
+                .textCase(.none)
+
+                Section {
+                    Text(planetAbout == "" ? "No description" : planetAbout)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundColor(planet.about == "" ? .secondary : .primary)
+                } header: {
+                    Text("Description")
+                }
+                .textCase(.none)
             }
         }
         .toolbar {

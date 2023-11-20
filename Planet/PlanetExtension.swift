@@ -28,7 +28,7 @@ extension String {
 
 
 extension URL {
-    static let myPlanetsList = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("myplanets.json")
+    static let myPlanetsList = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appending(path: "myplanets.json")
     
     func mimeType() -> String {
         if let mimeType = UTType(filenameExtension: self.pathExtension)?.preferredMIMEType {

@@ -25,7 +25,7 @@ struct PlanetEditArticleView: View {
                 if let selectedPhotoData {
                     let planetID = planet.id
                     let imageName = planetID.prefix(4) + "-" + String(UUID().uuidString.prefix(4)) + ".png"
-                    let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(imageName)
+                    let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
                     do {
                         if FileManager.default.fileExists(atPath: url.path) {
                             try FileManager.default.removeItem(at: url)
