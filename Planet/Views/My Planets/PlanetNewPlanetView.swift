@@ -115,6 +115,9 @@ struct PlanetNewPlanetView: View {
                         Task(priority: .userInitiated) {
                             do {
                                 try await PlanetManager.shared.createPlanet(name: planetName, about: planetAbout, avatarPath: planetAvatarPath)
+                                Task { @MainActor in
+                                    PlanetAppViewModel.shared.selectedTab = .myPlanets
+                                }
                             } catch {
                                 debugPrint("failed to create planet: \(error)")
                             }

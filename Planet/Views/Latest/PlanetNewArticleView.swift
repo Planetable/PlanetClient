@@ -82,6 +82,9 @@ struct PlanetNewArticleView: View {
                                     forPlanet: selectedPlanet
                                 )
                                 self.removeAttachments()
+                                Task { @MainActor in
+                                    PlanetAppViewModel.shared.selectedTab = .latest
+                                }
                             }
                             catch {
                                 debugPrint("failed to save article: \(error)")
