@@ -133,12 +133,13 @@ struct PlanetArticleView: View {
             } label: {
                 Label("Edit", systemImage: "pencil.circle")
             }
-            Button {
-                
-            } label: {
-                Label("Share", systemImage: "square.and.arrow.up")
-            }
+
+            let serverURL = PlanetSettingsViewModel.shared.serverURL
+            let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
+            ShareLink("Share", item: url)
+            
             Divider()
+
             Button(role: .destructive) {
                 isDelete.toggle()
             } label: {

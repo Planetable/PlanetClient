@@ -285,6 +285,7 @@ class PlanetManager: NSObject {
         var planetArticle = try decoder.decode(PlanetArticle.self, from: data)
         planetArticle.planetID = UUID(uuidString: planetID)
         // download html and attachments, replace if exists.
+        // MARK: TODO: better way to check if article has changes to avoid unnecessary downloads.
         let articlePublicURL = serverURL
             .appending(path: "/v0/planets/my")
             .appending(path: planetID)
