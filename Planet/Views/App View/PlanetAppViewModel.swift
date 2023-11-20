@@ -17,6 +17,7 @@ class PlanetAppViewModel: ObservableObject {
             UserDefaults.standard.setValue(currentNodeID, forKey: .settingsNodeIDKey)
         }
     }
+    @Published var path: NavigationPath = NavigationPath()
     @Published var latestTabPath: NavigationPath = NavigationPath()
     @Published var planetsTabPath: NavigationPath = NavigationPath()
     @Published var settingsTabPath: NavigationPath = NavigationPath()
@@ -31,4 +32,7 @@ class PlanetAppViewModel: ObservableObject {
     }
 
     @Published var showBonjourList = false
+    @Published var showSettings = false
+    @Published var newArticle = false
+    @Published var newPlanet = false
 }

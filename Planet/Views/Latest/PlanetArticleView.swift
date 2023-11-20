@@ -43,6 +43,7 @@ struct PlanetArticleView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(article.title)
+        .ignoresSafeArea(edges: .bottom)
         .task {
             debugPrint("on task reload action")
             await self.reloadAction()

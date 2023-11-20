@@ -9,28 +9,43 @@ import Foundation
 import SwiftUI
 
 struct BonjourListView: View {
+    @Environment(\.dismiss) private var dismiss
+
     @ObservedObject var viewModel = BonjourViewModel()
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text("Scanning nearby Planet servers")
-                Spacer()
-                ProgressView()
-            }
-            .padding()
-            List(viewModel.services, id: \.name) { service in
-                Button(action: {
-                    viewModel.resolveService(service: service)
-                }) {
-                    Text(service.name)
+        NavigationStack {
+            VStack(spacing: 0) {
+                HStack {
+                    Text("Scanning nearby Planet servers")
+                    Spacer()
+                    ProgressView()
+                }
+                .padding()
+                List(viewModel.services, id: \.name) { service in
+                    Button(action: {
+                        viewModel.resolveService(service: service)
+                    }) {
+                        Text(service.name)
+                    }
+                }
+                .onAppear {
+                    viewModel.startScanning()
+                }
+                .onDisappear {
+                    viewModel.stopScanning()
                 }
             }
-            .onAppear {
-                viewModel.startScanning()
-            }
-            .onDisappear {
-                viewModel.stopScanning()
+            .navigationTitle("Discover Nearby Servers")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                }
             }
         }
     }

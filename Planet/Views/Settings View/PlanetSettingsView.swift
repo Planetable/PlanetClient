@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PlanetSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
@@ -109,7 +110,7 @@ struct PlanetSettingsView: View {
                 }
             }
             // Disabled navigation title for saving vertical space.
-            // .navigationTitle(PlanetAppTab.settings.name())
+            .navigationTitle(PlanetAppTab.settings.name())
             .onReceive(settingsViewModel.timer) { t in
                 Task(priority: .background) {
                     let status = await self.settingsViewModel.serverIsOnline()
@@ -136,7 +137,17 @@ struct PlanetSettingsView: View {
                         Text("Dismiss")
                     }
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                }
             }
+        }
+        .sheet(isPresented: $appViewModel.showBonjourList) {
+            BonjourListView()
         }
     }
 

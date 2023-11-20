@@ -12,74 +12,57 @@ struct PlanetLatestView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
-
+    
     @State private var isCreating: Bool = false
     @State private var isFailedRefreshing: Bool = false
     @State private var errorMessage: String = ""
-
+    
     var body: some View {
         /* First, load what is already on disk, then attempt to pull the latest content from the remote source.
-        */
-        NavigationStack(path: $appViewModel.latestTabPath) {
-            Group {
-                if latestViewModel.myArticles.count == 0 {
-                    VStack {
-                        // TODO: Redesign the way to present empty state.
-                        Text("No articles.")
-                            .foregroundColor(.secondary)
-                        Button {
-                            refreshAction(skipAlert: false)
-                        } label: {
-                            Text("Reload")
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                } else {
-                    List {
-                        ForEach(latestViewModel.myArticles, id: \.id) { article in
-                            if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
-                                let destination = PlanetArticleView(planet: planet, article: article)
-                                NavigationLink(destination: destination) {
-                                    PlanetLatestItemView(planet: planet, article: article)
-                                }
-                                .listRowSeparator(.hidden)
-                            }
-                        }
-                    }
-                    .listStyle(.plain)
-                }
-            }
-            .disabled(isCreating)
-            .navigationTitle(PlanetAppTab.latest.name())
-            .toolbar {
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
+         */
+        Group {
+            if latestViewModel.myArticles.count == 0 {
+                VStack {
+                    // TODO: Redesign the way to present empty state.
+                    Text("No articles.")
+                        .foregroundColor(.secondary)
                     Button {
-                        isCreating.toggle()
+                        refreshAction(skipAlert: false)
                     } label: {
-                        Image(systemName: "plus")
-                            .resizable()
+                        Text("Reload")
                     }
-                    .sheet(isPresented: $isCreating) {
-                        PlanetNewArticleView()
-                            .environmentObject(myPlanetsViewModel)
+                    .buttonStyle(.borderedProminent)
+                }
+            } else {
+                List {
+                    ForEach(latestViewModel.myArticles, id: \.id) { article in
+                        if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
+                            let destination = PlanetArticleView(planet: planet, article: article)
+                            NavigationLink(destination: destination) {
+                                PlanetLatestItemView(planet: planet, article: article)
+                            }
+                            .listRowSeparator(.hidden)
+                        }
                     }
                 }
-            }
-            .refreshable {
-                refreshAction(skipAlert: false)
-            }
-            .task {
-                refreshAction()
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
-                refreshAction()
-            }
-            .alert(isPresented: $isFailedRefreshing) {
-                Alert(title: Text("Failed to Reload"), message: Text(errorMessage), dismissButton: .cancel(Text("Dismiss")))
+                .listStyle(.plain)
             }
         }
+        .disabled(isCreating)
+        .refreshable {
+            refreshAction(skipAlert: false)
+        }
+        .task {
+            refreshAction()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
+            refreshAction()
+        }
+        .alert(isPresented: $isFailedRefreshing) {
+            Alert(title: Text("Failed to Reload"), message: Text(errorMessage), dismissButton: .cancel(Text("Dismiss")))
+        }
     }
-
+    
     private func refreshAction(skipAlert: Bool = true) {
         Task(priority: .utility) {
             do {
