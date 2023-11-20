@@ -8,12 +8,14 @@ Basic Features:
 - [x] Create a planet with avatar
 - [x] Create an article for selected planet with attachments support (non-live images only)
 - [x] Present API error with alert
+- [x] Edit a planet
+- [x] Edit an article
+- [x] Support basic offline usage
 
 Next:
-- [ ] Edit a planet
-- [ ] Edit an article
-- [ ] Support basic offline usage
-- [ ] Preview an article inside writer
+- [ ] Add template for offline rendering
+- [ ] Preview an article inside writer (with template)
+- [ ] Planet with template options
 
 ## Running Locally
 

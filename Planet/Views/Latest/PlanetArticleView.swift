@@ -31,12 +31,14 @@ struct PlanetArticleView: View {
     }
     
     var body: some View {
-        VStack {
+        Group {
             if let articleURL {
                 PlanetArticleWebView(url: articleURL)
             } else {
-                ProgressView()
-                    .controlSize(.regular)
+                VStack {
+                    ProgressView()
+                        .controlSize(.regular)
+                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
