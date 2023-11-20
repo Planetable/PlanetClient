@@ -84,6 +84,13 @@ struct PlanetMyPlanetsView: View {
                         self.myPlanetsViewModel.updateMyPlanets(planets)
                     }
                 }
+            } catch PlanetError.APIServerIsInactiveError {
+                let planets = try PlanetManager.shared.getMyOfflinePlanetsFromAllNodes()
+                await MainActor.run {
+                    withAnimation {
+                        self.myPlanetsViewModel.updateMyPlanets(planets)
+                    }
+                }
             } catch {
                 await MainActor.run {
                     withAnimation {

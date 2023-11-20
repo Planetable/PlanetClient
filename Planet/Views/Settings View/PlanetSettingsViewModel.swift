@@ -90,11 +90,8 @@ class PlanetSettingsViewModel: ObservableObject {
 
     init() {
         debugPrint("Settings View Model Init.")
-        do {
-            let password = try KeychainHelper.shared.loadValue(forKey: .settingsServerPasswordKey)
+        if let password = try? KeychainHelper.shared.loadValue(forKey: .settingsServerPasswordKey) {
             serverPassword = password
-        } catch {
-            debugPrint("failed to load server password from keychain: \(error)")
         }
     }
 

@@ -76,7 +76,7 @@ class PlanetManager: NSObject {
         return articlePath
     }
 
-    // MARK: - API Methods -
+    // MARK: - API Methods
     // MARK: - list my planets
     func getMyPlanets() async throws -> [Planet] {
         let request = try await createRequest(with: "/v0/planets/my", method: "GET")
@@ -125,6 +125,26 @@ class PlanetManager: NSObject {
             }
         }
         return planets
+    }
+
+    // MARK: - list all my offine planets
+    func getMyOfflinePlanetsFromAllNodes() throws -> [Planet] {
+        let documentPath = try getDocumentPath()
+        let nodeIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: documentPath.path).filter({ !$0.hasPrefix(".") })
+        var planets: [Planet] = []
+        for nodeID in nodeIDs {
+            let thePlanets = try getPlanetsFromNode(byID: nodeID)
+            planets.append(contentsOf: thePlanets)
+        }
+        return planets
+    }
+    
+    // MARK: - list all my offline planets from last active node
+    func getMyOfflinePlanetsFromLastActiveNode() throws -> [Planet] {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else {
+            throw PlanetError.APIArticleNotFoundLocallyError
+        }
+        return try getPlanetsFromNode(byID: nodeID)
     }
     
     // MARK: - create planet
@@ -231,41 +251,75 @@ class PlanetManager: NSObject {
             return p.id
         }
         guard planetIDs.count > 0 else { return [] }
-        return await withTaskGroup(of: [PlanetArticle].self, body: { group in
+        return try await withThrowingTaskGroup(of: [PlanetArticle].self) { group in
             var articles: [PlanetArticle] = []
             // fetch articles from different planets inside task group.
             for planetID in planetIDs {
                 group.addTask {
-                    do {
-                        let request = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
-                        let (data, _) = try await URLSession.shared.data(for: request)
-                        let decoder = JSONDecoder()
-                        let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
-                        let result = planetArticles.map() { p in
-                            var t = p
-                            t.planetID = UUID(uuidString: planetID)
-                            return t
-                        }
-                        // Save articles to:
-                        // /Documents/:node_id/My/:planet_id/articles.json
-                        if let articlesPath = self.getPlanetArticlesPath(forID: planetID) {
-                            let encoder = JSONEncoder()
-                            encoder.outputFormatting = .prettyPrinted
-                            let data = try encoder.encode(result)
-                            try data.write(to: articlesPath)
-                        }
-                        return result
-                    } catch {
-                        debugPrint("failed to fetch articles for planet: \(planetID), error: \(error)")
-                        return []
+                    let request = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
+                    let (data, _) = try await URLSession.shared.data(for: request)
+                    let decoder = JSONDecoder()
+                    let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
+                    let result = planetArticles.map() { p in
+                        var t = p
+                        t.planetID = UUID(uuidString: planetID)
+                        return t
                     }
+                    // Save articles to:
+                    // /Documents/:node_id/My/:planet_id/articles.json
+                    if let articlesPath = self.getPlanetArticlesPath(forID: planetID) {
+                        let encoder = JSONEncoder()
+                        encoder.outputFormatting = .prettyPrinted
+                        let data = try encoder.encode(result)
+                        try data.write(to: articlesPath)
+                    }
+                    return result
                 }
             }
-            for await items in group {
+            for try await items in group {
                 articles.append(contentsOf: items)
             }
             return articles
-        })
+        }
+    }
+    
+    // MARK: - get my offline articles from last active node
+    func getMyOfflineArticlesFromLastActiveNode() throws -> [PlanetArticle] {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else {
+            throw PlanetError.APIArticleNotFoundLocallyError
+        }
+        return try getArticlesFromNode(byID: nodeID)
+    }
+    
+    // MARK: - get my offline articles from available nodes
+    func getMyOfflineArticlesFromAllNodes() throws -> [PlanetArticle] {
+        let documentPath = try getDocumentPath()
+        let nodeIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: documentPath.path).filter({ !$0.hasPrefix(".") })
+        var articles: [PlanetArticle] = []
+        for nodeID in nodeIDs {
+            let nodeArticles = try getArticlesFromNode(byID: nodeID)
+            articles.append(contentsOf: nodeArticles)
+        }
+        return articles
+    }
+        
+    // MARK: - get offline article
+    func getOfflineArticle(id: String, planetID: String) async throws -> URL {
+        let documentPath = try getDocumentPath()
+        let nodes: [String] = try FileManager.default.contentsOfDirectory(atPath: documentPath.path)
+        for node in nodes {
+            let baseURL = documentPath
+                .appending(path: node)
+                .appending(path: "My")
+                .appending(path: planetID)
+                .appending(path: id)
+            let indexURL = baseURL.appending(path: "index.html")
+            let infoURL = baseURL.appending(path: "article.json")
+            if FileManager.default.fileExists(atPath: indexURL.path) && FileManager.default.fileExists(atPath: infoURL.path) {
+                return indexURL
+            }
+        }
+        throw PlanetError.APIArticleNotFoundLocallyError
     }
     
     // MARK: - download article
@@ -396,5 +450,50 @@ class PlanetManager: NSObject {
                 NotificationCenter.default.post(name: .updatePlanets, object: nil)
             }
         }
+    }
+    
+    // MARK: -
+    private func getDocumentPath() throws -> URL {
+        guard let documentPath: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            throw PlanetError.InternalError
+        }
+        return documentPath
+    }
+
+    private func getArticlesFromNode(byID id: String) throws -> [PlanetArticle] {
+        let documentPath = try getDocumentPath()
+        let baseURL = documentPath.appending(path: id).appending(path: "My")
+        let planetIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: baseURL.path)
+        let decoder = JSONDecoder()
+        var articles: [PlanetArticle] = []
+        for planetID in planetIDs {
+            let articleInfoPath = baseURL.appending(path: planetID).appending(path: "articles.json")
+            if !FileManager.default.fileExists(atPath: articleInfoPath.path) {
+                continue
+            }
+            let articlesData = try Data(contentsOf: articleInfoPath)
+            let planetArticles = try decoder.decode([PlanetArticle].self, from: articlesData)
+            articles.append(contentsOf: planetArticles)
+        }
+        return articles
+    }
+    
+    // MARK: -
+    func getPlanetsFromNode(byID id: String) throws -> [Planet] {
+        let documentPath = try getDocumentPath()
+        let baseURL = documentPath.appending(path: id).appending(path: "My")
+        let planetIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: baseURL.path)
+        let decoder = JSONDecoder()
+        var planets: [Planet] = []
+        for planetID in planetIDs {
+            let planetInfoPath = baseURL.appending(path: planetID).appending(path: "planet.json")
+            if !FileManager.default.fileExists(atPath: planetInfoPath.path) {
+                continue
+            }
+            let planetData = try Data(contentsOf: planetInfoPath)
+            let planet = try decoder.decode(Planet.self, from: planetData)
+            planets.append(planet)
+        }
+        return planets
     }
 }

@@ -14,9 +14,10 @@ struct PlanetArticleView: View {
     var planet: Planet
     var article: PlanetArticle
 
-    @State private var articleURL: String?
+    @State private var articleURL: URL?
     @State private var isEdit: Bool = false
     @State private var isWaitingEdit: Bool = false
+    @State private var isOfflineEdit: Bool = false
     @State private var isShare: Bool = false
     @State private var isDelete: Bool = false
     
@@ -24,25 +25,18 @@ struct PlanetArticleView: View {
         _isWaitingEdit = State(wrappedValue: UserDefaults.standard.value(forKey: .editingArticleKey(byID: article.id)) != nil)
         self.planet = planet
         self.article = article
+        let serverURL = PlanetSettingsViewModel.shared.serverURL
+        let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
+        self.articleURL = url
     }
     
     var body: some View {
-        Group {
-            if let articleURL, let url = URL(string: articleURL) {
-                PlanetArticleWebView(url: url)
+        VStack {
+            if let articleURL {
+                PlanetArticleWebView(url: articleURL)
             } else {
-                VStack {
-                    Text("Failed to load article.")
-                        .foregroundColor(.secondary)
-                    Button {
-                        Task {
-                            await self.reloadAction()
-                        }
-                    } label: {
-                        Text("Reload")
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
+                ProgressView()
+                    .controlSize(.regular)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -108,35 +102,52 @@ struct PlanetArticleView: View {
         .alert(isPresented: $isWaitingEdit) {
             Alert(title: Text("Updating Post"), message: Text("Please wait for a few seconds"), dismissButton: .cancel(Text("Dismiss")))
         }
+        .alert(isPresented: $isOfflineEdit) {
+            // MARK: TODO: offline eidt?
+            Alert(title: Text("Offline Edit"), message: Text("Server is not online, all edit will be saved locally until connected."), dismissButton: .cancel(Text("OK")))
+        }
     }
     
     private func reloadAction() async {
-        debugPrint("reloading...")
         await MainActor.run {
             self.articleURL = nil
         }
-        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { return }
-        guard let planetID = article.planetID else { return }
-        let serverURL = PlanetSettingsViewModel.shared.serverURL
-        let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planetID.uuidString)/public/\(article.id)/index.html")
-        await MainActor.run {
-            self.articleURL = url.absoluteString
+        if await PlanetSettingsViewModel.shared.serverIsOnline() {
+            let serverURL = PlanetSettingsViewModel.shared.serverURL
+            let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
+            await MainActor.run {
+                self.articleURL = url
+            }
+        } else {
+            let offlineArticleURL = try? await PlanetManager.shared.getOfflineArticle(id: article.id, planetID: planet.id)
+            await MainActor.run {
+                self.articleURL = offlineArticleURL
+            }
         }
-        debugPrint("reloaded: \(url.absoluteString)")
     }
     
     @ViewBuilder
     private func optionsMenu() -> some View {
         VStack {
             Button {
-                isEdit.toggle()
+                Task {
+                    if await PlanetSettingsViewModel.shared.serverIsOnline() {
+                        await MainActor.run {
+                            self.isEdit.toggle()
+                        }
+                    } else {
+                        await MainActor.run {
+                            self.isOfflineEdit.toggle()
+                        }
+                    }
+                }
             } label: {
                 Label("Edit", systemImage: "pencil.circle")
             }
 
-            let serverURL = PlanetSettingsViewModel.shared.serverURL
-            let url = URL(string: serverURL)!.appendingPathComponent("/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
-            ShareLink("Share", item: url)
+            if let articleURL {
+                ShareLink("Share", item: articleURL)
+            }
             
             Divider()
 

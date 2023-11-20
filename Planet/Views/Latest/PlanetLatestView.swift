@@ -38,7 +38,8 @@ struct PlanetLatestView: View {
                     List {
                         ForEach(latestViewModel.myArticles, id: \.id) { article in
                             if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
-                                NavigationLink(destination: PlanetArticleView(planet: planet, article: article)) {
+                                let destination = PlanetArticleView(planet: planet, article: article)
+                                NavigationLink(destination: destination) {
                                     PlanetLatestItemView(planet: planet, article: article)
                                 }
                                 .listRowSeparator(.hidden)
@@ -83,6 +84,13 @@ struct PlanetLatestView: View {
         Task(priority: .utility) {
             do {
                 let articles = try await PlanetManager.shared.getMyArticles()
+                await MainActor.run {
+                    withAnimation {
+                        self.latestViewModel.updateMyArticles(articles)
+                    }
+                }
+            } catch PlanetError.APIServerIsInactiveError {
+                let articles = try PlanetManager.shared.getMyOfflineArticlesFromAllNodes()
                 await MainActor.run {
                     withAnimation {
                         self.latestViewModel.updateMyArticles(articles)

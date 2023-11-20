@@ -11,7 +11,12 @@ import SwiftUI
 class PlanetAppViewModel: ObservableObject {
     static let shared = PlanetAppViewModel()
 
-    @Published var currentNodeID: String? = nil
+    @Published var currentNodeID: String? = UserDefaults.standard.string(forKey: .settingsNodeIDKey) {
+        didSet {
+            guard let currentNodeID else { return }
+            UserDefaults.standard.setValue(currentNodeID, forKey: .settingsNodeIDKey)
+        }
+    }
     @Published var latestTabPath: NavigationPath = NavigationPath()
     @Published var planetsTabPath: NavigationPath = NavigationPath()
     @Published var settingsTabPath: NavigationPath = NavigationPath()

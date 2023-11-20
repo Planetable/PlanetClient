@@ -31,6 +31,7 @@ enum PlanetError: Error {
     case APIServerIsInactiveError
     case APIServerAuthenticationInvalidError
     case APIArticleNotFoundError
+    case APIArticleNotFoundLocallyError
     case KeyManagerSavingKeyError
     case KeyManagerLoadingKeyError
     case KeyManagerDeletingKeyError
@@ -104,6 +105,8 @@ extension PlanetError: LocalizedError {
             return NSLocalizedString("API Server Authentication Invalid", comment: "")
         case .APIArticleNotFoundError:
             return NSLocalizedString("API Article Not Found", comment: "")
+        case .APIArticleNotFoundLocallyError:
+            return NSLocalizedString("API Article Not Found Locally", comment: "")
         case .KeyManagerSavingKeyError:
             return NSLocalizedString("Key Manager Saving Key Error", comment: "")
         case .KeyManagerLoadingKeyError:

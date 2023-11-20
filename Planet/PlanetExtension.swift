@@ -19,6 +19,7 @@ extension String {
     static let settingsServerAuthenticationEnabledKey = "PlanetSettingsServerAuthenticationEnabledKey"
     static let settingsServerUsernameKey = "PlanetSettingsServerUsernameKey"
     static let settingsServerPasswordKey = "PlanetSettingsServerPasswordKey"
+    static let settingsNodeIDKey = "PlanetSettingsNodeIDKey"
     
     static func editingArticleKey(byID id: String) -> String {
         return "PlanetEditingArticleKey-\(id)"
