@@ -11,10 +11,13 @@ import SwiftUI
 struct PlanetLatestItemView: View {
     var planet: Planet
     var article: PlanetArticle
+    var showAvatar: Bool = true
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            planet.avatarView(.medium)
+            if showAvatar {
+                planet.avatarView(.medium)
+            }
             VStack(alignment: .leading, spacing: 4) {
                 VStack(alignment: .leading) {
                     Text(article.title)

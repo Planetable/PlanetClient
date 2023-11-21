@@ -11,7 +11,8 @@ import SwiftUI
 struct PlanetMyPlanetsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
-    
+    @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
+
     @State private var isCreating: Bool = false
     @State private var isFailedRefreshing: Bool = false
     @State private var errorMessage: String = ""
@@ -38,7 +39,10 @@ struct PlanetMyPlanetsView: View {
             } else {
                 List {
                     ForEach(myPlanetsViewModel.myPlanets, id: \.id) { planet in
-                        NavigationLink(destination: PlanetMyPlanetInfoView(planet: planet)) {
+                        NavigationLink {
+                            PlanetMyPlanetInfoView(planet: planet)
+                                .environmentObject(latestViewModel)
+                        } label: {
                             planet.listItemView()
                         }
                     }

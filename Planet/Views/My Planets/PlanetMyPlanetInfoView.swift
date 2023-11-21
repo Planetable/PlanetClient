@@ -4,6 +4,7 @@ import PhotosUI
 
 struct PlanetMyPlanetInfoView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
 
     var planet: Planet
     
@@ -121,6 +122,22 @@ struct PlanetMyPlanetInfoView: View {
                     Text("Description")
                 }
                 .textCase(.none)
+                
+                let latest: [PlanetArticle] = latestViewModel.myArticles.filter({ $0.planetID?.uuidString == planet.id })
+                if latest.count > 0 {
+                    Section {
+                        ForEach(latest, id: \.id) { article in
+                            NavigationLink {
+                                PlanetArticleView(planet: planet, article: article)
+                            } label: {
+                                PlanetLatestItemView(planet: planet, article: article, showAvatar: false)
+                            }
+                        }
+                    } header: {
+                        Text("Latest")
+                    }
+                    .textCase(.none)
+                }
             }
         }
         .toolbar {
@@ -175,6 +192,29 @@ struct PlanetMyPlanetInfoView: View {
             }
         }
         .task {
+            Task(priority: .background) {
+                do {
+                    let articles = try await PlanetManager.shared.getMyArticles()
+                    await MainActor.run {
+                        withAnimation {
+                            self.latestViewModel.updateMyArticles(articles)
+                        }
+                    }
+                } catch PlanetError.APIServerIsInactiveError {
+                    let articles = try PlanetManager.shared.getMyOfflineArticlesFromAllNodes()
+                    await MainActor.run {
+                        withAnimation {
+                            self.latestViewModel.updateMyArticles(articles)
+                        }
+                    }
+                } catch {
+                    await MainActor.run {
+                        withAnimation {
+                            self.latestViewModel.updateMyArticles([])
+                        }
+                    }
+                }
+            }
             planetName = planet.name
             planetAbout = planet.about
             if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {

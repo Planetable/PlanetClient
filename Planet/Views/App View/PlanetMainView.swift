@@ -19,6 +19,7 @@ struct PlanetMainView: View {
                 default:
                     PlanetMyPlanetsView()
                         .environmentObject(appViewModel)
+                        .environmentObject(latestViewModel)
                         .environmentObject(myPlanetsViewModel)
                 }
             }

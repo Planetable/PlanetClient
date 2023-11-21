@@ -26,6 +26,7 @@ struct PlanetAppView: View {
                 .tag(PlanetAppTab.latest)
             PlanetMyPlanetsView()
                 .environmentObject(appViewModel)
+                .environmentObject(latestViewModel)
                 .environmentObject(myPlanetsViewModel)
                 .tabItem {
                     Label(PlanetAppTab.myPlanets.name(), systemImage: "globe")
