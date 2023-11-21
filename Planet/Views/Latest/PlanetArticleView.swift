@@ -16,7 +16,11 @@ struct PlanetArticleView: View {
 
     @State private var articleURL: URL?
     @State private var isEdit: Bool = false
-    @State private var isWaitingEdit: Bool = false
+    @State private var isWaitingEdit: Bool = false {
+        didSet {
+            debugPrint("is waiting edit: \(isWaitingEdit)")
+        }
+    }
     @State private var isOfflineEdit: Bool = false
     @State private var isShare: Bool = false
     @State private var isDelete: Bool = false
@@ -86,8 +90,7 @@ struct PlanetArticleView: View {
             Text("Are you sure you want to delete \(article.title)? This action cannot to undone.")
         }
         .onReceive(NotificationCenter.default.publisher(for: .reloadArticle(byID: article.id))) { _ in
-            debugPrint("reloading article: \(article.id)")
-            Task {
+            Task { @MainActor in
                 await self.reloadAction()
             }
         }
@@ -100,13 +103,6 @@ struct PlanetArticleView: View {
             Task { @MainActor in
                 self.isWaitingEdit = false
             }
-        }
-        .alert(isPresented: $isWaitingEdit) {
-            Alert(title: Text("Updating Post"), message: Text("Please wait for a few seconds"), dismissButton: .cancel(Text("Dismiss")))
-        }
-        .alert(isPresented: $isOfflineEdit) {
-            // MARK: TODO: offline eidt?
-            Alert(title: Text("Offline Edit"), message: Text("Server is not online, all edit will be saved locally until connected."), dismissButton: .cancel(Text("OK")))
         }
     }
     
@@ -131,6 +127,16 @@ struct PlanetArticleView: View {
     @ViewBuilder
     private func optionsMenu() -> some View {
         VStack {
+            Button {
+                Task { @MainActor in
+                    await self.reloadAction()
+                }
+            } label: {
+                Label("Reload", systemImage: "arrow.clockwise")
+            }
+            
+            Divider()
+            
             Button {
                 Task {
                     if await PlanetSettingsViewModel.shared.serverIsOnline() {
