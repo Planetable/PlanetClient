@@ -48,9 +48,9 @@ struct PlanetAttachmentsView: View {
         ScrollView(.horizontal, showsIndicators: true) {
             LazyHStack {
                 PhotosPicker(selection: $selectedItem, matching: .any(of: [.images, .not(.livePhotos)])) {
-                    Image(systemName: "plus")
+                    Image(systemName: "plus.circle")
                         .resizable()
-                        .frame(width: 14, height: 14)
+                        .frame(width: 20, height: 20)
                 }
                 .buttonStyle(.plain)
                 .padding(.leading, 24)
@@ -89,7 +89,7 @@ struct PlanetAttachmentsView: View {
         }
         .frame(maxWidth: .infinity)
         .background {
-            Color.secondary.opacity(0.25)
+            Color.secondary.opacity(0.15)
         }
         .confirmationDialog("", isPresented: $isTapped) {
             Button(role: .cancel) {
