@@ -38,12 +38,12 @@ struct PlanetMainView: View {
                         Button {
                             appViewModel.newArticle.toggle()
                         } label: {
-                            Text("New Article")
+                            Label("New Article", systemImage: "plus")
                         }
                         Button {
                             appViewModel.newPlanet.toggle()
                         } label: {
-                            Text("New Planet")
+                            Label("New Planet", systemImage: "plus")
                         }
                     } label: {
                         Image(systemName: "plus")

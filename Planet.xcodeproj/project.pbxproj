@@ -135,6 +135,7 @@
 		2AC7CC0029A0AC960089C58C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				2A6A01612B0BB1E6007D3DD0 /* PlanetMainView.swift */,
 				6A5EA27C2AECF97A006DEBC1 /* Bonjour */,
 				2AC7CC0329A0B4C80089C58C /* App View */,
 				2AC7CC2429A2AD5F0089C58C /* Latest */,
@@ -150,7 +151,6 @@
 			children = (
 				2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */,
 				2AAF3E4F299E112300CA60AD /* PlanetAppView.swift */,
-				2A6A01612B0BB1E6007D3DD0 /* PlanetMainView.swift */,
 			);
 			path = "App View";
 			sourceTree = "<group>";

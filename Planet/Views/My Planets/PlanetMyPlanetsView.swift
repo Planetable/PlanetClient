@@ -45,6 +45,7 @@ struct PlanetMyPlanetsView: View {
                         } label: {
                             planet.listItemView()
                         }
+                        .listRowSeparator(.hidden)
                     }
                 }
                 .listStyle(.plain)
