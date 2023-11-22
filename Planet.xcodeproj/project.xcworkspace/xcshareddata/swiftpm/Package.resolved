@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "planetsitetemplates",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Planetable/PlanetSiteTemplates.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "7cc1744d68ee898988926f66ac3e7b2a84a3fb73"
+      }
+    }
+  ],
+  "version" : 2
+}
