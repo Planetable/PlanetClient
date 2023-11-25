@@ -33,7 +33,7 @@ struct PlanetEditArticleView: View {
                         try selectedPhotoData.write(to: url)
                         if let image = UIImage(data: selectedPhotoData) {
                             await MainActor.run {
-                                let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+                                let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image.removeEXIFData(), url: url)
                                 self.uploadedImages.insert(attachment, at:0)
                             }
                         }

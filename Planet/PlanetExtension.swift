@@ -94,4 +94,12 @@ extension UIImage {
         }
         return resizedImage
     }
+
+    func removeEXIFData() -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: self.size)
+        let newImage = renderer.image { (context) in
+            self.draw(in: CGRect(origin: .zero, size: self.size))
+        }
+        return newImage
+    }
 }
