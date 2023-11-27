@@ -64,10 +64,16 @@ struct PlanetNewArticleView: View {
                         dismiss()
                         removeAttachments()
                     } label: {
-                        Text("Cancel")
+                        Image(systemName: "xmark")
                     }
                 }
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+
+                    } label: {
+                        Image(systemName: "eye.fill")
+                    }
+                    .disabled(title == "" && content == "")
                     Button {
                         dismiss()
                         guard let selectedPlanet else { return }
@@ -92,7 +98,7 @@ struct PlanetNewArticleView: View {
                             }
                         }
                     } label: {
-                        Text("Send")
+                        Image(systemName: "paperplane.fill")
                     }
                     .disabled(title == "" || myPlanetsViewModel.myPlanets.count == 0)
                 }
