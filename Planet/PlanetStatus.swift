@@ -13,7 +13,7 @@ actor PlanetStatus {
 
     private func cacheIsValid() -> Bool {
         let now = Int(Date().timeIntervalSince1970)
-        return now - cachedServerDate <= 5
+        return now - cachedServerDate < 5
     }
 
     func serverIsOnline() async -> Bool {
