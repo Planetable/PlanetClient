@@ -50,11 +50,7 @@ struct PlanetLatestItemView: View {
         }
         .contentShape(Rectangle())
         .task(id: article.id, priority: .background) {
-            do {
-                try await PlanetManager.shared.downloadArticle(id: article.id, planetID: planet.id)
-            } catch {
-                debugPrint("failed to download article: \(error)")
-            }
+            try? await PlanetManager.shared.downloadArticle(id: article.id, planetID: planet.id)
         }
     }
 }

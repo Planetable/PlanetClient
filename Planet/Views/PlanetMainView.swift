@@ -96,21 +96,15 @@ struct PlanetMainView: View {
             PlanetNewPlanetView()
         }
         .onReceive(settingsViewModel.timer) { _ in
-            Task(priority: .background) {
-                let status = await PlanetStatus.shared.serverIsOnline()
-                await MainActor.run {
-                    withAnimation {
-                        self.serverStatus = status
-                    }
+            Task { @MainActor in
+                let serverStatus = await PlanetStatus.shared.serverIsOnline()
+                withAnimation {
+                    self.serverStatus = serverStatus
                 }
-            }
-            Task(priority: .background) {
                 let allKeys = UserDefaults.standard.dictionaryRepresentation().keys
-                let status = allKeys.filter({ $0.hasPrefix("PlanetEditingArticleKey-") }).count > 0
-                await MainActor.run {
-                    withAnimation {
-                        self.isWaitingUpdate = status
-                    }
+                let waitingStatus = allKeys.filter({ $0.hasPrefix("PlanetEditingArticleKey-") }).count > 0
+                withAnimation {
+                    self.isWaitingUpdate = waitingStatus
                 }
             }
         }

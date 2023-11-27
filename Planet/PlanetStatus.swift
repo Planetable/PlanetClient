@@ -4,20 +4,22 @@ import SwiftUI
 
 actor PlanetStatus {
     static let shared = PlanetStatus()
+    static let key: String = "LastCachedServerStatus"
 
     let settingsViewModel = PlanetSettingsViewModel()
 
-    // MARK: TODO: cached server status for 5 seconds
-    private var cachedServerStatus: Bool = false {
-        willSet {
+    private var cachedServerStatus: Bool = false
+    private var cachedServerDate: Int = Int(Date().timeIntervalSince1970)
 
-        }
-        didSet {
-
-        }
+    private func cacheIsValid() -> Bool {
+        let now = Int(Date().timeIntervalSince1970)
+        return now - cachedServerDate <= 5
     }
 
     func serverIsOnline() async -> Bool {
+        if cacheIsValid() {
+            return cachedServerStatus
+        }
         let serverURL = settingsViewModel.serverURL
         let serverAuthenticationEnabled = settingsViewModel.serverAuthenticationEnabled
         let serverUsername = settingsViewModel.serverUsername
@@ -50,6 +52,8 @@ actor PlanetStatus {
                 let status = responseStatusCode == 200
                 self.settingsViewModel.updatePreviousServerURL(url)
                 self.settingsViewModel.updatePreviousServerStatus(status)
+                self.cachedServerStatus = status
+                self.cachedServerDate = Int(Date().timeIntervalSince1970)
                 return status
             } catch {
                 debugPrint("failed to get node id: \(error)")
