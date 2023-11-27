@@ -129,7 +129,7 @@ struct PlanetNewPlanetView: View {
                 }
             }
             .task(priority: .background) {
-                let status = await PlanetSettingsViewModel.shared.serverIsOnline()
+                let status = await PlanetStatus.shared.serverIsOnline()
                 await MainActor.run {
                     self.serverStatus = status
                 }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A4CD10129A40B160085F6CC /* PlanetAttachmentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4CD10029A40B160085F6CC /* PlanetAttachmentsView.swift */; };
+		2A6386C12B14D21400451465 /* PlanetStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6386C02B14D21400451465 /* PlanetStatus.swift */; };
 		2A6A01602B062E6C007D3DD0 /* PlanetEditArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */; };
 		2A6A01622B0BB1E6007D3DD0 /* PlanetMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6A01612B0BB1E6007D3DD0 /* PlanetMainView.swift */; };
 		2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */; };
@@ -42,6 +43,7 @@
 
 /* Begin PBXFileReference section */
 		2A4CD10029A40B160085F6CC /* PlanetAttachmentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAttachmentsView.swift; sourceTree = "<group>"; };
+		2A6386C02B14D21400451465 /* PlanetStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetStatus.swift; sourceTree = "<group>"; };
 		2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetEditArticleView.swift; sourceTree = "<group>"; };
 		2A6A01612B0BB1E6007D3DD0 /* PlanetMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetMainView.swift; sourceTree = "<group>"; };
 		2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 			children = (
 				2AC7CC1929A1F8350089C58C /* Info.plist */,
 				2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */,
+				2A6386C02B14D21400451465 /* PlanetStatus.swift */,
 				2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */,
 				2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */,
 				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
@@ -305,6 +308,7 @@
 				2AC7CC0F29A153E50089C58C /* PlanetMyPlanetInfoView.swift in Sources */,
 				2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */,
 				2A4CD10129A40B160085F6CC /* PlanetAttachmentsView.swift in Sources */,
+				2A6386C12B14D21400451465 /* PlanetStatus.swift in Sources */,
 				2AC7CC2A29A38B9A0089C58C /* PlanetLatestItemView.swift in Sources */,
 				2AC7CC2C29A38E880089C58C /* PlanetArticleView.swift in Sources */,
 				2AC7CC2E29A3AA2E0089C58C /* PlanetArticleWebView.swift in Sources */,

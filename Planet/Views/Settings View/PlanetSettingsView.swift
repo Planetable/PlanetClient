@@ -113,7 +113,7 @@ struct PlanetSettingsView: View {
             .navigationTitle(PlanetAppTab.settings.name())
             .onReceive(settingsViewModel.timer) { t in
                 Task(priority: .background) {
-                    let status = await self.settingsViewModel.serverIsOnline()
+                    let status = await PlanetStatus.shared.serverIsOnline()
                     await MainActor.run {
                         self.serverOnlineStatus = status
                     }
@@ -122,7 +122,7 @@ struct PlanetSettingsView: View {
             .onAppear {
                 Task(priority: .background) {
                     self.settingsViewModel.resetPreviousServerInfo()
-                    let status = await self.settingsViewModel.serverIsOnline()
+                    let status = await PlanetStatus.shared.serverIsOnline()
                     await MainActor.run {
                         self.serverOnlineStatus = status
                     }

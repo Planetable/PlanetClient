@@ -17,7 +17,7 @@ class PlanetManager: NSObject {
     }
 
     private func createRequest(with path: String, method: String) async throws -> URLRequest {
-        guard await PlanetSettingsViewModel.shared.serverIsOnline() else { throw PlanetError.APIServerIsInactiveError }
+        guard await PlanetStatus.shared.serverIsOnline() else { throw PlanetError.APIServerIsInactiveError }
         let serverURL = PlanetSettingsViewModel.shared.serverURL
         let url = URL(string: serverURL)!.appending(path: path)
         var request = URLRequest(url: url)

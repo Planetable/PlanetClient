@@ -220,7 +220,7 @@ struct PlanetMyPlanetInfoView: View {
             if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
                 planetAvatarPath = avatarURL.path
             }
-            serverStatus = await PlanetSettingsViewModel.shared.serverIsOnline()
+            serverStatus = await PlanetStatus.shared.serverIsOnline()
         }
     }
 

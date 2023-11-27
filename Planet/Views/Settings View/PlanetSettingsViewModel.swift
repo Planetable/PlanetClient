@@ -23,7 +23,8 @@ class PlanetSettingsViewModel: ObservableObject {
         didSet {
             resetPreviousServerInfo()
             Task(priority: .background) {
-                if await self.serverIsOnline() {
+                let status = await PlanetStatus.shared.serverIsOnline()
+                if status {
                     UserDefaults.standard.set(self.serverURL, forKey: .settingsServerURLKey)
                 }
             }
@@ -86,7 +87,6 @@ class PlanetSettingsViewModel: ObservableObject {
             }
         }
     }
-    @Published var validatingServerStatus: Bool = false
 
     init() {
         debugPrint("Settings View Model Init.")
@@ -116,44 +116,11 @@ class PlanetSettingsViewModel: ObservableObject {
         }
     }
 
-    func serverIsOnline() async -> Bool {
-        if let url = URL(string: serverURL) {
-            let requestIdURL = url.appending(path: "/v0/id")
-            let data = try? Data(contentsOf: requestIdURL)
-            if let data = data, let currentNodeID = String(data: data, encoding: .utf8) {
-                Task { @MainActor in
-                    PlanetAppViewModel.shared.currentNodeID = currentNodeID
-                }
-                debugPrint("👌 Connected. Current Node ID is: \(currentNodeID)")
-            }
-            var request = URLRequest(
-                url: url.appending(path: "/v0/planets/my"),
-                cachePolicy: .reloadIgnoringCacheData,
-                timeoutInterval: 5
-            )
-            request.httpMethod = "GET"
-            if serverAuthenticationEnabled {
-                let loginValue = try? PlanetManager.shared.basicAuthenticationValue(
-                    username: serverUsername,
-                    password: serverPassword
-                )
-                request.setValue(loginValue, forHTTPHeaderField: "Authorization")
-            }
-            do {
-                let (_, response) = try await URLSession.shared.data(for: request)
-                let responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-                let status = responseStatusCode == 200
-                previousStatus = status
-                previousURL = url
-                return status
-            }
-            catch {
-                resetPreviousServerInfo()
-            }
-        }
-        else {
-            resetPreviousServerInfo()
-        }
-        return false
+    func updatePreviousServerURL(_ url: URL) {
+        previousURL = url
+    }
+
+    func updatePreviousServerStatus(_ flag: Bool) {
+        previousStatus = flag
     }
 }

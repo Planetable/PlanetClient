@@ -97,7 +97,7 @@ struct PlanetMainView: View {
         }
         .onReceive(settingsViewModel.timer) { _ in
             Task(priority: .background) {
-                let status = await self.settingsViewModel.serverIsOnline()
+                let status = await PlanetStatus.shared.serverIsOnline()
                 await MainActor.run {
                     withAnimation {
                         self.serverStatus = status

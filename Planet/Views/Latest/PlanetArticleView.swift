@@ -105,7 +105,7 @@ struct PlanetArticleView: View {
         await MainActor.run {
             self.articleURL = nil
         }
-        if await PlanetSettingsViewModel.shared.serverIsOnline() {
+        if await PlanetStatus.shared.serverIsOnline() {
             let serverURL = PlanetSettingsViewModel.shared.serverURL
             let url = URL(string: serverURL)!.appending(path: "/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
             await MainActor.run {
@@ -136,7 +136,7 @@ struct PlanetArticleView: View {
             
             Button {
                 Task {
-                    if await PlanetSettingsViewModel.shared.serverIsOnline() {
+                    if await PlanetStatus.shared.serverIsOnline() {
                         await MainActor.run {
                             self.isEdit.toggle()
                         }
