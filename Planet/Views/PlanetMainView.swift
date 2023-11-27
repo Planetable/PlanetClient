@@ -7,9 +7,19 @@ struct PlanetMainView: View {
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
+    @State private var serverStatus: Bool = true
+
     var body: some View {
         NavigationStack(path: $appViewModel.path) {
             VStack {
+                if !serverStatus {
+                    HStack {
+                        Text("Server is offline.")
+                            .font(.footnote)
+                            .foregroundStyle(Color.secondary)
+                    }
+                    .ignoresSafeArea(edges: .horizontal)
+                }
                 switch appViewModel.selectedTab {
                 case .latest:
                     PlanetLatestView()
@@ -74,6 +84,16 @@ struct PlanetMainView: View {
         }
         .sheet(isPresented: $appViewModel.newPlanet) {
             PlanetNewPlanetView()
+        }
+        .onReceive(settingsViewModel.timer) { _ in
+            Task(priority: .background) {
+                let status = await self.settingsViewModel.serverIsOnline()
+                await MainActor.run {
+                    withAnimation {
+                        self.serverStatus = status
+                    }
+                }
+            }
         }
     }
 }
