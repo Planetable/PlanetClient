@@ -11,7 +11,11 @@ struct PlanetNewArticleView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
 
-    @State private var selectedPlanetIndex: Int = 0
+    @State private var selectedPlanetIndex: Int = UserDefaults.standard.integer(forKey: .selectedPlanetIndex) {
+        didSet {
+            UserDefaults.standard.setValue(selectedPlanetIndex, forKey: .selectedPlanetIndex)
+        }
+    }
     @State private var selectedPlanet: Planet?
     @State private var selectedAttachments: [PlanetArticleAttachment] = []
     @State private var title: String = ""
