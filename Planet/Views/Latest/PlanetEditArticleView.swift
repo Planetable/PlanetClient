@@ -21,25 +21,25 @@ struct PlanetEditArticleView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedPhotoData: Data? {
         didSet {
-            Task(priority: .background) {
-                if let selectedPhotoData {
+            Task(priority: .utility) {
+                if let selectedPhotoData, let image = UIImage(data: selectedPhotoData), let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
                     let planetID = planet.id
                     let imageName = planetID.prefix(4) + "-" + String(UUID().uuidString.prefix(4)) + ".png"
                     let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
+                    let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
                     do {
                         if FileManager.default.fileExists(atPath: url.path) {
                             try FileManager.default.removeItem(at: url)
                         }
-                        try selectedPhotoData.write(to: url)
-                        if let image = UIImage(data: selectedPhotoData) {
-                            await MainActor.run {
-                                let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image.removeEXIFData(), url: url)
-                                self.uploadedImages.insert(attachment, at:0)
-                            }
+                        try imageData.write(to: url)
+                        Task { @MainActor in
+                            self.uploadedImages.insert(attachment, at:0)
                         }
                     } catch {
                         debugPrint("failed to save photo data: \(error)")
                     }
+                } else {
+                    debugPrint("failed to save photo data.")
                 }
             }
         }

@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import MobileCoreServices
 import UniformTypeIdentifiers
 
 
@@ -95,11 +96,22 @@ extension UIImage {
         return resizedImage
     }
 
-    func removeEXIFData() -> UIImage {
-        let renderer = UIGraphicsImageRenderer(size: self.size)
-        let newImage = renderer.image { (context) in
-            self.draw(in: CGRect(origin: .zero, size: self.size))
+    func removeEXIF() -> UIImage? {
+        guard let imageData = self.pngData() else {
+            return nil
         }
-        return newImage
+        guard let source = CGImageSourceCreateWithData(imageData as CFData, nil) else {
+            return nil
+        }
+        let mutableData = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(mutableData, "public.png" as CFString, 1, nil) else {
+            return nil
+        }
+        CGImageDestinationAddImageFromSource(destination, source, 0, nil)
+        CGImageDestinationFinalize(destination)
+        guard let image = UIImage(data: mutableData as Data) else {
+            return nil
+        }
+        return image
     }
 }

@@ -16,11 +16,7 @@ struct PlanetArticleView: View {
 
     @State private var articleURL: URL?
     @State private var isEdit: Bool = false
-    @State private var isWaitingEdit: Bool = false {
-        didSet {
-            debugPrint("is waiting edit: \(isWaitingEdit)")
-        }
-    }
+    @State private var isWaitingEdit: Bool = false
     @State private var isOfflineEdit: Bool = false
     @State private var isShare: Bool = false
     @State private var isDelete: Bool = false
@@ -49,7 +45,6 @@ struct PlanetArticleView: View {
         .navigationTitle(article.title)
         .ignoresSafeArea(edges: .bottom)
         .task {
-            debugPrint("on task reload action")
             await self.reloadAction()
         }
         .toolbar {
@@ -116,11 +111,13 @@ struct PlanetArticleView: View {
             await MainActor.run {
                 self.articleURL = url
             }
+            debugPrint("reload online url: \(url)")
         } else {
             let offlineArticleURL = try? await PlanetManager.shared.getOfflineArticle(id: article.id, planetID: planet.id)
             await MainActor.run {
                 self.articleURL = offlineArticleURL
             }
+            debugPrint("reload offline url: \(String(describing: offlineArticleURL))")
         }
     }
     
