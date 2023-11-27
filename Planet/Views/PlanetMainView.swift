@@ -8,16 +8,26 @@ struct PlanetMainView: View {
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
     @State private var serverStatus: Bool = true
+    @State private var isWaitingUpdate: Bool = false
 
     var body: some View {
         NavigationStack(path: $appViewModel.path) {
             VStack {
                 if !serverStatus {
                     HStack {
-                        Text("Server is offline.")
+                        Text("Server is offline")
                             .font(.footnote)
                             .foregroundStyle(Color.secondary)
                     }
+                    .ignoresSafeArea(edges: .horizontal)
+                } else if isWaitingUpdate {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Updating post in background")
+                            .font(.footnote)
+                    }
+                    .foregroundStyle(Color.secondary)
                     .ignoresSafeArea(edges: .horizontal)
                 }
                 switch appViewModel.selectedTab {
@@ -91,6 +101,15 @@ struct PlanetMainView: View {
                 await MainActor.run {
                     withAnimation {
                         self.serverStatus = status
+                    }
+                }
+            }
+            Task(priority: .background) {
+                let allKeys = UserDefaults.standard.dictionaryRepresentation().keys
+                let status = allKeys.filter({ $0.hasPrefix("PlanetEditingArticleKey-") }).count > 0
+                await MainActor.run {
+                    withAnimation {
+                        self.isWaitingUpdate = status
                     }
                 }
             }
