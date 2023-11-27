@@ -29,9 +29,6 @@ struct PlanetNewArticleView: View {
                             planet.avatarView(.medium)
                         }
                     }
-                    .sheet(isPresented: $isPickerPresented) {
-                        planetPickerView()
-                    }
 
                     TextField("Title", text: $title)
                         .textFieldStyle(.plain)
@@ -122,6 +119,9 @@ struct PlanetNewArticleView: View {
                     }
                 }
             }
+            .sheet(isPresented: $isPickerPresented) {
+                planetPickerView()
+            }
         }
     }
     
@@ -138,6 +138,9 @@ struct PlanetNewArticleView: View {
                             selectedPlanet = planet
                             debugPrint("selected planet: \(planet)")
                             isPickerPresented = false  // Assuming you want to dismiss the view on selection
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                                NotificationCenter.default.post(name: .reloadAvatar(byID: planet.id), object: nil)
+                            }
                         }
                 }
             }
