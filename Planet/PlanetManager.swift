@@ -74,7 +74,7 @@ class PlanetManager: NSObject {
             return nil
         }
         let articlePath = planetPath.appending(path: articleID)
-        if FileManager.default.fileExists(atPath: articlePath.path) == false {
+        if !FileManager.default.fileExists(atPath: articlePath.path) {
             try? FileManager.default.createDirectory(at: articlePath, withIntermediateDirectories: true)
         }
         return articlePath
@@ -469,7 +469,10 @@ class PlanetManager: NSObject {
 
     private func getArticlesFromNode(byID id: String) throws -> [PlanetArticle] {
         let documentPath = try getDocumentPath()
-        let baseURL = documentPath.appending(path: id).appending(path: "My")
+        let nodeURL = documentPath.appending(path: id)
+        guard FileManager.default.fileExists(atPath: nodeURL.path) else { throw PlanetError.APINodeNotExistsError }
+        debugPrint("get articles offline from node: \(id), at: \(nodeURL)")
+        let baseURL = nodeURL.appending(path: "My")
         let planetIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: baseURL.path)
         let decoder = JSONDecoder()
         var articles: [PlanetArticle] = []
@@ -488,7 +491,10 @@ class PlanetManager: NSObject {
     // MARK: -
     func getPlanetsFromNode(byID id: String) throws -> [Planet] {
         let documentPath = try getDocumentPath()
-        let baseURL = documentPath.appending(path: id).appending(path: "My")
+        let nodeURL = documentPath.appending(path: id)
+        guard FileManager.default.fileExists(atPath: nodeURL.path) else { throw PlanetError.APINodeNotExistsError }
+        debugPrint("get planets offline from node: \(id), at: \(nodeURL)")
+        let baseURL = nodeURL.appending(path: "My")
         let planetIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: baseURL.path)
         let decoder = JSONDecoder()
         var planets: [Planet] = []

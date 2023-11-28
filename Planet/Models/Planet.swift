@@ -36,23 +36,16 @@ struct Planet: Codable, Identifiable, Hashable {
     let lastPublishedCID: String?
     let ipns: String?
 
-    // MARK: TODO: improve for offline
     static func getPlanet(forID planetID: String) -> Self? {
-        if let planetPath = PlanetManager.shared.getPlanetPath(forID: planetID),
-            let planetData = FileManager.default.contents(
-                atPath: planetPath.appending(path: "planet.json").path
-            )
-        {
-            do {
-                let planet = try JSONDecoder().decode(Planet.self, from: planetData)
-                return planet
-            }
-            catch {
-                print("Error decoding planet: \(error)")
-            }
-        }
-        else {
-            print("Error getting planet path for ID: \(planetID)")
+        guard let planetPath = PlanetManager.shared.getPlanetPath(forID: planetID) else { return nil }
+        let planetInfoPath = planetPath.appending(path: "planet.json")
+        guard FileManager.default.fileExists(atPath: planetInfoPath.path) else { return nil }
+        do {
+            let data = try Data(contentsOf: planetInfoPath)
+            let planet = try JSONDecoder().decode(Planet.self, from: data)
+            return planet
+        } catch {
+            debugPrint("failed to get planet data: \(error), at: \(planetInfoPath)")
         }
         return nil
     }

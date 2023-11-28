@@ -64,6 +64,7 @@ struct PlanetLatestView: View {
     }
     
     private func refreshAction(skipAlert: Bool = true) {
+        debugPrint("refresh action in latest view, skip alert: \(skipAlert)")
         Task(priority: .utility) {
             do {
                 let articles = try await PlanetManager.shared.getMyArticles()
@@ -73,6 +74,7 @@ struct PlanetLatestView: View {
                     }
                 }
             } catch PlanetError.APIServerIsInactiveError {
+                debugPrint("failed to get articles online, try offline articles from all nodes ...")
                 let articles = try PlanetManager.shared.getMyOfflineArticlesFromAllNodes()
                 await MainActor.run {
                     withAnimation {
