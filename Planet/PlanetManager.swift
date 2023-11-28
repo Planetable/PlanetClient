@@ -13,8 +13,17 @@ import PlanetSiteTemplates
 class PlanetManager: NSObject {
     static let shared = PlanetManager()
     
+    var templates: [BuiltInTemplate] = []
+    
     private override init() {
         debugPrint("Planet Manager Init.")
+        super.init()
+        Task(priority: .utility) {
+            self.templates = PlanetSiteTemplates.builtInTemplates
+            for template in self.templates {
+                debugPrint("template: \(template.name), loaded at: \(template.assets)")
+            }
+        }
     }
 
     private func createRequest(with path: String, method: String) async throws -> URLRequest {

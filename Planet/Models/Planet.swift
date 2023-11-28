@@ -42,7 +42,8 @@ struct Planet: Codable, Identifiable, Hashable {
         guard FileManager.default.fileExists(atPath: planetInfoPath.path) else { return nil }
         do {
             let data = try Data(contentsOf: planetInfoPath)
-            let planet = try JSONDecoder().decode(Planet.self, from: data)
+            let decoder = JSONDecoder()
+            let planet = try decoder.decode(Planet.self, from: data)
             return planet
         } catch {
             debugPrint("failed to get planet data: \(error), at: \(planetInfoPath)")
