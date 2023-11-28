@@ -9,13 +9,13 @@ import SwiftUI
 
 @main
 struct PlanetApp: App {
-    @UIApplicationDelegateAdaptor(PlanetAppDelegate.self) var appDelegate
-    
     @StateObject private var appViewModel: PlanetAppViewModel
     @StateObject private var latestViewModel: PlanetLatestViewModel
     @StateObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
     @StateObject private var settingsViewModel: PlanetSettingsViewModel
-    
+
+    @Environment(\.scenePhase) private var phase
+
     init() {
         _appViewModel = StateObject(wrappedValue: PlanetAppViewModel.shared)
         _latestViewModel = StateObject(wrappedValue: PlanetLatestViewModel.shared)
@@ -30,12 +30,14 @@ struct PlanetApp: App {
                 .environmentObject(latestViewModel)
                 .environmentObject(myPlanetsViewModel)
                 .environmentObject(settingsViewModel)
+                .onChange(of: phase) { newValue in
+                    switch newValue {
+                    case .active:
+                        break
+                    default:
+                        break
+                    }
+                }
         }
-    }
-}
-
-class PlanetAppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        return true
     }
 }

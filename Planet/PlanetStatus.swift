@@ -6,7 +6,7 @@ actor PlanetStatus {
     static let shared = PlanetStatus()
     static let key: String = "LastCachedServerStatus"
 
-    let settingsViewModel = PlanetSettingsViewModel()
+    let settingsViewModel = PlanetSettingsViewModel.shared
 
     private var cachedServerStatus: Bool = false
     private var cachedServerDate: Int = Int(Date().timeIntervalSince1970)
