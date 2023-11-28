@@ -10,12 +10,13 @@ Basic Features:
 - [x] Present API error with alert
 - [x] Edit a planet
 - [x] Edit an article
-- [x] Support basic offline usage
+- [x] Support basic offline reading
 
 Next:
 - [ ] Add template for offline rendering
 - [ ] Preview an article inside writer (with template)
 - [ ] Planet with template options
+- [ ] Offline writing
 
 ## Running Locally
 
