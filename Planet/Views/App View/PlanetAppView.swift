@@ -68,7 +68,6 @@ struct PlanetAppView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
-
                 }
                 ToolbarTitleMenu {
                     Picker(selection: $appViewModel.selectedTab) {

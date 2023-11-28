@@ -136,10 +136,9 @@
 		2AC7CC0029A0AC960089C58C /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				6A5EA27C2AECF97A006DEBC1 /* Bonjour */,
 				2AC7CC0329A0B4C80089C58C /* App View */,
-				2AC7CC2429A2AD5F0089C58C /* Latest */,
-				2AC7CC0929A13E3C0089C58C /* My Planets */,
+				2AC7CC2429A2AD5F0089C58C /* Articles View */,
+				2AC7CC0929A13E3C0089C58C /* Planets View */,
 				2AC7CC0429A0B4D00089C58C /* Settings View */,
 				2AC7CC1C29A2081A0089C58C /* Parts */,
 			);
@@ -158,13 +157,14 @@
 		2AC7CC0429A0B4D00089C58C /* Settings View */ = {
 			isa = PBXGroup;
 			children = (
+				6A5EA27C2AECF97A006DEBC1 /* Bonjour */,
 				2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */,
 				2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */,
 			);
 			path = "Settings View";
 			sourceTree = "<group>";
 		};
-		2AC7CC0929A13E3C0089C58C /* My Planets */ = {
+		2AC7CC0929A13E3C0089C58C /* Planets View */ = {
 			isa = PBXGroup;
 			children = (
 				2AC7CC0729A13E360089C58C /* PlanetMyPlanetsView.swift */,
@@ -172,7 +172,7 @@
 				2AC7CC0C29A143D90089C58C /* PlanetMyPlanetsViewModel.swift */,
 				2AC7CC1229A156850089C58C /* PlanetNewPlanetView.swift */,
 			);
-			path = "My Planets";
+			path = "Planets View";
 			sourceTree = "<group>";
 		};
 		2AC7CC1C29A2081A0089C58C /* Parts */ = {
@@ -186,7 +186,7 @@
 			path = Parts;
 			sourceTree = "<group>";
 		};
-		2AC7CC2429A2AD5F0089C58C /* Latest */ = {
+		2AC7CC2429A2AD5F0089C58C /* Articles View */ = {
 			isa = PBXGroup;
 			children = (
 				2AC7CC2229A2AD510089C58C /* PlanetLatestView.swift */,
@@ -197,7 +197,7 @@
 				2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */,
 				2AC7CC2729A2AE9A0089C58C /* PlanetLatestViewModel.swift */,
 			);
-			path = Latest;
+			path = "Articles View";
 			sourceTree = "<group>";
 		};
 		6A5EA27C2AECF97A006DEBC1 /* Bonjour */ = {

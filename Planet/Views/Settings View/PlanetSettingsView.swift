@@ -15,7 +15,7 @@ struct PlanetSettingsView: View {
     @State private var serverOnlineStatus: Bool = false
 
     var body: some View {
-        NavigationStack(path: $appViewModel.settingsTabPath) {
+        NavigationStack {
             Form {
                 Section(
                     header: Text("Server Info"),
@@ -109,14 +109,11 @@ struct PlanetSettingsView: View {
                     }
                 }
             }
-            // Disabled navigation title for saving vertical space.
             .navigationTitle(PlanetAppTab.settings.name())
             .onReceive(settingsViewModel.timer) { t in
-                Task(priority: .background) {
+                Task { @MainActor in
                     let status = await PlanetStatus.shared.serverIsOnline()
-                    await MainActor.run {
-                        self.serverOnlineStatus = status
-                    }
+                    self.serverOnlineStatus = status
                 }
             }
             .onAppear {
