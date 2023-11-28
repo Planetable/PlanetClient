@@ -20,6 +20,7 @@ struct PlanetAppView: View {
                             .foregroundStyle(Color.secondary)
                     }
                     .ignoresSafeArea(edges: .horizontal)
+                    .padding(.bottom, -6)
                 } else if isWaitingUpdate {
                     HStack(spacing: 8) {
                         ProgressView()
@@ -29,7 +30,9 @@ struct PlanetAppView: View {
                     }
                     .foregroundStyle(Color.secondary)
                     .ignoresSafeArea(edges: .horizontal)
+                    .padding(.bottom, -6)
                 }
+
                 switch appViewModel.selectedTab {
                 case .latest:
                     PlanetLatestView()
@@ -105,6 +108,12 @@ struct PlanetAppView: View {
                 withAnimation {
                     self.isWaitingUpdate = waitingStatus
                 }
+            }
+        }
+        .task {
+            let serverStatus = await PlanetStatus.shared.serverIsOnline()
+            withAnimation {
+                self.serverStatus = serverStatus
             }
         }
     }
