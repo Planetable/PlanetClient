@@ -36,6 +36,7 @@ struct Planet: Codable, Identifiable, Hashable {
     let lastPublishedCID: String?
     let ipns: String?
 
+    // MARK: TODO: improve for offline
     static func getPlanet(forID planetID: String) -> Self? {
         if let planetPath = PlanetManager.shared.getPlanetPath(forID: planetID),
             let planetData = FileManager.default.contents(
@@ -54,20 +55,6 @@ struct Planet: Codable, Identifiable, Hashable {
             print("Error getting planet path for ID: \(planetID)")
         }
         return nil
-    }
-
-    static func empty() -> Self {
-        return .init(
-            id: UUID().uuidString,
-            created: Date(),
-            updated: Date(),
-            name: "",
-            about: "",
-            templateName: "",
-            lastPublished: Date(),
-            lastPublishedCID: "",
-            ipns: ""
-        )
     }
 
     var nameInitials: String {

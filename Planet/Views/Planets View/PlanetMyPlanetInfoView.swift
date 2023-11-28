@@ -286,10 +286,3 @@ struct PlanetMyPlanetInfoView: View {
         }
     }
 }
-
-
-struct PlanetMyPlanetInfoView_Previews: PreviewProvider {
-    static var previews: some View {
-        PlanetMyPlanetInfoView(planet: .empty())
-    }
-}

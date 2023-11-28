@@ -34,18 +34,6 @@ struct PlanetArticle: Codable, Identifiable {
     let link: String
     let attachments: [String]?
     var planetID: UUID?
-
-    static func empty() -> Self {
-        return .init(
-            id: UUID().uuidString,
-            created: Date(),
-            title: "",
-            content: "",
-            summary: "",
-            link: "",
-            attachments: []
-        )
-    }
 }
 
 struct PlanetArticleAttachment {
