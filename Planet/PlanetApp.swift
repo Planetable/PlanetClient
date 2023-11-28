@@ -25,7 +25,7 @@ struct PlanetApp: App {
     
     var body: some Scene {
         WindowGroup {
-            PlanetMainView()
+            PlanetAppView()
                 .environmentObject(appViewModel)
                 .environmentObject(latestViewModel)
                 .environmentObject(myPlanetsViewModel)
