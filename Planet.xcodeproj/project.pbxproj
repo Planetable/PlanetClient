@@ -19,6 +19,7 @@
 		2AAF3E4E299E111300CA60AD /* PlanetAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */; };
 		2AAF3E52299E11CE00CA60AD /* PlanetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */; };
 		2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */; };
+		2AC03E512B15AE7C0026144A /* PlanetSiteTemplates in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC03E502B15AE7C0026144A /* PlanetSiteTemplates */; };
 		2AC6A3A529A3F63A00636DC5 /* PlanetTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC6A3A429A3F63A00636DC5 /* PlanetTextView.swift */; };
 		2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */; };
 		2AC7CC0629A0B4E50089C58C /* PlanetSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */; };
@@ -82,6 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AC03E512B15AE7C0026144A /* PlanetSiteTemplates in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +235,7 @@
 			);
 			name = Planet;
 			packageProductDependencies = (
+				2AC03E502B15AE7C0026144A /* PlanetSiteTemplates */,
 			);
 			productName = Planet;
 			productReference = 2AAF3E3A299E07B600CA60AD /* Planet.app */;
@@ -263,6 +266,7 @@
 			);
 			mainGroup = 2AAF3E31299E07B600CA60AD;
 			packageReferences = (
+				2AC03E4F2B15AE7C0026144A /* XCRemoteSwiftPackageReference "PlanetSiteTemplates" */,
 			);
 			productRefGroup = 2AAF3E3B299E07B600CA60AD /* Products */;
 			projectDirPath = "";
@@ -533,6 +537,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2AC03E4F2B15AE7C0026144A /* XCRemoteSwiftPackageReference "PlanetSiteTemplates" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Planetable/PlanetSiteTemplates";
+			requirement = {
+				branch = mobile;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2AC03E502B15AE7C0026144A /* PlanetSiteTemplates */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2AC03E4F2B15AE7C0026144A /* XCRemoteSwiftPackageReference "PlanetSiteTemplates" */;
+			productName = PlanetSiteTemplates;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2AAF3E32299E07B600CA60AD /* Project object */;
 }
