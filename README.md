@@ -11,11 +11,11 @@ Basic Features:
 - [x] Edit a planet
 - [x] Edit an article
 - [x] Support basic offline reading
+- [x] Add template for offline rendering
+- [x] Planet with template options
 
 Next:
-- [ ] Add template for offline rendering
 - [ ] Preview an article inside writer (with template)
-- [ ] Planet with template options
 - [ ] Offline writing
 
 ## Running Locally
