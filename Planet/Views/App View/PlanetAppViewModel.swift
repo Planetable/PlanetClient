@@ -34,15 +34,33 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateMyPlanets(_ planets: [Planet]) {
+        debugPrint("updated my planets: \(planets.count)")
         myPlanets = planets.sorted(by: { a, b in
             return a.created > b.created
         })
+        Task(priority: .background) {
+            for planet in planets {
+                planet.reloadTemplate()
+            }
+        }
     }
 
     @MainActor
     func updateMyArticles(_ articles: [PlanetArticle]) {
+        debugPrint("updated my articles: \(articles.count)")
         myArticles = articles.sorted(by: { a, b in
             return a.created > b.created
         })
+        Task(priority: .background) {
+            var planets: [Planet] = []
+            for article in articles {
+                guard let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) else { continue }
+                if planets.contains(planet) { continue }
+                planets.append(planet)
+            }
+            for planet in planets {
+                planet.reloadTemplate()
+            }
+        }
     }
 }

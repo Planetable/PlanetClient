@@ -7,6 +7,8 @@
 
 import Foundation
 import SwiftUI
+import PlanetSiteTemplates
+
 
 enum PlanetAvatarSize {
     case small  // 24
@@ -65,8 +67,25 @@ struct Planet: Codable, Identifiable, Hashable {
     }
 
     func reloadTemplate() {
-        guard let t = PlanetManager.shared.templates.first(where: { $0.name == self.templateName }) else { return }
-        debugPrint("reloading template: \(t)")
+        guard let template = PlanetManager.shared.templates.first(where: { $0.name == self.templateName }) else { return }
+        guard let planetPath = PlanetManager.shared.getPlanetPath(forID: self.id) else { return }
+        let templateInfoPath = planetPath.appending(path: "template.json")
+        let templateAssetsPath = planetPath.appending(path: "assets")
+        if FileManager.default.fileExists(atPath: templateInfoPath.path) {
+            let decoder = JSONDecoder()
+            if let data = try? Data(contentsOf: templateInfoPath) {
+                let t = try? decoder.decode(BuiltInTemplate.self, from: data)
+                if let existingTemplateBuildNumber = template.buildNumber, let buildNumber = t?.buildNumber, buildNumber <= existingTemplateBuildNumber {
+                    return
+                }
+            }
+        }
+        try? FileManager.default.removeItem(at: templateAssetsPath)
+        try? FileManager.default.copyItem(at: template.assets, to: templateAssetsPath)
+        let encoder = JSONEncoder()
+        let data = try? encoder.encode(template)
+        try? data?.write(to: templateInfoPath)
+        debugPrint("reloaded template: \(template), for planet: \(self.name), at: \(planetPath), template info: \(templateInfoPath)")
     }
 
     @ViewBuilder
