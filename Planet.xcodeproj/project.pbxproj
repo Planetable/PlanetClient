@@ -86,6 +86,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2A6386C22B1759A200451465 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */,
+				2A6386C02B14D21400451465 /* PlanetStatus.swift */,
+				2AC7CC2029A240AE0089C58C /* PlanetHelper.swift */,
+				2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */,
+				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
 		2AAF3E31299E07B600CA60AD = {
 			isa = PBXGroup;
 			children = (
@@ -107,13 +119,7 @@
 			children = (
 				2AC7CC1929A1F8350089C58C /* Info.plist */,
 				2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */,
-				2A6386C02B14D21400451465 /* PlanetStatus.swift */,
-				2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */,
-				2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */,
-				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
-				2AC7CC2029A240AE0089C58C /* PlanetHelper.swift */,
-				2A9C28B22B01FF26001303A7 /* PlanetError.swift */,
-				2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */,
+				2A6386C22B1759A200451465 /* Helper */,
 				2AC7CC0029A0AC960089C58C /* Views */,
 				6A73C0B42AF5CCE100EEF711 /* Models */,
 				2AAF3E41299E07B700CA60AD /* Assets.xcassets */,
@@ -208,6 +214,8 @@
 			isa = PBXGroup;
 			children = (
 				6A73C0B52AF5CCFB00EEF711 /* Planet.swift */,
+				2A9C28B22B01FF26001303A7 /* PlanetError.swift */,
+				2AAF3E51299E11CE00CA60AD /* PlanetModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
