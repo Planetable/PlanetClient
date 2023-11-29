@@ -22,17 +22,17 @@ struct PlanetLatestView: View {
          */
         Group {
             if latestViewModel.myArticles.count == 0 {
-                VStack {
-                    // TODO: Redesign the way to present empty state.
-                    Text("No articles.")
-                        .foregroundColor(.secondary)
-                    Button {
-                        refreshAction(skipAlert: false)
-                    } label: {
-                        Text("Reload")
-                    }
-                    .buttonStyle(.borderedProminent)
+                // TODO: Redesign the way to present empty state.
+                Spacer()
+                Text("No articles.")
+                    .foregroundColor(.secondary)
+                Button {
+                    refreshAction(skipAlert: false)
+                } label: {
+                    Text("Reload")
                 }
+                .buttonStyle(.borderedProminent)
+                Spacer()
             } else {
                 List {
                     ForEach(latestViewModel.myArticles, id: \.id) { article in

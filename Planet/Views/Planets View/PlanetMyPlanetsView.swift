@@ -20,22 +20,22 @@ struct PlanetMyPlanetsView: View {
     var body: some View {
         Group {
             if myPlanetsViewModel.myPlanets.count == 0 {
-                VStack {
-                    Text("No planets.")
-                        .foregroundColor(.secondary)
-                    Button {
-                        isCreating.toggle()
-                    } label: {
-                        Text("Create")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    Button {
-                        refreshAction(skipAlert: false)
-                    } label: {
-                        Text("Reload")
-                    }
-                    .buttonStyle(.bordered)
+                Spacer()
+                Text("No planets.")
+                    .foregroundColor(.secondary)
+                Button {
+                    isCreating.toggle()
+                } label: {
+                    Text("Create")
                 }
+                .buttonStyle(.borderedProminent)
+                Button {
+                    refreshAction(skipAlert: false)
+                } label: {
+                    Text("Reload")
+                }
+                .buttonStyle(.bordered)
+                Spacer()
             } else {
                 List {
                     ForEach(myPlanetsViewModel.myPlanets, id: \.id) { planet in
