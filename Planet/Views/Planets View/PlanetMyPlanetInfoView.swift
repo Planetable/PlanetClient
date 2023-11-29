@@ -14,6 +14,7 @@ struct PlanetMyPlanetInfoView: View {
 
     @State private var planetName: String = ""
     @State private var planetAbout: String = ""
+    @State private var planetTemplateName: String = ""
     @State private var planetAvatarPath: String = ""
 
     @State private var selectedItem: PhotosPickerItem?
@@ -60,6 +61,18 @@ struct PlanetMyPlanetInfoView: View {
                         .textFieldStyle(.plain)
                 } header: {
                     Text("Description")
+                }
+                .textCase(.none)
+
+                Section {
+                    Picker("Templates", selection: $planetTemplateName) {
+                        ForEach(PlanetManager.shared.templates, id: \.self) { t in
+                            Text(t.name)
+                                .tag(t.name)
+                        }
+                    }
+                } header: {
+                    Text("Templates")
                 }
                 .textCase(.none)
 
@@ -122,7 +135,14 @@ struct PlanetMyPlanetInfoView: View {
                     Text("Description")
                 }
                 .textCase(.none)
-                
+
+                Section {
+                    Text(planetTemplateName)
+                } header: {
+                    Text("Templates")
+                }
+                .textCase(.none)
+
                 let latest: [PlanetArticle] = latestViewModel.myArticles.filter({ $0.planetID?.uuidString == planet.id })
                 if latest.count > 0 {
                     Section {
@@ -149,6 +169,7 @@ struct PlanetMyPlanetInfoView: View {
                         }
                         planetName = planet.name
                         planetAbout = planet.about
+                        planetTemplateName = planet.templateName
                         if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
                             planetAvatarPath = avatarURL.path
                         } else {
@@ -165,9 +186,9 @@ struct PlanetMyPlanetInfoView: View {
                             do {
                                 if let avatarURL = self.planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
                                     if avatarURL.path == self.planetAvatarPath {
-                                        try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, avatarPath: "")
+                                        try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, templateName: self.planetTemplateName, avatarPath: "")
                                     } else {
-                                        try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, avatarPath: self.planetAvatarPath)
+                                        try await PlanetManager.shared.modifyPlanet(id: self.planet.id, name: self.planetName, about: self.planetAbout, templateName: self.planetTemplateName, avatarPath: self.planetAvatarPath)
                                     }
                                     self.planetAvatarPath = avatarURL.path
                                 }
@@ -191,7 +212,14 @@ struct PlanetMyPlanetInfoView: View {
                 }
             }
         }
-        .task {
+        .task(priority: .utility) {
+            planetName = planet.name
+            planetAbout = planet.about
+            planetTemplateName = planet.templateName
+            if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
+                planetAvatarPath = avatarURL.path
+            }
+            serverStatus = await PlanetStatus.shared.serverIsOnline()
             Task(priority: .background) {
                 do {
                     let articles = try await PlanetManager.shared.getMyArticles()
@@ -215,12 +243,6 @@ struct PlanetMyPlanetInfoView: View {
                     }
                 }
             }
-            planetName = planet.name
-            planetAbout = planet.about
-            if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
-                planetAvatarPath = avatarURL.path
-            }
-            serverStatus = await PlanetStatus.shared.serverIsOnline()
         }
     }
 

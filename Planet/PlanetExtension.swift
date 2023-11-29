@@ -13,6 +13,7 @@ import UniformTypeIdentifiers
 
 extension String {
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
+    static let selectedPlanetTemplateName = "PlanetSelectedPlanetTemplateNameKey"
     static let settingsSelectedTabKey = "PlanetSettingsSelectedTabKey"
     static let settingsServerURLKey = "PlanetSettingsServerURLKey"
     static let settingsServerProtocolKey = "PlanetSettingsServerProtocolKey"

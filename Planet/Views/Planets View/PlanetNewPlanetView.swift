@@ -9,6 +9,7 @@ struct PlanetNewPlanetView: View {
     
     @State private var planetName: String = ""
     @State private var planetAbout: String = ""
+    @State private var planetTemplateName: String = ""
     @State private var planetAvatarPath: String = ""
     
     @State private var selectedItem: PhotosPickerItem?
@@ -98,6 +99,13 @@ struct PlanetNewPlanetView: View {
                 TextField("About", text: $planetAbout)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .textFieldStyle(.plain)
+
+                Picker("Templates", selection: $planetTemplateName) {
+                    ForEach(PlanetManager.shared.templates, id: \.self) { t in
+                        Text(t.name)
+                            .tag(t.name)
+                    }
+                }
             }
             .navigationTitle("New Planet")
             .navigationBarTitleDisplayMode(.inline)
@@ -114,9 +122,12 @@ struct PlanetNewPlanetView: View {
                         dismiss()
                         Task(priority: .userInitiated) {
                             do {
-                                try await PlanetManager.shared.createPlanet(name: planetName, about: planetAbout, avatarPath: planetAvatarPath)
+                                try await PlanetManager.shared.createPlanet(name: planetName, about: planetAbout, templateName: planetTemplateName, avatarPath: planetAvatarPath)
                                 Task { @MainActor in
                                     PlanetAppViewModel.shared.selectedTab = .myPlanets
+                                }
+                                if planetTemplateName != "" {
+                                    UserDefaults.standard.setValue(planetTemplateName, forKey: .selectedPlanetTemplateName)
                                 }
                             } catch {
                                 debugPrint("failed to create planet: \(error)")
@@ -126,6 +137,13 @@ struct PlanetNewPlanetView: View {
                         Text("Create")
                     }
                     .disabled(planetName == "" || !serverStatus)
+                }
+            }
+            .task(priority: .utility) {
+                if let selectedTemplateName = UserDefaults.standard.string(forKey: .selectedPlanetTemplateName), let template = PlanetManager.shared.templates.first(where: { $0.name == selectedTemplateName }) {
+                    planetTemplateName = template.name
+                } else {
+                    planetTemplateName = PlanetManager.shared.templates.first?.name ?? "plain"
                 }
             }
             .task(priority: .background) {

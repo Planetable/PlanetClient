@@ -161,7 +161,7 @@ class PlanetManager: NSObject {
     }
     
     // MARK: - create planet
-    func createPlanet(name: String, about: String, avatarPath: String) async throws {
+    func createPlanet(name: String, about: String, templateName: String, avatarPath: String) async throws {
         var request = try await createRequest(with: "/v0/planets/my", method: "POST")
         let form: MultipartForm
         if avatarPath != "" {
@@ -172,12 +172,14 @@ class PlanetManager: NSObject {
             form = MultipartForm(parts: [
                 MultipartForm.Part(name: "name", value: name),
                 MultipartForm.Part(name: "about", value: about),
+                MultipartForm.Part(name: "template", value: templateName),
                 MultipartForm.Part(name: "avatar", data: data, filename: imageName, contentType: contentType)
             ])
         } else {
             form = MultipartForm(parts: [
                 MultipartForm.Part(name: "name", value: name),
-                MultipartForm.Part(name: "about", value: about)
+                MultipartForm.Part(name: "about", value: about),
+                MultipartForm.Part(name: "template", value: templateName)
             ])
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
@@ -192,7 +194,7 @@ class PlanetManager: NSObject {
     }
 
     // MARK: - modify planet
-    func modifyPlanet(id: String, name: String, about: String, avatarPath: String) async throws {
+    func modifyPlanet(id: String, name: String, about: String, templateName: String, avatarPath: String) async throws {
         var request = try await createRequest(with: "/v0/planets/my/\(id)", method: "POST")
         let form: MultipartForm
         if avatarPath != "" {
@@ -203,12 +205,14 @@ class PlanetManager: NSObject {
             form = MultipartForm(parts: [
                 MultipartForm.Part(name: "name", value: name),
                 MultipartForm.Part(name: "about", value: about),
+                MultipartForm.Part(name: "template", value: templateName),
                 MultipartForm.Part(name: "avatar", data: data, filename: imageName, contentType: contentType)
             ])
         } else {
             form = MultipartForm(parts: [
                 MultipartForm.Part(name: "name", value: name),
-                MultipartForm.Part(name: "about", value: about)
+                MultipartForm.Part(name: "about", value: about),
+                MultipartForm.Part(name: "template", value: templateName)
             ])
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
