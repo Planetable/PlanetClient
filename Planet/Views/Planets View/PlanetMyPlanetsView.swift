@@ -10,8 +10,6 @@ import SwiftUI
 
 struct PlanetMyPlanetsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
-    @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
-    @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
 
     @State private var isCreating: Bool = false
     @State private var isFailedRefreshing: Bool = false
@@ -19,7 +17,7 @@ struct PlanetMyPlanetsView: View {
     
     var body: some View {
         Group {
-            if myPlanetsViewModel.myPlanets.count == 0 {
+            if appViewModel.myPlanets.count == 0 {
                 Spacer()
                 Text("No planets.")
                     .foregroundColor(.secondary)
@@ -38,10 +36,10 @@ struct PlanetMyPlanetsView: View {
                 Spacer()
             } else {
                 List {
-                    ForEach(myPlanetsViewModel.myPlanets, id: \.id) { planet in
+                    ForEach(appViewModel.myPlanets, id: \.id) { planet in
                         NavigationLink {
                             PlanetMyPlanetInfoView(planet: planet)
-                                .environmentObject(latestViewModel)
+                                .environmentObject(appViewModel)
                         } label: {
                             planet.listItemView()
                         }
@@ -71,20 +69,20 @@ struct PlanetMyPlanetsView: View {
                 let planets = try await PlanetManager.shared.getMyPlanets()
                 await MainActor.run {
                     withAnimation {
-                        self.myPlanetsViewModel.updateMyPlanets(planets)
+                        self.appViewModel.updateMyPlanets(planets)
                     }
                 }
             } catch PlanetError.APIServerIsInactiveError {
                 let planets = try PlanetManager.shared.getMyOfflinePlanetsFromAllNodes()
                 await MainActor.run {
                     withAnimation {
-                        self.myPlanetsViewModel.updateMyPlanets(planets)
+                        self.appViewModel.updateMyPlanets(planets)
                     }
                 }
             } catch {
                 await MainActor.run {
                     withAnimation {
-                        self.myPlanetsViewModel.updateMyPlanets([])
+                        self.appViewModel.updateMyPlanets([])
                     }
                 }
                 guard skipAlert == false else { return }

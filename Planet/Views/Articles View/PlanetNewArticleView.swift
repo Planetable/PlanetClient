@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PlanetNewArticleView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
+    @EnvironmentObject private var appViewModel: PlanetAppViewModel
 
     @State private var selectedPlanetIndex: Int = UserDefaults.standard.integer(forKey: .selectedPlanetIndex) {
         didSet {
@@ -100,14 +100,14 @@ struct PlanetNewArticleView: View {
                     } label: {
                         Image(systemName: "paperplane.fill")
                     }
-                    .disabled(title == "" || myPlanetsViewModel.myPlanets.count == 0)
+                    .disabled(title == "" || appViewModel.myPlanets.count == 0)
                 }
             }
             .task(priority: .utility) {
                 do {
                     try await refreshAction()
                     self.selectedPlanet =
-                        self.myPlanetsViewModel.myPlanets[self.selectedPlanetIndex]
+                        self.appViewModel.myPlanets[self.selectedPlanetIndex]
                 }
                 catch {
                     debugPrint("failed to refresh: \(error)")
@@ -139,9 +139,9 @@ struct PlanetNewArticleView: View {
     private func planetPickerView() -> some View {
         NavigationView {
             List {
-                ForEach(myPlanetsViewModel.myPlanets.indices, id: \.self) {
+                ForEach(appViewModel.myPlanets.indices, id: \.self) {
                     index in
-                    let planet = myPlanetsViewModel.myPlanets[index]
+                    let planet = appViewModel.myPlanets[index]
                     planet.listItemView(showCheckmark: selectedPlanetIndex == index)
                         .onTapGesture {
                             selectedPlanetIndex = index
@@ -162,14 +162,14 @@ struct PlanetNewArticleView: View {
                     }
                 }
             }
-            .disabled(myPlanetsViewModel.myPlanets.count == 0)
+            .disabled(appViewModel.myPlanets.count == 0)
         }
     }
 
     private func refreshAction() async throws {
         let planets = try await PlanetManager.shared.getMyPlanets()
         await MainActor.run {
-            self.myPlanetsViewModel.updateMyPlanets(planets)
+            self.appViewModel.updateMyPlanets(planets)
         }
     }
 

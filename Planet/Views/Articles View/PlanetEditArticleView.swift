@@ -4,8 +4,7 @@ import PhotosUI
 
 struct PlanetEditArticleView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
-    
+
     static let editAttachment: String = "edit_attachment"
     
     var planet: Planet

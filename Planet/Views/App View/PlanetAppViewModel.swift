@@ -27,4 +27,22 @@ class PlanetAppViewModel: ObservableObject {
     @Published var showSettings = false
     @Published var newArticle = false
     @Published var newPlanet = false
+
+    // MARK: -
+    @Published private(set) var myPlanets: [Planet] = []
+    @Published private(set) var myArticles: [PlanetArticle] = []
+
+    @MainActor
+    func updateMyPlanets(_ planets: [Planet]) {
+        myPlanets = planets.sorted(by: { a, b in
+            return a.created > b.created
+        })
+    }
+
+    @MainActor
+    func updateMyArticles(_ articles: [PlanetArticle]) {
+        myArticles = articles.sorted(by: { a, b in
+            return a.created > b.created
+        })
+    }
 }

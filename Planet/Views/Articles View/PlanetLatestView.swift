@@ -10,9 +10,7 @@ import SwiftUI
 
 struct PlanetLatestView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
-    @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
-    @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
-    
+
     @State private var isCreating: Bool = false
     @State private var isFailedRefreshing: Bool = false
     @State private var errorMessage: String = ""
@@ -21,7 +19,7 @@ struct PlanetLatestView: View {
         /* First, load what is already on disk, then attempt to pull the latest content from the remote source.
          */
         Group {
-            if latestViewModel.myArticles.count == 0 {
+            if appViewModel.myArticles.count == 0 {
                 // TODO: Redesign the way to present empty state.
                 Spacer()
                 Text("No articles.")
@@ -35,7 +33,7 @@ struct PlanetLatestView: View {
                 Spacer()
             } else {
                 List {
-                    ForEach(latestViewModel.myArticles, id: \.id) { article in
+                    ForEach(appViewModel.myArticles, id: \.id) { article in
                         if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
                             let destination = PlanetArticleView(planet: planet, article: article)
                             NavigationLink(destination: destination) {
@@ -70,7 +68,7 @@ struct PlanetLatestView: View {
                 let articles = try await PlanetManager.shared.getMyArticles()
                 await MainActor.run {
                     withAnimation {
-                        self.latestViewModel.updateMyArticles(articles)
+                        self.appViewModel.updateMyArticles(articles)
                     }
                 }
             } catch PlanetError.APIServerIsInactiveError {
@@ -78,13 +76,13 @@ struct PlanetLatestView: View {
                 let articles = try PlanetManager.shared.getMyOfflineArticlesFromAllNodes()
                 await MainActor.run {
                     withAnimation {
-                        self.latestViewModel.updateMyArticles(articles)
+                        self.appViewModel.updateMyArticles(articles)
                     }
                 }
             } catch {
                 await MainActor.run {
                     withAnimation {
-                        self.latestViewModel.updateMyArticles([])
+                        self.appViewModel.updateMyArticles([])
                     }
                     guard skipAlert == false else { return }
                     self.isFailedRefreshing = true

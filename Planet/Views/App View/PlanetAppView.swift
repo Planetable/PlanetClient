@@ -3,8 +3,6 @@ import SwiftUI
 
 struct PlanetAppView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
-    @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
-    @EnvironmentObject private var myPlanetsViewModel: PlanetMyPlanetsViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
     @State private var serverStatus: Bool = true
@@ -37,13 +35,9 @@ struct PlanetAppView: View {
                 case .latest:
                     PlanetLatestView()
                         .environmentObject(appViewModel)
-                        .environmentObject(latestViewModel)
-                        .environmentObject(myPlanetsViewModel)
                 default:
                     PlanetMyPlanetsView()
                         .environmentObject(appViewModel)
-                        .environmentObject(latestViewModel)
-                        .environmentObject(myPlanetsViewModel)
                 }
             }
             .navigationTitle(appViewModel.selectedTab.name())
@@ -92,7 +86,7 @@ struct PlanetAppView: View {
         }
         .sheet(isPresented: $appViewModel.newArticle) {
             PlanetNewArticleView()
-                .environmentObject(myPlanetsViewModel)
+                .environmentObject(appViewModel)
         }
         .sheet(isPresented: $appViewModel.newPlanet) {
             PlanetNewPlanetView()

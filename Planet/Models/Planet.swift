@@ -64,43 +64,9 @@ struct Planet: Codable, Identifiable, Hashable {
         return remoteAvatarURL()
     }
 
-    private func localAvatarURL() -> URL? {
-        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
-            let documentsDirectory = FileManager.default.urls(
-                for: .documentDirectory,
-                in: .userDomainMask
-            ).first
-        else {
-            return nil
-        }
-        let myPlanetPath = documentsDirectory
-            .appending(path: nodeID)
-            .appending(path: "My")
-            .appending(path: self.id)
-        if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
-            do {
-                try FileManager.default.createDirectory(
-                    at: myPlanetPath,
-                    withIntermediateDirectories: true
-                )
-                debugPrint("Created directory for my planet: \(myPlanetPath)")
-            }
-            catch {
-                debugPrint("Failed to create directory for my planet: \(error)")
-                return nil
-            }
-        }
-        return myPlanetPath.appending(path: "avatar.png")
-    }
-
-    private func remoteAvatarURL() -> URL? {
-        guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
-            return nil
-        }
-        return serverURL
-            .appending(path: "/v0/planets/my/")
-            .appending(path: self.id)
-            .appending(path: "/public/avatar.png")
+    func reloadTemplate() {
+        guard let t = PlanetManager.shared.templates.first(where: { $0.name == self.templateName }) else { return }
+        debugPrint("reloading template: \(t)")
     }
 
     @ViewBuilder
@@ -136,7 +102,6 @@ struct Planet: Codable, Identifiable, Hashable {
 
     @ViewBuilder
     func avatarView(_ size: PlanetAvatarSize) -> some View {
-//        avatarView(size: size.size)
         PlanetAvatarView(planet: self, size: size.size)
     }
 
@@ -187,5 +152,45 @@ struct Planet: Codable, Identifiable, Hashable {
                     .stroke(Color("BorderColor"), lineWidth: 0.5)
             )
             .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+    }
+
+    // MARK: -
+    private func localAvatarURL() -> URL? {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
+            let documentsDirectory = FileManager.default.urls(
+                for: .documentDirectory,
+                in: .userDomainMask
+            ).first
+        else {
+            return nil
+        }
+        let myPlanetPath = documentsDirectory
+            .appending(path: nodeID)
+            .appending(path: "My")
+            .appending(path: self.id)
+        if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
+            do {
+                try FileManager.default.createDirectory(
+                    at: myPlanetPath,
+                    withIntermediateDirectories: true
+                )
+                debugPrint("Created directory for my planet: \(myPlanetPath)")
+            }
+            catch {
+                debugPrint("Failed to create directory for my planet: \(error)")
+                return nil
+            }
+        }
+        return myPlanetPath.appending(path: "avatar.png")
+    }
+
+    private func remoteAvatarURL() -> URL? {
+        guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
+            return nil
+        }
+        return serverURL
+            .appending(path: "/v0/planets/my/")
+            .appending(path: self.id)
+            .appending(path: "/public/avatar.png")
     }
 }

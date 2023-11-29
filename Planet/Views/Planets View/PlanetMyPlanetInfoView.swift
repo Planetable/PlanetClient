@@ -4,7 +4,7 @@ import PhotosUI
 
 struct PlanetMyPlanetInfoView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var latestViewModel: PlanetLatestViewModel
+    @EnvironmentObject private var appViewModel: PlanetAppViewModel
 
     var planet: Planet
     
@@ -143,7 +143,7 @@ struct PlanetMyPlanetInfoView: View {
                 }
                 .textCase(.none)
 
-                let latest: [PlanetArticle] = latestViewModel.myArticles.filter({ $0.planetID?.uuidString == planet.id })
+                let latest: [PlanetArticle] = appViewModel.myArticles.filter({ $0.planetID?.uuidString == planet.id })
                 if latest.count > 0 {
                     Section {
                         ForEach(latest, id: \.id) { article in
@@ -225,20 +225,20 @@ struct PlanetMyPlanetInfoView: View {
                     let articles = try await PlanetManager.shared.getMyArticles()
                     await MainActor.run {
                         withAnimation {
-                            self.latestViewModel.updateMyArticles(articles)
+                            self.appViewModel.updateMyArticles(articles)
                         }
                     }
                 } catch PlanetError.APIServerIsInactiveError {
                     let articles = try PlanetManager.shared.getMyOfflineArticlesFromAllNodes()
                     await MainActor.run {
                         withAnimation {
-                            self.latestViewModel.updateMyArticles(articles)
+                            self.appViewModel.updateMyArticles(articles)
                         }
                     }
                 } catch {
                     await MainActor.run {
                         withAnimation {
-                            self.latestViewModel.updateMyArticles([])
+                            self.appViewModel.updateMyArticles([])
                         }
                     }
                 }

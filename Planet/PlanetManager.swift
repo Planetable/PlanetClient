@@ -263,7 +263,7 @@ class PlanetManager: NSObject {
 
     // MARK: - list my articles
     func getMyArticles() async throws -> [PlanetArticle] {
-        var planets = PlanetMyPlanetsViewModel.shared.myPlanets
+        var planets = PlanetAppViewModel.shared.myPlanets
         if planets.count == 0 {
             planets = try await getMyPlanets()
         }
