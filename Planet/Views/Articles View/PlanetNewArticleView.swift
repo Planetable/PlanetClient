@@ -21,33 +21,39 @@ struct PlanetNewArticleView: View {
     @State private var title: String = ""
     @State private var content: String = ""
     @State private var isPickerPresented: Bool = false
+    @State private var isPreview: Bool = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                HStack(spacing: 12) {
-                    Button(action: {
-                        isPickerPresented = true
-                    }) {
-                        if let planet = selectedPlanet {
-                            planet.avatarView(.medium)
+                if isPreview {
+                    let previewContent = title + "\n" + content
+                    TextEditor(text: .constant(previewContent))
+                } else {
+                    HStack(spacing: 12) {
+                        Button(action: {
+                            isPickerPresented = true
+                        }) {
+                            if let planet = selectedPlanet {
+                                planet.avatarView(.medium)
+                            }
                         }
+
+                        TextField("Title", text: $title)
+                            .textFieldStyle(.plain)
                     }
-
-                    TextField("Title", text: $title)
-                        .textFieldStyle(.plain)
-                }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 12)
-
-                Divider()
-                    .padding(.vertical, 0)
-
-                PlanetTextView(text: $content)
                     .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
 
-                PlanetAttachmentsView(planet: $selectedPlanet)
-                    .frame(height: 48)
+                    Divider()
+                        .padding(.vertical, 0)
+
+                    PlanetTextView(text: $content)
+                        .padding(.horizontal, 12)
+
+                    PlanetAttachmentsView(planet: $selectedPlanet)
+                        .frame(height: 48)
+                }
             }
             .frame(
                 minWidth: 0,
@@ -56,51 +62,57 @@ struct PlanetNewArticleView: View {
                 maxHeight: .infinity,
                 alignment: .leading
             )
-            .navigationTitle("New Post")
+            .navigationTitle(isPreview ? "Preview" :"New Post")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
-                    Button {
-                        dismiss()
-                        removeAttachments()
-                    } label: {
-                        Image(systemName: "xmark")
+                    if !isPreview {
+                        Button {
+                            dismiss()
+                            removeAttachments()
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
                     }
                 }
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button {
-
-                    } label: {
-                        Image(systemName: "eye.fill")
-                    }
-                    .disabled(title == "" && content == "")
-                    Button {
-                        dismiss()
-                        guard let selectedPlanet else { return }
-                        Task(priority: .userInitiated) {
-                            do {
-                                debugPrint(
-                                    "Clicked save button: \(title), \(content), \(selectedAttachments.count), \(selectedPlanet.name)"
-                                )
-                                try await PlanetManager.shared.createArticle(
-                                    title: self.title,
-                                    content: self.content,
-                                    attachments: self.selectedAttachments,
-                                    forPlanet: selectedPlanet
-                                )
-                                self.removeAttachments()
-                                Task { @MainActor in
-                                    PlanetAppViewModel.shared.selectedTab = .latest
-                                }
-                            }
-                            catch {
-                                debugPrint("failed to save article: \(error)")
-                            }
+                        withAnimation {
+                            self.isPreview.toggle()
                         }
                     } label: {
-                        Image(systemName: "paperplane.fill")
+                        Image(systemName: isPreview ? "xmark" : "eye.fill")
                     }
-                    .disabled(title == "" || appViewModel.myPlanets.count == 0)
+                    .disabled(title == "" && content == "")
+                    if !isPreview {
+                        Button {
+                            dismiss()
+                            guard let selectedPlanet else { return }
+                            Task(priority: .userInitiated) {
+                                do {
+                                    debugPrint(
+                                        "Clicked save button: \(title), \(content), \(selectedAttachments.count), \(selectedPlanet.name)"
+                                    )
+                                    try await PlanetManager.shared.createArticle(
+                                        title: self.title,
+                                        content: self.content,
+                                        attachments: self.selectedAttachments,
+                                        forPlanet: selectedPlanet
+                                    )
+                                    self.removeAttachments()
+                                    Task { @MainActor in
+                                        PlanetAppViewModel.shared.selectedTab = .latest
+                                    }
+                                }
+                                catch {
+                                    debugPrint("failed to save article: \(error)")
+                                }
+                            }
+                        } label: {
+                            Image(systemName: "paperplane.fill")
+                        }
+                        .disabled(title == "" || appViewModel.myPlanets.count == 0)
+                    }
                 }
             }
             .task(priority: .utility) {

@@ -86,7 +86,7 @@ struct PlanetAppView: View {
                 .environmentObject(appViewModel)
                 .environmentObject(settingsViewModel)
         }
-        .sheet(isPresented: $appViewModel.newArticle) {
+        .fullScreenCover(isPresented: $appViewModel.newArticle) {
             PlanetNewArticleView()
                 .environmentObject(appViewModel)
         }
