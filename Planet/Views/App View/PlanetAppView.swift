@@ -13,7 +13,7 @@ struct PlanetAppView: View {
             VStack {
                 if !serverStatus {
                     HStack {
-                        Text("Server is offline")
+                        Text("Server is not connected")
                             .font(.footnote)
                             .foregroundStyle(Color.secondary)
                     }
@@ -57,11 +57,13 @@ struct PlanetAppView: View {
                         } label: {
                             Label("New Article", systemImage: "plus")
                         }
+                        .disabled(!serverStatus)
                         Button {
                             appViewModel.newPlanet.toggle()
                         } label: {
                             Label("New Planet", systemImage: "plus")
                         }
+                        .disabled(!serverStatus)
                     } label: {
                         Image(systemName: "plus")
                     }

@@ -20,6 +20,7 @@ struct PlanetArticleView: View {
     @State private var isOfflineEdit: Bool = false
     @State private var isShare: Bool = false
     @State private var isDelete: Bool = false
+    @State private var serverStatus: Bool = false
     
     init(planet: Planet, article: PlanetArticle) {
         _isWaitingEdit = State(wrappedValue: UserDefaults.standard.value(forKey: .editingArticleKey(byID: article.id)) != nil)
@@ -46,6 +47,9 @@ struct PlanetArticleView: View {
         .ignoresSafeArea(edges: .bottom)
         .task {
             await self.reloadAction()
+        }
+        .task {
+            self.serverStatus = await PlanetStatus.shared.serverIsOnline()
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -149,6 +153,7 @@ struct PlanetArticleView: View {
             } label: {
                 Label("Edit", systemImage: "pencil.circle")
             }
+            .disabled(!serverStatus)
 
             if let articleURL {
                 ShareLink("Share", item: articleURL)
@@ -161,6 +166,7 @@ struct PlanetArticleView: View {
             } label: {
                 Label("Delete", systemImage: "trash")
             }
+            .disabled(!serverStatus)
         }
     }
 }
