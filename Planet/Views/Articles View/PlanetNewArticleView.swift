@@ -29,6 +29,7 @@ struct PlanetNewArticleView: View {
                 if isPreview {
                     let previewContent = title + "\n" + content
                     TextEditor(text: .constant(previewContent))
+                        .disabled(true)
                 } else {
                     HStack(spacing: 12) {
                         Button(action: {
