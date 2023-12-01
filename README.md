@@ -1,4 +1,4 @@
-Planet Client Demo
+## Planet Mobile Client
 
 Basic Features:
 - [x] Basic authentication
