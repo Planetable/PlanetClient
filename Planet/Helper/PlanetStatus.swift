@@ -25,13 +25,13 @@ actor PlanetStatus {
         let serverUsername = settingsViewModel.serverUsername
         let serverPassword = settingsViewModel.serverPassword
         if let url = URL(string: serverURL) {
-            let requestIdURL = url.appending(path: "/v0/id")
-            let data = try? Data(contentsOf: requestIdURL)
-            if let data = data, let currentNodeID = String(data: data, encoding: .utf8) {
+            let requestInfoURL = url.appending(path: "/v0/info")
+            let data = try? Data(contentsOf: requestInfoURL)
+            if let data = data, let info = try? JSONDecoder().decode(PlanetServerInfo.self, from: data) {
+                debugPrint("👌 Connected. Current Node ID is: \(info.ipfsPeerID)")
                 Task { @MainActor in
-                    PlanetAppViewModel.shared.currentNodeID = currentNodeID
+                    PlanetAppViewModel.shared.currentNodeID = info.ipfsPeerID
                 }
-                debugPrint("👌 Connected. Current Node ID is: \(currentNodeID)")
             }
             var request = URLRequest(
                 url: url.appending(path: "/v0/planets/my"),
