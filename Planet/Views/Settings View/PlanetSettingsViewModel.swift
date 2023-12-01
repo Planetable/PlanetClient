@@ -22,7 +22,7 @@ class PlanetSettingsViewModel: ObservableObject {
     {
         didSet {
             resetPreviousServerInfo()
-            Task(priority: .background) {
+            Task(priority: .userInitiated) {
                 let status = await PlanetStatus.shared.serverIsOnline()
                 if status {
                     UserDefaults.standard.set(self.serverURL, forKey: .settingsServerURLKey)
