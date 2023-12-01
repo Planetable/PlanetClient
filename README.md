@@ -18,6 +18,11 @@ Next:
 - [ ] Preview an article inside writer (with template)
 - [ ] Offline writing
 
+
+## Join TestFlight
+- [https://testflight.apple.com/join/UMQsmkbJ](https://testflight.apple.com/join/UMQsmkbJ)
+
+
 ## Running Locally
 
 ```sh
