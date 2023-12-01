@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-
 struct PlanetLatestItemView: View {
     var planet: Planet
     var article: PlanetArticle
     var showAvatar: Bool = true
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             if showAvatar {
@@ -20,22 +19,36 @@ struct PlanetLatestItemView: View {
             }
             VStack(alignment: .leading, spacing: 4) {
                 VStack(alignment: .leading) {
-                    Text(article.title)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    if let summary = article.summary, summary.count > 0 {
-                        Text(summary.prefix(280))
-                            .foregroundColor(.secondary)
-                        if let summary =  article.summary, summary.count < 40 {
-                            Spacer()
-                        }
-                    } else if article.content.count > 0 {
+                    if article.title.count > 0, article.content.count > 0 {
+                        // With both title and content
+                        Text(article.title)
+                            .font(.headline)
+                            .foregroundColor(.primary)
                         Text(article.content.prefix(280))
                             .foregroundColor(.secondary)
-                        if article.content.count < 40 {
-                            Spacer()
-                        }
-                    } else {
+
+                    }
+                    else if article.title.count == 0, article.content.count > 0 {
+                        // With only content
+                        Text(article.content.prefix(280))
+                            .lineLimit(2)
+                            .foregroundColor(.secondary)
+                    }
+                    else if article.title.count > 0, article.content.count == 0 {
+                        // With only title
+                        Text(article.title)
+                            .font(.headline)
+                            .lineLimit(2)
+                            .foregroundColor(.primary)
+                    }
+                    else if let attachments = article.attachments, attachments.count > 0 {
+                        // With only attachments
+                        Text(attachmentsLabel())
+                            .lineLimit(2)
+                            .foregroundColor(.secondary)
+                    }
+                    else {
+                        // With no content
                         Spacer()
                     }
                 }
@@ -52,5 +65,17 @@ struct PlanetLatestItemView: View {
         .task(id: article.id, priority: .background) {
             try? await PlanetManager.shared.downloadArticle(id: article.id, planetID: planet.id)
         }
+    }
+
+    private func attachmentsLabel() -> String {
+        if let attachments = article.attachments, attachments.count > 0 {
+            if attachments.count == 1 {
+                return attachments[0]
+            }
+            else {
+                return "\(attachments[0]) & \(attachments.count - 1) more"
+            }
+        }
+        return ""
     }
 }
