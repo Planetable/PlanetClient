@@ -50,7 +50,7 @@ struct PlanetAvatarView: View {
 
     var body: some View {
         Group {
-            if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path) {
+            if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path), let data = try? Data(contentsOf: avatarURL), data.count > 1 {
                 if let img {
                     Image(uiImage: img)
                         .resizable()
