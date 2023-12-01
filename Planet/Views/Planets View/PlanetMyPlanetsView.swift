@@ -64,7 +64,7 @@ struct PlanetMyPlanetsView: View {
     }
     
     private func refreshAction(skipAlert: Bool = true) {
-        Task(priority: .utility) {
+        Task(priority: .userInitiated) {
             do {
                 let planets = try await PlanetManager.shared.getMyPlanets()
                 await MainActor.run {

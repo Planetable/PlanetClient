@@ -63,7 +63,7 @@ struct PlanetLatestView: View {
     
     private func refreshAction(skipAlert: Bool = true) {
         debugPrint("refresh action in latest view, skip alert: \(skipAlert)")
-        Task(priority: .utility) {
+        Task(priority: .userInitiated) {
             do {
                 let articles = try await PlanetManager.shared.getMyArticles()
                 await MainActor.run {
