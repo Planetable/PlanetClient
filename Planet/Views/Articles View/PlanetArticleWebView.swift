@@ -22,6 +22,9 @@ struct PlanetArticleWebView: UIViewRepresentable {
         wv.scrollView.contentInsetAdjustmentBehavior = .always
         wv.customUserAgent = "Planet/0.0.1"
         wv.navigationDelegate = context.coordinator
+        wv.isOpaque = false
+        wv.backgroundColor = UIColor.clear
+        wv.scrollView.backgroundColor = UIColor.clear
         if url.isFileURL {
             let assetsPath = url.deletingLastPathComponent().deletingLastPathComponent()
             wv.loadFileURL(url, allowingReadAccessTo: assetsPath)
