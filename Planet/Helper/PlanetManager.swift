@@ -359,17 +359,40 @@ class PlanetManager: NSObject {
         var planetArticle = try decoder.decode(PlanetArticle.self, from: data)
         planetArticle.planetID = UUID(uuidString: planetID)
         // download html and attachments, replace if exists.
-        // MARK: TODO: better way to check if article has changes to avoid unnecessary downloads.
         let articlePublicURL = serverURL
             .appending(path: "/v0/planets/my")
             .appending(path: planetID)
             .appending(path: "/public")
             .appending(path: id)
+        // index.html, abort download task if not exists or failed.
         let articleURL = articlePublicURL.appending(path: "index.html")
         let articleIndexPath = articlePath.appending(path: "index.html")
-        let (articleData, _) = try await URLSession.shared.data(from: articleURL)
-        try? FileManager.default.removeItem(at: articleIndexPath)
-        try articleData.write(to: articleIndexPath)
+        // simple.html if exists
+        let simpleURL = articlePublicURL.appending(path: "simple.html")
+        let simplePath = articlePath.appending(path: "simple.html")
+        // blog.html if exists
+        let blogURL = articlePublicURL.appending(path: "blog.html")
+        let blogPath = articlePath.appending(path: "blog.html")
+        await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask(priority: .background) {
+                let (articleData, _) = try await URLSession.shared.data(from: articleURL)
+                try? FileManager.default.removeItem(at: articleIndexPath)
+                try articleData.write(to: articleIndexPath)
+            }
+            group.addTask(priority: .background) {
+                if let (simpleData, _) = try? await URLSession.shared.data(from: simpleURL), simpleData.count > 1 {
+                    try? FileManager.default.removeItem(at: simplePath)
+                    try? simpleData.write(to: simplePath)
+                }
+            }
+            group.addTask(priority: .background) {
+                if let (blogData, _) = try? await URLSession.shared.data(from: blogURL), blogData.count > 1 {
+                    try? FileManager.default.removeItem(at: blogPath)
+                    try? blogData.write(to: blogPath)
+                }
+            }
+        }
+        // attachments
         if let attachments = planetArticle.attachments, attachments.count > 0 {
             await withThrowingTaskGroup(of: Void.self) { group in
                 for a in attachments {
