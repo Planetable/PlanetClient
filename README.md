@@ -1,4 +1,4 @@
-Planet Client Demo
+## Planet Mobile Client
 
 Basic Features:
 - [x] Basic authentication
@@ -16,7 +16,12 @@ Basic Features:
 
 Next:
 - [ ] Preview an article inside writer (with template)
-- [ ] Offline writing
+- [ ] Offline writing (drafts)
+
+
+## Join TestFlight
+- [https://testflight.apple.com/join/UMQsmkbJ](https://testflight.apple.com/join/UMQsmkbJ)
+
 
 ## Running Locally
 
