@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 private class PlanetAvatarCacheManager: NSObject {
     static let shared = PlanetAvatarCacheManager()
 
@@ -32,7 +31,6 @@ private class PlanetAvatarCacheManager: NSObject {
     }
 }
 
-
 struct PlanetAvatarView: View {
 
     var planet: Planet
@@ -43,25 +41,40 @@ struct PlanetAvatarView: View {
     init(planet: Planet, size: CGSize) {
         self.planet = planet
         self.size = size
-        if let image = PlanetAvatarCacheManager.shared.getAvatar(byPlanetID: planet.id, andSize: size) {
+        if let image = PlanetAvatarCacheManager.shared.getAvatar(
+            byPlanetID: planet.id,
+            andSize: size
+        ) {
             self.img = image
         }
     }
 
     var body: some View {
         Group {
-            if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path), let data = try? Data(contentsOf: avatarURL), data.count > 1 {
+            if let avatarURL = planet.avatarURL,
+                FileManager.default.fileExists(atPath: avatarURL.path),
+                let data = try? Data(contentsOf: avatarURL), data.count > 1
+            {
                 if let img {
                     Image(uiImage: img)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: size.width, height: size.height, alignment: .center)
                         .clipShape(.circle)
-                } else {
+                        .overlay(
+                            RoundedRectangle(cornerRadius: size.width / 2)
+                                .stroke(Color("BorderColor"), lineWidth: 0.5)
+                        )
+                        .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+                }
+                else {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .task(priority: .utility) {
-                            if let cachedImage = PlanetAvatarCacheManager.shared.getAvatar(byPlanetID: self.planet.id, andSize: self.size) {
+                            if let cachedImage = PlanetAvatarCacheManager.shared.getAvatar(
+                                byPlanetID: self.planet.id,
+                                andSize: self.size
+                            ) {
                                 await MainActor.run {
                                     self.img = cachedImage
                                 }
@@ -70,7 +83,11 @@ struct PlanetAvatarView: View {
                             let image = UIImage(contentsOfFile: avatarURL.path)
                             if let resized = image?.resizeToSquare(size: size) {
                                 Task(priority: .background) {
-                                    PlanetAvatarCacheManager.shared.setAvatar(resized, forPlanetID: self.planet.id, andSize: self.size)
+                                    PlanetAvatarCacheManager.shared.setAvatar(
+                                        resized,
+                                        forPlanetID: self.planet.id,
+                                        andSize: self.size
+                                    )
                                 }
                                 await MainActor.run {
                                     self.img = resized
@@ -79,7 +96,8 @@ struct PlanetAvatarView: View {
                         }
                         .controlSize(.small)
                 }
-            } else {
+            }
+            else {
                 planet.planetAvatarPlaceholder(size: size)
                     .task(priority: .background) {
                         await self.downloadAvatarFromRemote()
@@ -89,7 +107,10 @@ struct PlanetAvatarView: View {
         .frame(width: size.width, height: size.height, alignment: .center)
         .onReceive(NotificationCenter.default.publisher(for: .reloadAvatar(byID: planet.id))) { _ in
             Task { @MainActor in
-                PlanetAvatarCacheManager.shared.removeAvatar(byPlanetID: self.planet.id, andSize: self.size)
+                PlanetAvatarCacheManager.shared.removeAvatar(
+                    byPlanetID: self.planet.id,
+                    andSize: self.size
+                )
                 self.img = nil
             }
         }
@@ -97,21 +118,23 @@ struct PlanetAvatarView: View {
 
     private func downloadAvatarFromRemote() async {
         guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
-              let documentsDirectory = FileManager.default.urls(
+            let documentsDirectory = FileManager.default.urls(
                 for: .documentDirectory,
                 in: .userDomainMask
-              ).first
+            ).first
         else {
             return
         }
-        let myPlanetPath = documentsDirectory
+        let myPlanetPath =
+            documentsDirectory
             .appending(path: nodeID)
             .appending(path: "My")
             .appending(path: planet.id)
         guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
             return
         }
-        let remoteAvatarURL = serverURL
+        let remoteAvatarURL =
+            serverURL
             .appending(path: "/v0/planets/my/")
             .appending(path: planet.id)
             .appending(path: "/public/avatar.png")
@@ -124,7 +147,8 @@ struct PlanetAvatarView: View {
             if !FileManager.default.fileExists(atPath: localAvatarURL.path) {
                 try data.write(to: localAvatarURL)
             }
-        } catch {
+        }
+        catch {
             debugPrint("failed to download avatar from url: \(remoteAvatarURL), error: \(error)")
         }
     }
