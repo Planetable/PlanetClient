@@ -34,6 +34,11 @@ struct PlanetArticle: Codable, Identifiable {
     let link: String
     let attachments: [String]?
     var planetID: UUID?
+
+    var shareLink: URL? {
+        // MARK: TODO: a share link for both offline mode and normal mode.
+        return nil
+    }
 }
 
 struct PlanetArticleAttachment {

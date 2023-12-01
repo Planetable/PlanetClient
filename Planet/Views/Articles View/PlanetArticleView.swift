@@ -155,8 +155,8 @@ struct PlanetArticleView: View {
             }
             .disabled(!serverStatus)
 
-            if let articleURL {
-                ShareLink("Share", item: articleURL)
+            if let shareLink = article.shareLink {
+                ShareLink("Share", item: shareLink)
             }
             
             Divider()
