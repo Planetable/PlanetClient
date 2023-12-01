@@ -23,7 +23,8 @@ struct PlanetArticleWebView: UIViewRepresentable {
         wv.customUserAgent = "Planet/0.0.1"
         wv.navigationDelegate = context.coordinator
         if url.isFileURL {
-            wv.loadFileURL(url, allowingReadAccessTo: url)
+            let assetsPath = url.deletingLastPathComponent().deletingLastPathComponent()
+            wv.loadFileURL(url, allowingReadAccessTo: assetsPath)
         } else {
             wv.load(URLRequest(url: url))
         }
