@@ -16,7 +16,7 @@ Basic Features:
 
 Next:
 - [ ] Preview an article inside writer (with template)
-- [ ] Offline writing
+- [ ] Offline writing (drafts)
 
 
 ## Join TestFlight
