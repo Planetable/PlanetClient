@@ -117,14 +117,8 @@ struct PlanetNewArticleView: View {
                 }
             }
             .task(priority: .utility) {
-                do {
-                    try await refreshAction()
-                    self.selectedPlanet =
-                        self.appViewModel.myPlanets[self.selectedPlanetIndex]
-                }
-                catch {
-                    debugPrint("failed to refresh: \(error)")
-                }
+                self.selectedPlanet =
+                    self.appViewModel.myPlanets[self.selectedPlanetIndex]
             }
             .onReceive(NotificationCenter.default.publisher(for: .addAttachment)) { n in
                 guard let attachment = n.object as? PlanetArticleAttachment else { return }
@@ -176,13 +170,6 @@ struct PlanetNewArticleView: View {
                 }
             }
             .disabled(appViewModel.myPlanets.count == 0)
-        }
-    }
-
-    private func refreshAction() async throws {
-        let planets = try await PlanetManager.shared.getMyPlanets()
-        await MainActor.run {
-            self.appViewModel.updateMyPlanets(planets)
         }
     }
 

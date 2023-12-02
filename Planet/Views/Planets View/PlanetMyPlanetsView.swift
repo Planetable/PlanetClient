@@ -50,9 +50,6 @@ struct PlanetMyPlanetsView: View {
             }
         }
         .refreshable {
-            refreshAction(skipAlert: false)
-        }
-        .task {
             refreshAction()
         }
         .onReceive(NotificationCenter.default.publisher(for: .updatePlanets)) { _ in
@@ -64,27 +61,11 @@ struct PlanetMyPlanetsView: View {
     }
     
     private func refreshAction(skipAlert: Bool = true) {
-        Task(priority: .userInitiated) {
+        debugPrint("refresh action in my planets view, skip alert: \(skipAlert)")
+        Task { @MainActor in
             do {
-                let planets = try await PlanetManager.shared.getMyPlanets()
-                await MainActor.run {
-                    withAnimation {
-                        self.appViewModel.updateMyPlanets(planets)
-                    }
-                }
-            } catch PlanetError.APIServerIsInactiveError {
-                let planets = try PlanetManager.shared.getMyOfflinePlanetsFromAllNodes()
-                await MainActor.run {
-                    withAnimation {
-                        self.appViewModel.updateMyPlanets(planets)
-                    }
-                }
+                try await self.appViewModel.reloadMyPlanets()
             } catch {
-                await MainActor.run {
-                    withAnimation {
-                        self.appViewModel.updateMyPlanets([])
-                    }
-                }
                 guard skipAlert == false else { return }
                 self.isFailedRefreshing = true
                 self.errorMessage = error.localizedDescription

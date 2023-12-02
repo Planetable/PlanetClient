@@ -20,12 +20,11 @@ struct PlanetLatestView: View {
          */
         Group {
             if appViewModel.myArticles.count == 0 {
-                // TODO: Redesign the way to present empty state.
                 Spacer()
                 Text("No articles.")
                     .foregroundColor(.secondary)
                 Button {
-                    refreshAction(skipAlert: false)
+                    refreshAction()
                 } label: {
                     Text("Reload")
                 }
@@ -48,9 +47,6 @@ struct PlanetLatestView: View {
         }
         .disabled(isCreating)
         .refreshable {
-            refreshAction(skipAlert: false)
-        }
-        .task {
             refreshAction()
         }
         .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
@@ -62,32 +58,13 @@ struct PlanetLatestView: View {
     }
     
     private func refreshAction(skipAlert: Bool = true) {
-        debugPrint("refresh action in latest view, skip alert: \(skipAlert)")
-        Task(priority: .userInitiated) {
+        Task { @MainActor in
             do {
-                let articles = try await PlanetManager.shared.getMyArticles()
-                await MainActor.run {
-                    withAnimation {
-                        self.appViewModel.updateMyArticles(articles)
-                    }
-                }
-            } catch PlanetError.APIServerIsInactiveError {
-                debugPrint("failed to get articles online, try offline articles from all nodes ...")
-                let articles = try PlanetManager.shared.getMyOfflineArticlesFromAllNodes()
-                await MainActor.run {
-                    withAnimation {
-                        self.appViewModel.updateMyArticles(articles)
-                    }
-                }
+                try await self.appViewModel.reloadMyArticles()
             } catch {
-                await MainActor.run {
-                    withAnimation {
-                        self.appViewModel.updateMyArticles([])
-                    }
-                    guard skipAlert == false else { return }
-                    self.isFailedRefreshing = true
-                    self.errorMessage = error.localizedDescription
-                }
+                guard skipAlert == false else { return }
+                self.isFailedRefreshing = true
+                self.errorMessage = error.localizedDescription
             }
         }
     }

@@ -26,9 +26,6 @@ struct PlanetArticleView: View {
         _isWaitingEdit = State(wrappedValue: UserDefaults.standard.value(forKey: .editingArticleKey(byID: article.id)) != nil)
         self.planet = planet
         self.article = article
-        let serverURL = PlanetSettingsViewModel.shared.serverURL
-        let url = URL(string: serverURL)!.appending(path: "/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
-        self.articleURL = url
     }
     
     var body: some View {
@@ -46,10 +43,7 @@ struct PlanetArticleView: View {
         .navigationTitle(article.title)
         .ignoresSafeArea(edges: .bottom)
         .task {
-            await self.reloadAction()
-        }
-        .task {
-            self.serverStatus = await PlanetStatus.shared.serverIsOnline()
+            await reloadAction()
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -109,19 +103,17 @@ struct PlanetArticleView: View {
         await MainActor.run {
             self.articleURL = nil
         }
-        if await PlanetStatus.shared.serverIsOnline() {
+        self.serverStatus = await PlanetStatus.shared.serverIsOnline()
+        if !self.serverStatus {
+            if let planetArticleURL = PlanetManager.shared.getPlanetArticleURL(forID: planet.id, articleID: article.id) {
+                await MainActor.run {
+                    self.articleURL = planetArticleURL
+                }
+            }
+        } else {
             let serverURL = PlanetSettingsViewModel.shared.serverURL
             let url = URL(string: serverURL)!.appending(path: "/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
-            await MainActor.run {
-                self.articleURL = url
-            }
-            debugPrint("reload online url: \(url)")
-        } else {
-            let offlineArticleURL = try? await PlanetManager.shared.getOfflineArticle(id: article.id, planetID: planet.id)
-            await MainActor.run {
-                self.articleURL = offlineArticleURL
-            }
-            debugPrint("reload offline url: \(String(describing: offlineArticleURL))")
+            self.articleURL = url
         }
     }
     

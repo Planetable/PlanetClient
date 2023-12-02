@@ -31,6 +31,37 @@ class PlanetAppViewModel: ObservableObject {
     // MARK: -
     @Published private(set) var myPlanets: [Planet] = []
     @Published private(set) var myArticles: [PlanetArticle] = []
+    
+    init() {
+        debugPrint("Planet App View Model Init.")
+        guard let currentNodeID else {
+            debugPrint("No active node id found, notify users for connecting to a server.")
+            Task { @MainActor in
+                self.showSettings = true
+            }
+            return
+        }
+        debugPrint("Last active node id: \(currentNodeID)")
+        do {
+            let (planets, articles) = try PlanetManager.shared.loadPlanetsAndArticlesFromNode(byID: currentNodeID)
+            Task { @MainActor in
+                self.updateMyPlanets(planets)
+                self.updateMyArticles(articles)
+            }
+        } catch {
+            debugPrint("failed to load planets from disk: \(error)")
+        }
+    }
+    
+    @MainActor
+    func reloadMyPlanets() async throws {
+        debugPrint("reloading my planets...")
+    }
+    
+    @MainActor
+    func reloadMyArticles() async throws {
+        debugPrint("reloading my articles...")
+    }
 
     @MainActor
     func updateMyPlanets(_ planets: [Planet]) {

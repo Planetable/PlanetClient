@@ -220,29 +220,6 @@ struct PlanetMyPlanetInfoView: View {
                 planetAvatarPath = avatarURL.path
             }
             serverStatus = await PlanetStatus.shared.serverIsOnline()
-            Task(priority: .background) {
-                do {
-                    let articles = try await PlanetManager.shared.getMyArticles()
-                    await MainActor.run {
-                        withAnimation {
-                            self.appViewModel.updateMyArticles(articles)
-                        }
-                    }
-                } catch PlanetError.APIServerIsInactiveError {
-                    let articles = try PlanetManager.shared.getMyOfflineArticlesFromAllNodes()
-                    await MainActor.run {
-                        withAnimation {
-                            self.appViewModel.updateMyArticles(articles)
-                        }
-                    }
-                } catch {
-                    await MainActor.run {
-                        withAnimation {
-                            self.appViewModel.updateMyArticles([])
-                        }
-                    }
-                }
-            }
         }
     }
 

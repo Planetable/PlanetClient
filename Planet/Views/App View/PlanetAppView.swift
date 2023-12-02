@@ -11,15 +11,7 @@ struct PlanetAppView: View {
     var body: some View {
         NavigationStack(path: $appViewModel.path) {
             VStack {
-                if !serverStatus {
-                    HStack {
-                        Text("Server is not connected")
-                            .font(.footnote)
-                            .foregroundStyle(Color.secondary)
-                    }
-                    .ignoresSafeArea(edges: .horizontal)
-                    .padding(.bottom, -6)
-                } else if isWaitingUpdate {
+                if isWaitingUpdate {
                     HStack(spacing: 8) {
                         ProgressView()
                             .controlSize(.small)
@@ -30,7 +22,6 @@ struct PlanetAppView: View {
                     .ignoresSafeArea(edges: .horizontal)
                     .padding(.bottom, -6)
                 }
-
                 switch appViewModel.selectedTab {
                 case .latest:
                     PlanetLatestView()
@@ -95,10 +86,7 @@ struct PlanetAppView: View {
         }
         .onReceive(settingsViewModel.timer) { _ in
             Task { @MainActor in
-                let serverStatus = await PlanetStatus.shared.serverIsOnline()
-                withAnimation {
-                    self.serverStatus = serverStatus
-                }
+                self.serverStatus = await PlanetStatus.shared.serverIsOnline()
                 let allKeys = UserDefaults.standard.dictionaryRepresentation().keys
                 let waitingStatus = allKeys.filter({ $0.hasPrefix("PlanetEditingArticleKey-") }).count > 0
                 withAnimation {
@@ -106,11 +94,8 @@ struct PlanetAppView: View {
                 }
             }
         }
-        .task {
-            let serverStatus = await PlanetStatus.shared.serverIsOnline()
-            withAnimation {
-                self.serverStatus = serverStatus
-            }
+        .task(priority: .utility) {
+            self.serverStatus = await PlanetStatus.shared.serverIsOnline()
         }
     }
 }
