@@ -47,18 +47,20 @@ class PlanetAppViewModel: ObservableObject {
             Task { @MainActor in
                 self.updateMyPlanets(planets)
                 self.updateMyArticles(articles)
+                Task(priority: .background) {
+                    try? await self.reloadMyPlanets()
+                    try? await self.reloadMyArticles()
+                }
             }
         } catch {
             debugPrint("failed to load planets from disk: \(error)")
         }
     }
     
-    @MainActor
     func reloadMyPlanets() async throws {
         debugPrint("reloading my planets...")
     }
     
-    @MainActor
     func reloadMyArticles() async throws {
         debugPrint("reloading my articles...")
     }
