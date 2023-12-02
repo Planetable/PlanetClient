@@ -130,22 +130,12 @@ class PlanetManager: NSObject {
                 let localAvatarURL = planetPath.appending(path: "avatar.png")
                 do {
                     let (data, _) = try await URLSession.shared.data(from: remoteAvatarURL)
-                    // Compare remote with local avatar, ignore replace and reload avatar if bytes count equals.
                     if FileManager.default.fileExists(atPath: localAvatarURL.path) {
-                        let remoteAvatarBytesCount = UIImage(data: data)?.pngData()?.count ?? 0
-                        let localAvatarBytesCount = UIImage(contentsOfFile: localAvatarURL.path)?.pngData()?.count ?? 0
-                        if remoteAvatarBytesCount > 0 && remoteAvatarBytesCount != localAvatarBytesCount {
-                            try FileManager.default.removeItem(at: localAvatarURL)
-                            try data.write(to: localAvatarURL)
-                            DispatchQueue.main.async {
-                                NotificationCenter.default.post(name: .reloadAvatar(byID: planet.id), object: nil)
-                            }
-                        }
-                    } else {
-                        try data.write(to: localAvatarURL)
-                        DispatchQueue.main.async {
-                            NotificationCenter.default.post(name: .reloadAvatar(byID: planet.id), object: nil)
-                        }
+                        try? FileManager.default.removeItem(at: localAvatarURL)
+                    }
+                    try data.write(to: localAvatarURL)
+                    DispatchQueue.main.async {
+                        NotificationCenter.default.post(name: .reloadAvatar(byID: planet.id), object: nil)
                     }
                 } catch {
                     debugPrint("failed to download avatar from url: \(remoteAvatarURL), error: \(error)")

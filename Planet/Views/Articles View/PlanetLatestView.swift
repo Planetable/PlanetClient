@@ -60,7 +60,7 @@ struct PlanetLatestView: View {
     private func refreshAction(skipAlert: Bool = true) {
         Task {
             do {
-                try await self.appViewModel.reloadMyArticles()
+                try await self.appViewModel.reloadArticles()
             } catch {
                 guard skipAlert == false else { return }
                 self.isFailedRefreshing = true

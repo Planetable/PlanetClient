@@ -50,6 +50,11 @@ actor PlanetStatus {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 let responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
                 let status = responseStatusCode == 200
+                if cachedServerStatus != status, status {
+                    Task(priority: .background) {
+                        try? await PlanetAppViewModel.shared.reloadPlanetsAndArticles()
+                    }
+                }
                 self.settingsViewModel.updatePreviousServerURL(url)
                 self.settingsViewModel.updatePreviousServerStatus(status)
                 self.cachedServerStatus = status

@@ -61,10 +61,9 @@ struct PlanetMyPlanetsView: View {
     }
     
     private func refreshAction(skipAlert: Bool = true) {
-        debugPrint("refresh action in my planets view, skip alert: \(skipAlert)")
         Task {
             do {
-                try await self.appViewModel.reloadMyPlanets()
+                try await self.appViewModel.reloadPlanets()
             } catch {
                 guard skipAlert == false else { return }
                 self.isFailedRefreshing = true

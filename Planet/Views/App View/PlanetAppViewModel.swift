@@ -47,22 +47,50 @@ class PlanetAppViewModel: ObservableObject {
             Task { @MainActor in
                 self.updateMyPlanets(planets)
                 self.updateMyArticles(articles)
-                Task(priority: .background) {
-                    try? await self.reloadMyPlanets()
-                    try? await self.reloadMyArticles()
-                }
             }
         } catch {
             debugPrint("failed to load planets from disk: \(error)")
         }
     }
     
-    func reloadMyPlanets() async throws {
-        debugPrint("reloading my planets...")
+    func reloadPlanets() async throws {
+        let planets = try await PlanetManager.shared.getMyPlanets()
+        Task { @MainActor in
+            self.updateMyPlanets(planets)
+        }
+    }
+
+    func reloadArticles() async throws {
+        if myPlanets.count == 0 {
+            let planets = try await PlanetManager.shared.getMyPlanets()
+            Task { @MainActor in
+                self.updateMyPlanets(planets)
+                Task(priority: .utility) {
+                    let articles = try await PlanetManager.shared.getMyArticles()
+                    Task { @MainActor in
+                        self.updateMyArticles(articles)
+                    }
+                }
+            }
+        } else {
+            let articles = try await PlanetManager.shared.getMyArticles()
+            Task { @MainActor in
+                self.updateMyArticles(articles)
+            }
+        }
     }
     
-    func reloadMyArticles() async throws {
-        debugPrint("reloading my articles...")
+    func reloadPlanetsAndArticles() async throws {
+        let planets = try await PlanetManager.shared.getMyPlanets()
+        Task { @MainActor in
+            self.updateMyPlanets(planets)
+            Task(priority: .utility) {
+                let articles = try await PlanetManager.shared.getMyArticles()
+                Task { @MainActor in
+                    self.updateMyArticles(articles)
+                }
+            }
+        }
     }
 
     @MainActor
