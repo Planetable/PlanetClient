@@ -49,7 +49,7 @@ actor PlanetStatus {
             do {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 let responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-                let status = responseStatusCode == 200
+                let status: Bool = responseStatusCode == 200
                 if cachedServerStatus != status, status {
                     Task(priority: .userInitiated) {
                         try? await PlanetAppViewModel.shared.reloadPlanetsAndArticles()
