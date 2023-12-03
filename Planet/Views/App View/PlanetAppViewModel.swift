@@ -18,9 +18,35 @@ class PlanetAppViewModel: ObservableObject {
         }
     }
     @Published var currentNodeID: String? = UserDefaults.standard.string(forKey: .settingsNodeIDKey) {
-        didSet {
-            guard let currentNodeID else { return }
-            UserDefaults.standard.setValue(currentNodeID, forKey: .settingsNodeIDKey)
+        willSet {
+            if newValue != currentNodeID {
+                debugPrint("👌 Current Node ID is: \(newValue)")
+                Task(priority: .userInitiated) {
+                    do {
+                        if let newNodeID = newValue {
+                            let (planets, articles) = try PlanetManager.shared.loadPlanetsAndArticlesFromNode(byID: newNodeID)
+                            Task { @MainActor in
+                                self.updateMyPlanets(planets)
+                                self.updateMyArticles(articles)
+                            }
+                        } else {
+                            Task { @MainActor in
+                                self.updateMyPlanets([])
+                                self.updateMyArticles([])
+                            }
+                        }
+                    } catch {
+                        debugPrint("failed to load planets from disk: \(error)")
+                    }
+                }
+            }
+        }
+    }
+    @Published var currentServerURLString: String = UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? "" {
+        willSet {
+            if newValue != currentServerURLString {
+                debugPrint("👌 Current Server URL is: \(newValue)")
+            }
         }
     }
     @Published var showBonjourList = false
@@ -84,7 +110,7 @@ class PlanetAppViewModel: ObservableObject {
         let planets = try await PlanetManager.shared.getMyPlanets()
         Task { @MainActor in
             self.updateMyPlanets(planets)
-            Task(priority: .utility) {
+            Task(priority: .userInitiated) {
                 let articles = try await PlanetManager.shared.getMyArticles()
                 Task { @MainActor in
                     self.updateMyArticles(articles)

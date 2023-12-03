@@ -12,14 +12,13 @@ struct PlanetSettingsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
-    @State private var serverOnlineStatus: Bool = false
+    @State var serverOnlineStatus: Bool = false
 
     var body: some View {
         NavigationStack {
             Form {
                 Section(
-                    header: Text("Server Info"),
-                    footer: Text("Current Server URL: \($settingsViewModel.serverURL.wrappedValue)")
+                    header: Text("Server Info")
                 ) {
                     Picker("Protocol", selection: $settingsViewModel.serverProtocol) {
                         Text("http").tag("http")
@@ -51,29 +50,63 @@ struct PlanetSettingsView: View {
                     } label: {
                         Text("Port")
                     }
-                }
 
-                Section(header: Text("Authentication")) {
                     Toggle("Authentication", isOn: $settingsViewModel.serverAuthenticationEnabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    TextField(
-                        "Username",
-                        text: $settingsViewModel.serverUsername,
-                        prompt: Text("Username")
-                    )
+                    LabeledContent {
+                        TextField(
+                            "Username",
+                            text: $settingsViewModel.serverUsername,
+                            prompt: Text("Username")
+                        )
+                        .multilineTextAlignment(.trailing)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+                    } label: {
+                        Text("Username")
+                    }
                     .disabled(!settingsViewModel.serverAuthenticationEnabled)
 
-                    SecureField(
-                        "Password",
-                        text: $settingsViewModel.serverPassword,
-                        prompt: Text("Password")
-                    )
+                    LabeledContent {
+                        SecureField(
+                            "Password",
+                            text: $settingsViewModel.serverPassword,
+                            prompt: Text("Password")
+                        )
+                        .multilineTextAlignment(.trailing)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+                    } label: {
+                        Text("Password")
+                    }
                     .disabled(!settingsViewModel.serverAuthenticationEnabled)
+
+                    if settingsViewModel.isConnecting {
+                        HStack(spacing: 10) {
+                            ProgressView()
+                            Text("Connecting...")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    else {
+                        Button {
+                            Task(priority: .userInitiated) {
+                                await settingsViewModel.saveAndConnect()
+                            }
+                        } label: {
+                            Text("Save and Connect")
+                        }
+                    }
+                }
+                .alert(isPresented: $settingsViewModel.showServerUnreachableAlert) {
+                    Alert(
+                        title: Text("Server Unreachable"),
+                        message: Text("Please check the info you entered and try again."),
+                        dismissButton: .cancel(Text("OK")))
                 }
 
                 Section(header: Text("Bonjour")) {
-
                     Button {
                         appViewModel.showBonjourList = true
                     } label: {
@@ -81,7 +114,7 @@ struct PlanetSettingsView: View {
                     }
                 }
 
-                Section(header: Text("Server Status")) {
+                Section(header: Text("Current Saved Server")) {
                     HStack {
                         HStack(spacing: 10) {
                             Circle()
@@ -118,7 +151,6 @@ struct PlanetSettingsView: View {
             }
             .onAppear {
                 Task(priority: .userInitiated) {
-                    self.settingsViewModel.resetPreviousServerInfo()
                     let status = await PlanetStatus.shared.serverIsOnline()
                     await MainActor.run {
                         self.serverOnlineStatus = status
@@ -151,7 +183,7 @@ struct PlanetSettingsView: View {
     @ViewBuilder
     private func serverInfoSection() -> some View {
         Section {
-            TextField(text: $settingsViewModel.serverURL) {
+            TextField(text: $settingsViewModel.serverURLString) {
                 Text("Server URL")
             }
             .frame(maxWidth: .infinity, alignment: .leading)

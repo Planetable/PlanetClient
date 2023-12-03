@@ -130,7 +130,7 @@ struct PlanetAvatarView: View {
             .appending(path: nodeID)
             .appending(path: "My")
             .appending(path: planet.id)
-        guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
+        guard let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString) else {
             return
         }
         let remoteAvatarURL =

@@ -28,7 +28,7 @@ class PlanetManager: NSObject {
 
     private func createRequest(with path: String, method: String) async throws -> URLRequest {
         guard await PlanetStatus.shared.serverIsOnline() else { throw PlanetError.APIServerIsInactiveError }
-        let serverURL = PlanetSettingsViewModel.shared.serverURL
+        let serverURL = PlanetAppViewModel.shared.currentServerURLString
         let url = URL(string: serverURL)!.appending(path: path)
         var request = URLRequest(url: url)
         request.httpMethod = method
@@ -120,7 +120,7 @@ class PlanetManager: NSObject {
                 let data = try encoder.encode(planet)
                 try data.write(to: planetPath.appending(path: "planet.json"))
                 // Always download planet avatar from remote
-                guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
+                guard let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString) else {
                     continue
                 }
                 let remoteAvatarURL = serverURL
@@ -408,7 +408,7 @@ class PlanetManager: NSObject {
         guard statusCode == 200 else { throw PlanetError.APIArticleNotFoundError }
         guard
             let articlePath = getPlanetArticlePath(forID: planetID, articleID: id),
-            let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL)
+            let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString)
         else { return }
         let articleInfoPath = articlePath.appending(path: "article.json")
         try data.write(to: articleInfoPath)

@@ -204,7 +204,7 @@ struct Planet: Codable, Identifiable, Hashable {
     }
 
     private func remoteAvatarURL() -> URL? {
-        guard let serverURL = URL(string: PlanetSettingsViewModel.shared.serverURL) else {
+        guard let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString) else {
             return nil
         }
         return serverURL

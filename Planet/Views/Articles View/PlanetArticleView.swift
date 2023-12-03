@@ -111,7 +111,7 @@ struct PlanetArticleView: View {
                 }
             }
         } else {
-            let serverURL = PlanetSettingsViewModel.shared.serverURL
+            let serverURL = PlanetAppViewModel.shared.currentServerURLString
             let url = URL(string: serverURL)!.appending(path: "/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
             self.articleURL = url
         }
