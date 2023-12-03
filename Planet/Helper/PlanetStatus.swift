@@ -34,7 +34,7 @@ actor PlanetStatus {
                 }
             }
             var request = URLRequest(
-                url: url.appending(path: "/v0/planets/my"),
+                url: url.appending(path: "/v0/ping"),
                 cachePolicy: .reloadIgnoringCacheData,
                 timeoutInterval: 5
             )
@@ -51,7 +51,7 @@ actor PlanetStatus {
                 let responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
                 let status = responseStatusCode == 200
                 if cachedServerStatus != status, status {
-                    Task(priority: .background) {
+                    Task(priority: .userInitiated) {
                         try? await PlanetAppViewModel.shared.reloadPlanetsAndArticles()
                     }
                 }

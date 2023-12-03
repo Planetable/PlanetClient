@@ -40,7 +40,7 @@ struct PlanetArticleView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle(article.title)
+        .navigationTitle(article.title ?? "")
         .ignoresSafeArea(edges: .bottom)
         .task {
             await reloadAction()
@@ -80,7 +80,7 @@ struct PlanetArticleView: View {
                 Text("Delete Article")
             }
         } message: {
-            Text("Are you sure you want to delete \(article.title)? This action cannot to undone.")
+            Text("Are you sure you want to delete \(article.title ?? "untitled")? This action cannot to undone.")
         }
         .onReceive(NotificationCenter.default.publisher(for: .reloadArticle(byID: article.id))) { _ in
             Task { @MainActor in

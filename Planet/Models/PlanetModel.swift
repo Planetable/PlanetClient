@@ -28,8 +28,8 @@ enum PlanetAppTab: Int, Hashable {
 struct PlanetArticle: Codable, Identifiable {
     let id: String
     let created: Date
-    let title: String
-    let content: String
+    let title: String?
+    let content: String?
     let summary: String?
     let link: String
     let attachments: [String]?

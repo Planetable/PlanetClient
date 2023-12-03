@@ -19,24 +19,24 @@ struct PlanetLatestItemView: View {
             }
             VStack(alignment: .leading, spacing: 4) {
                 VStack(alignment: .leading) {
-                    if article.title.count > 0, article.content.count > 0 {
+                    if let title = article.title, title.count > 0, let content = article.content, content.count > 0 {
                         // With both title and content
-                        Text(article.title)
+                        Text(title)
                             .font(.headline)
                             .foregroundColor(.primary)
-                        Text(article.content.prefix(280))
+                        Text(content.prefix(280))
                             .foregroundColor(.secondary)
 
                     }
-                    else if article.title.count == 0, article.content.count > 0 {
+                    else if let title = article.title, title.count == 0, let content = article.content, content.count > 0 {
                         // With only content
-                        Text(article.content.prefix(280))
+                        Text(content.prefix(280))
                             .lineLimit(2)
                             .foregroundColor(.secondary)
                     }
-                    else if article.title.count > 0, article.content.count == 0 {
+                    else if let title = article.title, title.count > 0, let content = article.content, content.count == 0 {
                         // With only title
-                        Text(article.title)
+                        Text(title)
                             .font(.headline)
                             .lineLimit(2)
                             .foregroundColor(.primary)

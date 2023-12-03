@@ -101,8 +101,8 @@ struct PlanetEditArticleView: View {
                 }
             }
             .task(priority: .utility) {
-                title = article.title
-                content = article.content
+                title = article.title ?? "untitled"
+                content = article.content ?? ""
                 if let attachments = article.attachments, let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) {
                     var localAttachments: [PlanetArticleAttachment] = []
                     for a in attachments {
