@@ -472,4 +472,11 @@ class PlanetManager: NSObject {
         }
     }
 
+    // MARK: - reset local cache
+    func resetLocalCache() async throws {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let nodePath = documentsDirectory.appending(path: nodeID)
+        try? FileManager.default.removeItem(at: nodePath)
+    }
 }

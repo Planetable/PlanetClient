@@ -45,7 +45,7 @@ actor PlanetStatus {
                 }
                 return status
             } catch {
-                debugPrint("failed to ping node: \(error)")
+                debugPrint("failed to detect node: \(error)")
             }
         }
         return false

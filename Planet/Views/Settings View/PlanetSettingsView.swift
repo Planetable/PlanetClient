@@ -13,6 +13,7 @@ struct PlanetSettingsView: View {
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
     @State var serverOnlineStatus: Bool = false
+    @State var isShowingConfirmResetLocalCache: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -103,7 +104,8 @@ struct PlanetSettingsView: View {
                     Alert(
                         title: Text("Server Unreachable"),
                         message: Text("Please check the info you entered and try again."),
-                        dismissButton: .cancel(Text("OK")))
+                        dismissButton: .cancel(Text("OK"))
+                    )
                 }
 
                 Section(header: Text("Bonjour")) {
@@ -114,31 +116,13 @@ struct PlanetSettingsView: View {
                     }
                 }
 
-                Section(header: Text("Current Saved Server")) {
-                    HStack {
-                        HStack(spacing: 10) {
-                            Circle()
-                                .frame(width: 14, height: 14)
-                                .foregroundColor(serverOnlineStatus ? .green : .gray)
-                            if serverOnlineStatus {
-                                Text("Server is connected.")
-                            }
-                            else {
-                                Text("Server is not connected.")
-                            }
-                        }
-                    }
-                    if let nodeID = appViewModel.currentNodeID {
-                        HStack(spacing: 10) {
-                            Circle()
-                                .frame(width: 14, height: 14)
-                                .foregroundColor(.clear)
-                            Text("\(nodeID)")
-                                .font(.system(.callout, design: .monospaced))
-                                .onTapGesture {
-                                    UIPasteboard.general.string = nodeID
-                                }
-                        }
+                currentSavedServerSection()
+
+                Section {
+                    Button {
+                        isShowingConfirmResetLocalCache = true
+                    } label: {
+                        Text("Reset Local Cache")
                     }
                 }
             }
@@ -178,56 +162,28 @@ struct PlanetSettingsView: View {
         .sheet(isPresented: $appViewModel.showBonjourList) {
             BonjourListView()
         }
-    }
-
-    @ViewBuilder
-    private func serverInfoSection() -> some View {
-        Section {
-            TextField(text: $settingsViewModel.serverURLString) {
-                Text("Server URL")
+        .confirmationDialog(String("Are you sure you want to remove all local cache?"), isPresented: $isShowingConfirmResetLocalCache, titleVisibility: .visible) {
+            Button(role: .cancel) {
+                isShowingConfirmResetLocalCache = false
+            } label: {
+                Text("Cancel")
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .textFieldStyle(.roundedBorder)
-            .disableAutocorrection(true)
-            .textInputAutocapitalization(.never)
-            .keyboardType(.URL)
-
-            Toggle("Server Authentication", isOn: $settingsViewModel.serverAuthenticationEnabled)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            TextField(text: $settingsViewModel.serverUsername) {
-                Text("Server Username")
+            Button(role: .destructive) {
+                Task(priority: .userInitiated) {
+                    await settingsViewModel.resetLocalCache()
+                }
+            } label: {
+                Text("Reset")
             }
-            .disabled(!settingsViewModel.serverAuthenticationEnabled)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
-            .textFieldStyle(.roundedBorder)
-
-            SecureField(text: $settingsViewModel.serverPassword) {
-                Text("Server Password")
-            }
-            .disabled(!settingsViewModel.serverAuthenticationEnabled)
-            .textFieldStyle(.roundedBorder)
-        } header: {
-            Text("Planet Server Info")
-                .frame(maxWidth: .infinity, alignment: .leading)
-        } footer: {
-            Text("Example: http://127.0.0.1:4321")
-                .disabled(true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .font(.system(.footnote, design: .monospaced, weight: .light))
-                .foregroundColor(.secondary)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            dismissKeyboard()
+        } message: {
+            Text("This will remove all local cache, including all attachments and drafts.")
         }
     }
 
     @ViewBuilder
-    private func serverStatusSection() -> some View {
-        Section {
-            VStack(spacing: 10) {
+    private func currentSavedServerSection() -> some View {
+        Section(header: Text("Current Saved Server")) {
+            HStack {
                 HStack(spacing: 10) {
                     Circle()
                         .frame(width: 14, height: 14)
@@ -239,25 +195,19 @@ struct PlanetSettingsView: View {
                         Text("Server is not connected.")
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                if let nodeID = appViewModel.currentNodeID {
-                    HStack(spacing: 10) {
-                        Circle()
-                            .frame(width: 14, height: 14)
-                            .foregroundColor(.clear)
-                        Text("\(nodeID)")
-                            .font(.system(.footnote, design: .monospaced, weight: .light))
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .transition(.move(edge: .top))
+            }
+            if let nodeID = appViewModel.currentNodeID {
+                HStack(spacing: 10) {
+                    Circle()
+                        .frame(width: 14, height: 14)
+                        .foregroundColor(.clear)
+                    Text("\(nodeID)")
+                        .font(.system(.callout, design: .monospaced))
+                        .onTapGesture {
+                            UIPasteboard.general.string = nodeID
+                        }
                 }
             }
-
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            dismissKeyboard()
         }
     }
 

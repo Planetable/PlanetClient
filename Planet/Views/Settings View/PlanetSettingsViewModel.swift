@@ -169,4 +169,13 @@ class PlanetSettingsViewModel: ObservableObject {
         }
         debugPrint("saved new server: \(serverURLString)")
     }
+
+    func resetLocalCache() async {
+        debugPrint("resetting local cache")
+        do {
+            try await PlanetManager.shared.resetLocalCache()
+        } catch {
+            debugPrint("failed to reset local cache: \(error)")
+        }
+    }
 }
