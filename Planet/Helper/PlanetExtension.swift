@@ -16,6 +16,7 @@ extension String {
     static let selectedPlanetTemplateName = "PlanetSelectedPlanetTemplateNameKey"
     static let settingsSelectedTabKey = "PlanetSettingsSelectedTabKey"
     static let settingsServerURLKey = "PlanetSettingsServerURLKey"
+    static let settingsServerNameKey = "PlanetSettingsServerNameKey"
     static let settingsServerProtocolKey = "PlanetSettingsServerProtocolKey"
     static let settingsServerHostKey = "PlanetSettingsServerHostKey"
     static let settingsServerPortKey = "PlanetSettingsServerPortKey"

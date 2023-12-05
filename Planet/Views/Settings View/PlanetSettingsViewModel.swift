@@ -58,13 +58,13 @@ class PlanetSettingsViewModel: ObservableObject {
             self.isConnecting = true
         }
         Task(priority: .userInitiated) {
-            let status: Bool = await checkServerStatus()
+            let (status, info) = await checkServerStatus()
             Task { @MainActor in
                 self.isConnecting = false
             }
             if status == true {
                 debugPrint("connected to server: \(serverURLString)")
-                saveSettings()
+                saveSettings(info)
                 Task { @MainActor in
                     PlanetAppViewModel.shared.showSettings = false
                 }
@@ -100,11 +100,11 @@ class PlanetSettingsViewModel: ObservableObject {
         return nil
     }
 
-    func checkServerStatus() async -> Bool {
-        guard let serverURLString = getServerURLString() else { return false }
+    func checkServerStatus() async -> (status: Bool, info: PlanetServerInfo?) {
+        guard let serverURLString = getServerURLString() else { return (false, nil) }
         guard let url = URL(string: serverURLString) else {
             debugPrint("invalid server url: \(serverURLString)")
-            return false
+            return (false, nil)
         }
         debugPrint("checking server status: \(url)")
         var request = URLRequest(
@@ -131,28 +131,32 @@ class PlanetSettingsViewModel: ObservableObject {
                     Task { @MainActor in
                         if PlanetAppViewModel.shared.currentNodeID != info.ipfsPeerID {
                             PlanetAppViewModel.shared.currentNodeID = info.ipfsPeerID
+                            PlanetAppViewModel.shared.currentServerName = info.hostName
                         }
                     }
-                    return true
+                    return (true, info)
                 } else {
-                    return false
+                    return (false, nil)
                 }
             } else {
                 /// Server is offline
-                return false
+                return (false, nil)
             }
         } catch {
             debugPrint("failed to ping node: \(error)")
         }
-        return false
+        return (false, nil)
     }
 
-    func saveSettings() {
+    func saveSettings(_ info: PlanetServerInfo?) {
+        guard let info = info else { return }
         guard let serverURLString = getServerURLString() else { return }
         debugPrint("saving new server: \(serverURLString)")
         Task { @MainActor in
             PlanetAppViewModel.shared.currentServerURLString = serverURLString
         }
+        UserDefaults.standard.set(info.ipfsPeerID, forKey: .settingsNodeIDKey)
+        UserDefaults.standard.set(info.hostName, forKey: .settingsServerNameKey)
         UserDefaults.standard.set(serverURLString, forKey: .settingsServerURLKey)
         UserDefaults.standard.set(serverProtocol, forKey: .settingsServerProtocolKey)
         UserDefaults.standard.set(serverHost, forKey: .settingsServerHostKey)

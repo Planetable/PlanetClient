@@ -196,6 +196,16 @@ struct PlanetSettingsView: View {
                     }
                 }
             }
+            if appViewModel.currentServerName.count > 0 {
+                let serverName = appViewModel.currentServerName
+                HStack(spacing: 10) {
+                    Circle()
+                        .frame(width: 14, height: 14)
+                        .foregroundColor(.clear)
+                    Text("\(serverName)")
+                        .font(.system(.callout, design: .monospaced))
+                }
+            }
             if let nodeID = appViewModel.currentNodeID {
                 HStack(spacing: 10) {
                     Circle()

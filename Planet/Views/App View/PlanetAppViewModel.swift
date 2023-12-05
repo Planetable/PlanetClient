@@ -20,7 +20,7 @@ class PlanetAppViewModel: ObservableObject {
     @Published var currentNodeID: String? = UserDefaults.standard.string(forKey: .settingsNodeIDKey) {
         willSet {
             if newValue != currentNodeID {
-                debugPrint("👌 Current Node ID is: \(newValue)")
+                debugPrint("👌 New Node ID is: \(newValue)")
                 Task(priority: .userInitiated) {
                     do {
                         if let newNodeID = newValue {
@@ -30,10 +30,7 @@ class PlanetAppViewModel: ObservableObject {
                                 self.updateMyArticles(articles)
                             }
                         } else {
-                            Task { @MainActor in
-                                self.updateMyPlanets([])
-                                self.updateMyArticles([])
-                            }
+                            // TODO: if newNodeID is nil, it should show empty list and ask user to connect to a server.
                         }
                     } catch {
                         debugPrint("failed to load planets from disk: \(error)")
@@ -42,6 +39,7 @@ class PlanetAppViewModel: ObservableObject {
             }
         }
     }
+    @Published var currentServerName: String = UserDefaults.standard.string(forKey: .settingsServerNameKey) ?? ""
     @Published var currentServerURLString: String = UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? "" {
         willSet {
             if newValue != currentServerURLString {
