@@ -1,16 +1,11 @@
-//
-//  PlanetExtension.swift
-//  Planet
-//
-//  Created by Kai on 2/16/23.
-//
-
 import Foundation
 import UIKit
+import SwiftUI
 import MobileCoreServices
 import UniformTypeIdentifiers
 
 
+// MARK: - String -
 extension String {
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
     static let selectedPlanetTemplateName = "PlanetSelectedPlanetTemplateNameKey"
@@ -31,6 +26,7 @@ extension String {
 }
 
 
+// MARK: - URL -
 extension URL {
     static let myPlanetsList = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appending(path: "myplanets.json")
     
@@ -44,6 +40,7 @@ extension URL {
 }
 
 
+// MARK: - Notification -
 extension Notification.Name {
     static let updatePlanets = Notification.Name("PlanetUpdatePlanetsNotification")
     static let reloadArticles = Notification.Name("PlanetReloadArticlesNotification")
@@ -68,6 +65,7 @@ extension Notification.Name {
 }
 
 
+// MARK: - Date -
 extension Date {
     func mmddyyyy() -> String {
         let format = DateFormatter()
@@ -78,6 +76,7 @@ extension Date {
 }
 
 
+// MARK: - Data -
 extension Data {
     mutating func append(_ string: String) {
         self.append(string.data(using: .utf8, allowLossyConversion: true)!)
@@ -85,6 +84,7 @@ extension Data {
 }
 
 
+// MARK: - UIImage -
 extension UIImage {
     func resizeToSquare(size: CGSize) -> UIImage? {
         let originalSize = self.size
@@ -116,5 +116,19 @@ extension UIImage {
             return nil
         }
         return image
+    }
+}
+
+
+// MARK: - Color -
+extension Color {
+    init(hex: UInt, alpha: Double = 1) {
+        self.init(
+            .sRGB,
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 08) & 0xFF) / 255,
+            blue: Double((hex >> 00) & 0xFF) / 255,
+            opacity: alpha
+        )
     }
 }

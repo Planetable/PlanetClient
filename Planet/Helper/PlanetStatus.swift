@@ -5,19 +5,19 @@ import SwiftUI
 actor PlanetStatus {
     static let shared = PlanetStatus()
 
+    let appViewModel = PlanetAppViewModel.shared
     let settingsViewModel = PlanetSettingsViewModel.shared
 
     func serverIsOnline() async -> Bool {
-        guard let serverURLString = UserDefaults.standard.string(forKey: .settingsServerURLKey) else {
-            return false
-        }
+        let serverURLString = appViewModel.currentServerURLString
         let serverAuthenticationEnabled = settingsViewModel.serverAuthenticationEnabled
         let serverUsername = settingsViewModel.serverUsername
         let serverPassword = settingsViewModel.serverPassword
+        debugPrint("checking server online status with url: \(serverURLString)")
         if let url = URL(string: serverURLString) {
             let requestInfoURL = url.appending(path: "/v0/info")
             let data = try? Data(contentsOf: requestInfoURL)
-            var info: PlanetServerInfo? = nil
+            let info: PlanetServerInfo?
             if let data = data {
                 info = try? JSONDecoder().decode(PlanetServerInfo.self, from: data)
             }

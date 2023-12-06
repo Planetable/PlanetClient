@@ -14,9 +14,14 @@ class PlanetManager: NSObject {
     static let shared = PlanetManager()
     
     var templates: [BuiltInTemplate] = []
-    
+    var documentDirectory: URL
+
     private override init() {
         debugPrint("Planet Manager Init.")
+        guard let documentPath: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            fatalError("can't access to document directory, abort init.")
+        }
+        documentDirectory = documentPath
         super.init()
         Task(priority: .utility) {
             self.templates = PlanetSiteTemplates.builtInTemplates
@@ -55,8 +60,7 @@ class PlanetManager: NSObject {
         guard let nodeID = PlanetAppViewModel.shared.currentNodeID else {
             return nil
         }
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let myPlanetPath = documentsDirectory
+        let myPlanetPath = documentDirectory
             .appending(path: nodeID)
             .appending(path: "My")
             .appending(path: planetID)
@@ -237,8 +241,7 @@ class PlanetManager: NSObject {
             }
             try? await Task.sleep(for: .seconds(1))
             guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let planetPath = documentsDirectory
+            let planetPath = documentDirectory
                 .appending(path: nodeID)
                 .appending(path: "My")
                 .appending(path: id)
@@ -370,10 +373,7 @@ class PlanetManager: NSObject {
 
     // MARK: - load planets and articles locally
     func loadPlanetsAndArticlesFromNode(byID id: String) throws -> (planets: [Planet], articles: [PlanetArticle]) {
-        guard let documentPath: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            throw PlanetError.InternalError
-        }
-        let nodeURL = documentPath.appending(path: id)
+        let nodeURL = documentDirectory.appending(path: id)
         guard FileManager.default.fileExists(atPath: nodeURL.path) else { throw PlanetError.APINodeNotExistsError }
         let baseURL = nodeURL.appending(path: "My")
         let planetIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: baseURL.path)
@@ -407,9 +407,15 @@ class PlanetManager: NSObject {
         let statusCode = (response as! HTTPURLResponse).statusCode
         guard statusCode == 200 else { throw PlanetError.APIArticleNotFoundError }
         guard
-            let articlePath = getPlanetArticlePath(forID: planetID, articleID: id),
+            let articlePath = getPlanetArticlePath(forID: planetID, articleID: id)
+        else {
+            throw PlanetError.APIArticleNotFoundError
+        }
+        guard
             let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString)
-        else { return }
+        else {
+            throw PlanetError.APIServerError
+        }
         let articleInfoPath = articlePath.appending(path: "article.json")
         try data.write(to: articleInfoPath)
         let decoder = JSONDecoder()
@@ -475,8 +481,7 @@ class PlanetManager: NSObject {
     // MARK: - reset local cache
     func resetLocalCache() async throws {
         guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let nodePath = documentsDirectory.appending(path: nodeID)
+        let nodePath = documentDirectory.appending(path: nodeID)
         try? FileManager.default.removeItem(at: nodePath)
     }
 }

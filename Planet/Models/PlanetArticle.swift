@@ -1,29 +1,6 @@
-//
-//  PlanetModel.swift
-//  Planet
-//
-//  Created by Kai on 2/16/23.
-//
-
 import Foundation
 import SwiftUI
 
-enum PlanetAppTab: Int, Hashable {
-    case latest
-    case myPlanets
-    case settings
-
-    func name() -> String {
-        switch self {
-        case .latest:
-            return "Latest"
-        case .myPlanets:
-            return "My Planets"
-        case .settings:
-            return "Settings"
-        }
-    }
-}
 
 struct PlanetArticle: Codable, Identifiable {
     let id: String
@@ -52,13 +29,4 @@ struct PlanetArticleAttachment {
             \n<img alt="\(url.deletingPathExtension().lastPathComponent)" src="\(url.lastPathComponent)">\n
             """
     }
-}
-
-/// Info returned from /v0/info
-struct PlanetServerInfo: Codable {
-    var hostName: String // Host name
-    var version: String // Planet version
-    var ipfsPeerID: String
-    var ipfsVersion: String // IPFS (Kubo) version
-    var ipfsPeerCount: Int
 }

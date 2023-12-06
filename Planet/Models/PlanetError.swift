@@ -28,6 +28,7 @@ enum PlanetError: Error {
     case MovePublishingPlanetArticleError
     case WalletConnectV2ProjectIDMissingError
     case APIError
+    case APIServerError
     case APIServerIsInactiveError
     case APIServerAuthenticationInvalidError
     case APIArticleNotFoundError
