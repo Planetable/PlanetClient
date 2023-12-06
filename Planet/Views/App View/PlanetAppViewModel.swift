@@ -72,7 +72,7 @@ class PlanetAppViewModel: ObservableObject {
             return
         }
         debugPrint("Try to load from last active node id: \(currentNodeID)")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             do {
                 let (planets, articles) = try PlanetManager.shared.loadPlanetsAndArticlesFromNode(byID: currentNodeID)
                 Task { @MainActor in
