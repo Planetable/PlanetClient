@@ -76,7 +76,10 @@ class PlanetAppViewModel: ObservableObject {
                 self.updateMyArticles(articles)
             }
         } catch {
-            debugPrint("failed to load planets from disk: \(error)")
+            debugPrint("failed to load planets from disk with last active node id: \(currentNodeID), error: \(error)")
+            Task { @MainActor in
+                self.resetAndChooseServer()
+            }
         }
     }
     

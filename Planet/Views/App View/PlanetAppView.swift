@@ -97,11 +97,15 @@ struct PlanetAppView: View {
         .task(priority: .utility) {
             self.serverStatus = await PlanetStatus.shared.serverIsOnline()
         }
-        .alert("Choose Server", isPresented: $appViewModel.chooseServer) {
-            Button("Later", role: .cancel) {}
-            Button("Choose") {
-                
-            }
+        .alert(isPresented: $appViewModel.chooseServer) {
+            Alert(
+                title: Text("Check Server Status"),
+                message: Text("Failed to reload from last connected server, please check server status then try again."),
+                primaryButton: .default(Text("Choose")) {
+                    appViewModel.showSettings.toggle()
+                },
+                secondaryButton: .cancel(Text("Later"))
+            )
         }
     }
 }

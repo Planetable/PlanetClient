@@ -28,7 +28,7 @@ struct PlanetLatestView: View {
                 } label: {
                     Text("Reload")
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
                 Spacer()
             } else {
                 List {
