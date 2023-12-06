@@ -97,5 +97,11 @@ struct PlanetAppView: View {
         .task(priority: .utility) {
             self.serverStatus = await PlanetStatus.shared.serverIsOnline()
         }
+        .alert("Choose Server", isPresented: $appViewModel.chooseServer) {
+            Button("Later", role: .cancel) {}
+            Button("Choose") {
+                
+            }
+        }
     }
 }

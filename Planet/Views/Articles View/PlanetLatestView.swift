@@ -24,7 +24,7 @@ struct PlanetLatestView: View {
                 Text("No articles.")
                     .foregroundColor(.secondary)
                 Button {
-                    refreshAction()
+                    refreshAction(skipAlert: false)
                 } label: {
                     Text("Reload")
                 }

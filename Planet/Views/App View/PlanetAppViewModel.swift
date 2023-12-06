@@ -30,7 +30,9 @@ class PlanetAppViewModel: ObservableObject {
                                 self.updateMyArticles(articles)
                             }
                         } else {
-                            // TODO: if newNodeID is nil, it should show empty list and ask user to connect to a server.
+                            Task { @MainActor in
+                                self.resetAndChooseServer()
+                            }
                         }
                     } catch {
                         debugPrint("failed to load planets from disk: \(error)")
@@ -49,6 +51,7 @@ class PlanetAppViewModel: ObservableObject {
     }
     @Published var showBonjourList = false
     @Published var showSettings = false
+    @Published var chooseServer = false
     @Published var newArticle = false
     @Published var newPlanet = false
 
@@ -61,7 +64,7 @@ class PlanetAppViewModel: ObservableObject {
         guard let currentNodeID else {
             debugPrint("No active node id found, notify users for connecting to a server.")
             Task { @MainActor in
-                self.showSettings = true
+                self.resetAndChooseServer()
             }
             return
         }
@@ -75,6 +78,13 @@ class PlanetAppViewModel: ObservableObject {
         } catch {
             debugPrint("failed to load planets from disk: \(error)")
         }
+    }
+    
+    @MainActor
+    func resetAndChooseServer() {
+        self.chooseServer = true
+        self.updateMyPlanets([])
+        self.updateMyArticles([])
     }
     
     func reloadPlanets() async throws {

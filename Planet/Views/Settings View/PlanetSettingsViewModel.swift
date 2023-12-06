@@ -39,7 +39,7 @@ class PlanetSettingsViewModel: ObservableObject {
         }
     }
     
-    func getServerURLString() -> String? {
+    private func getServerURLString() -> String? {
         if serverProtocol.isEmpty || serverHost.isEmpty {
             return nil
         }
@@ -100,7 +100,7 @@ class PlanetSettingsViewModel: ObservableObject {
         return nil
     }
 
-    func checkServerStatus() async -> (status: Bool, info: PlanetServerInfo?) {
+    private func checkServerStatus() async -> (status: Bool, info: PlanetServerInfo?) {
         guard let serverURLString = getServerURLString() else { return (false, nil) }
         guard let url = URL(string: serverURLString) else {
             debugPrint("invalid server url: \(serverURLString)")
@@ -148,7 +148,7 @@ class PlanetSettingsViewModel: ObservableObject {
         return (false, nil)
     }
 
-    func saveSettings(_ info: PlanetServerInfo?) {
+    private func saveSettings(_ info: PlanetServerInfo?) {
         guard let info = info else { return }
         guard let serverURLString = getServerURLString() else { return }
         debugPrint("saving new server: \(serverURLString)")

@@ -101,6 +101,8 @@ extension PlanetError: LocalizedError {
             return NSLocalizedString("Wallet Connect V2 Project ID Missing Error", comment: "")
         case .APIError:
             return NSLocalizedString("API Error", comment: "")
+        case .APIServerError:
+            return NSLocalizedString("API Server Error", comment: "")
         case .APIServerIsInactiveError:
             return NSLocalizedString("API Server Is Inactive", comment: "")
         case .APIServerAuthenticationInvalidError:

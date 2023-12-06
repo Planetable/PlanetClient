@@ -22,12 +22,6 @@ struct PlanetMyPlanetsView: View {
                 Text("No planets.")
                     .foregroundColor(.secondary)
                 Button {
-                    isCreating.toggle()
-                } label: {
-                    Text("Create")
-                }
-                .buttonStyle(.borderedProminent)
-                Button {
                     refreshAction(skipAlert: false)
                 } label: {
                     Text("Reload")
