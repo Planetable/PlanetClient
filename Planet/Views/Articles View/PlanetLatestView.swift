@@ -12,8 +12,6 @@ struct PlanetLatestView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
 
     @State private var isCreating: Bool = false
-    @State private var isFailedRefreshing: Bool = false
-    @State private var errorMessage: String = ""
     
     var body: some View {
         /* First, load what is already on disk, then attempt to pull the latest content from the remote source.
@@ -47,13 +45,10 @@ struct PlanetLatestView: View {
         }
         .disabled(isCreating)
         .refreshable {
-            refreshAction()
+            refreshAction(skipAlert: false)
         }
         .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
             refreshAction()
-        }
-        .alert(isPresented: $isFailedRefreshing) {
-            Alert(title: Text("Failed to Reload"), message: Text(errorMessage), dismissButton: .cancel(Text("Dismiss")))
         }
     }
     
@@ -63,8 +58,12 @@ struct PlanetLatestView: View {
                 try await self.appViewModel.reloadArticles()
             } catch {
                 guard skipAlert == false else { return }
-                self.isFailedRefreshing = true
-                self.errorMessage = error.localizedDescription
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    Task { @MainActor in
+                        self.appViewModel.failedToReload = true
+                        self.appViewModel.failedMessage = error.localizedDescription
+                    }
+                }
             }
         }
     }

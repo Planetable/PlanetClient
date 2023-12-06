@@ -54,6 +54,9 @@ class PlanetAppViewModel: ObservableObject {
     @Published var chooseServer = false
     @Published var newArticle = false
     @Published var newPlanet = false
+    
+    @Published var failedToReload = false
+    @Published var failedMessage = ""
 
     // MARK: -
     @Published private(set) var myPlanets: [Planet] = []
@@ -68,17 +71,19 @@ class PlanetAppViewModel: ObservableObject {
             }
             return
         }
-        debugPrint("Last active node id: \(currentNodeID)")
-        do {
-            let (planets, articles) = try PlanetManager.shared.loadPlanetsAndArticlesFromNode(byID: currentNodeID)
-            Task { @MainActor in
-                self.updateMyPlanets(planets)
-                self.updateMyArticles(articles)
-            }
-        } catch {
-            debugPrint("failed to load planets from disk with last active node id: \(currentNodeID), error: \(error)")
-            Task { @MainActor in
-                self.resetAndChooseServer()
+        debugPrint("Try to load from last active node id: \(currentNodeID)")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            do {
+                let (planets, articles) = try PlanetManager.shared.loadPlanetsAndArticlesFromNode(byID: currentNodeID)
+                Task { @MainActor in
+                    self.updateMyPlanets(planets)
+                    self.updateMyArticles(articles)
+                }
+            } catch {
+                debugPrint("failed to load planets from disk with last active node id: \(currentNodeID), error: \(error)")
+                Task { @MainActor in
+                    self.resetAndChooseServer()
+                }
             }
         }
     }

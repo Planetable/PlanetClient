@@ -12,8 +12,6 @@ struct PlanetMyPlanetsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
 
     @State private var isCreating: Bool = false
-    @State private var isFailedRefreshing: Bool = false
-    @State private var errorMessage: String = ""
     
     var body: some View {
         Group {
@@ -44,13 +42,10 @@ struct PlanetMyPlanetsView: View {
             }
         }
         .refreshable {
-            refreshAction()
+            refreshAction(skipAlert: false)
         }
         .onReceive(NotificationCenter.default.publisher(for: .updatePlanets)) { _ in
             refreshAction()
-        }
-        .alert(isPresented: $isFailedRefreshing) {
-            Alert(title: Text("Failed to Reload"), message: Text(errorMessage), dismissButton: .cancel(Text("Dismiss")))
         }
     }
     
@@ -60,8 +55,12 @@ struct PlanetMyPlanetsView: View {
                 try await self.appViewModel.reloadPlanets()
             } catch {
                 guard skipAlert == false else { return }
-                self.isFailedRefreshing = true
-                self.errorMessage = error.localizedDescription
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    Task { @MainActor in
+                        self.appViewModel.failedToReload = true
+                        self.appViewModel.failedMessage = error.localizedDescription
+                    }
+                }
             }
         }
     }

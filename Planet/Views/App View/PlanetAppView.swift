@@ -107,5 +107,12 @@ struct PlanetAppView: View {
                 secondaryButton: .cancel(Text("Later"))
             )
         }
+        .alert(isPresented: $appViewModel.failedToReload) {
+            Alert(
+                title: Text("Failed to Reload"),
+                message: Text(appViewModel.failedMessage),
+                dismissButton: .default(Text("Dismiss"))
+            )
+        }
     }
 }
