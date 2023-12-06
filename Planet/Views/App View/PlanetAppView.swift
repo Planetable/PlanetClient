@@ -33,6 +33,16 @@ struct PlanetAppView: View {
             }
             .navigationTitle(appViewModel.selectedTab.name())
             .navigationBarTitleDisplayMode(.inline)
+            .alert(isPresented: $appViewModel.chooseServer) {
+                Alert(
+                    title: Text("Check Server Status"),
+                    message: Text("Failed to reload from last connected server, please check server status then try again."),
+                    primaryButton: .default(Text("Choose")) {
+                        appViewModel.showSettings.toggle()
+                    },
+                    secondaryButton: .cancel(Text("Later"))
+                )
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -96,16 +106,6 @@ struct PlanetAppView: View {
         }
         .task(priority: .utility) {
             self.serverStatus = await PlanetStatus.shared.serverIsOnline()
-        }
-        .alert(isPresented: $appViewModel.chooseServer) {
-            Alert(
-                title: Text("Check Server Status"),
-                message: Text("Failed to reload from last connected server, please check server status then try again."),
-                primaryButton: .default(Text("Choose")) {
-                    appViewModel.showSettings.toggle()
-                },
-                secondaryButton: .cancel(Text("Later"))
-            )
         }
         .alert(isPresented: $appViewModel.failedToReload) {
             Alert(

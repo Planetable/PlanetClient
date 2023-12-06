@@ -93,7 +93,7 @@ class PlanetAppViewModel: ObservableObject {
         self.updateMyPlanets([])
         self.updateMyArticles([])
     }
-    
+
     func reloadPlanets() async throws {
         let planets = try await PlanetManager.shared.getMyPlanets()
         Task { @MainActor in

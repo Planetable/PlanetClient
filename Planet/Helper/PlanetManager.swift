@@ -376,7 +376,6 @@ class PlanetManager: NSObject {
         let nodeURL = documentDirectory.appending(path: id)
         guard FileManager.default.fileExists(atPath: nodeURL.path) else { throw PlanetError.APINodeNotExistsError }
         let baseURL = nodeURL.appending(path: "My")
-        debugPrint("loading planets and articles by id: \(id), at: \(baseURL)")
         let planetIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: baseURL.path)
         let decoder = JSONDecoder()
         var planets: [Planet] = []
