@@ -13,14 +13,7 @@ actor PlanetStatus {
         let serverAuthenticationEnabled = settingsViewModel.serverAuthenticationEnabled
         let serverUsername = settingsViewModel.serverUsername
         let serverPassword = settingsViewModel.serverPassword
-        debugPrint("checking server online status with url: \(serverURLString)")
         if let url = URL(string: serverURLString) {
-            let requestInfoURL = url.appending(path: "/v0/info")
-            let data = try? Data(contentsOf: requestInfoURL)
-            let info: PlanetServerInfo?
-            if let data = data {
-                info = try? JSONDecoder().decode(PlanetServerInfo.self, from: data)
-            }
             var request = URLRequest(
                 url: url.appending(path: "/v0/ping"),
                 cachePolicy: .reloadIgnoringCacheData,
@@ -38,16 +31,15 @@ actor PlanetStatus {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 let responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
                 let status: Bool = responseStatusCode == 200
-                if status == true {
-                    /// Server is online
+                if status {
+                    debugPrint("server (\(serverURLString)) is online.")
                 } else {
-                    /// Server is offline
+                    debugPrint("server (\(serverURLString)) is not online.")
                 }
                 return status
-            } catch {
-                debugPrint("failed to detect node: \(error)")
-            }
+            } catch {}
         }
+        debugPrint("server (\(serverURLString)) is not online.")
         return false
     }
 }
