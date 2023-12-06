@@ -34,14 +34,25 @@ struct PlanetAppView: View {
             .navigationTitle(appViewModel.selectedTab.name())
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $appViewModel.chooseServer) {
-                Alert(
-                    title: Text("Check Server Status"),
-                    message: Text("Failed to reload from last connected server, please check server status then try again."),
-                    primaryButton: .default(Text("Choose")) {
-                        appViewModel.showSettings.toggle()
-                    },
-                    secondaryButton: .cancel(Text("Later"))
-                )
+                if appViewModel.currentNodeID == nil {
+                    Alert(
+                        title: Text("Welcome to Planet"),
+                        message: Text("Please choose a server to get started."),
+                        primaryButton: .default(Text("Choose")) {
+                            appViewModel.showSettings.toggle()
+                        },
+                        secondaryButton: .cancel(Text("Later"))
+                    )
+                } else {
+                    Alert(
+                        title: Text("Check Server Status"),
+                        message: Text("Failed to reload from last connected server, please check server status then try again."),
+                        primaryButton: .default(Text("Choose")) {
+                            appViewModel.showSettings.toggle()
+                        },
+                        secondaryButton: .cancel(Text("Later"))
+                    )
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
