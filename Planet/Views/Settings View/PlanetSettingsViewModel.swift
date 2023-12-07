@@ -68,6 +68,7 @@ class PlanetSettingsViewModel: ObservableObject {
                 Task { @MainActor in
                     PlanetAppViewModel.shared.showSettings = false
                 }
+                // MARK: TODO: reload after saving.
             } else {
                 debugPrint("failed to connect to server: \(serverURLString)")
                 Task { @MainActor in

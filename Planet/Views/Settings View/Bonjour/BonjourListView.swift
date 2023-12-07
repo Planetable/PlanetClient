@@ -155,7 +155,10 @@ extension BonjourViewModel: NetServiceDelegate {
                 PlanetSettingsViewModel.shared.serverHost = ip
                 PlanetSettingsViewModel.shared.serverPort = "\(sender.port)"
                 PlanetAppViewModel.shared.showBonjourList = false
-                // MARK: TODO: choose a server then save, connect and reload.
+                Task(priority: .userInitiated) {
+                    try? await Task.sleep(for: .seconds(1))
+                    await PlanetSettingsViewModel.shared.saveAndConnect()
+                }
             }
         }
     }
