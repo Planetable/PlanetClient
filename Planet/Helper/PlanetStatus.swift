@@ -33,13 +33,10 @@ actor PlanetStatus {
                 let status: Bool = responseStatusCode == 200
                 if status {
                     debugPrint("server (\(serverURLString)) is online.")
-                } else {
-                    debugPrint("server (\(serverURLString)) is not online.")
                 }
                 return status
             } catch {}
         }
-        debugPrint("server (\(serverURLString)) is not online.")
         return false
     }
 }
