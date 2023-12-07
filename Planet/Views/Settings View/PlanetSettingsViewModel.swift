@@ -68,7 +68,6 @@ class PlanetSettingsViewModel: ObservableObject {
                 Task { @MainActor in
                     PlanetAppViewModel.shared.showSettings = false
                 }
-                // MARK: TODO: reload after saving.
             } else {
                 debugPrint("failed to connect to server: \(serverURLString)")
                 Task { @MainActor in
@@ -153,9 +152,6 @@ class PlanetSettingsViewModel: ObservableObject {
         guard let info = info else { return }
         guard let serverURLString = getServerURLString() else { return }
         debugPrint("saving new server: \(serverURLString)")
-        Task { @MainActor in
-            PlanetAppViewModel.shared.currentServerURLString = serverURLString
-        }
         UserDefaults.standard.set(info.ipfsPeerID, forKey: .settingsNodeIDKey)
         UserDefaults.standard.set(info.hostName, forKey: .settingsServerNameKey)
         UserDefaults.standard.set(serverURLString, forKey: .settingsServerURLKey)
@@ -173,6 +169,14 @@ class PlanetSettingsViewModel: ObservableObject {
             debugPrint("failed to save server password into keychain: \(error)")
         }
         debugPrint("saved new server: \(serverURLString)")
+        Task { @MainActor in
+            PlanetAppViewModel.shared.currentServerURLString = serverURLString
+            do {
+                try await PlanetAppViewModel.shared.reloadPlanetsAndArticles()
+            } catch {
+                debugPrint("failed to reload planets and articles: \(error)")
+            }
+        }
     }
 
     func resetLocalCache() async {
