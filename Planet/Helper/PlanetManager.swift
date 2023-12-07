@@ -31,6 +31,7 @@ class PlanetManager: NSObject {
         }
     }
 
+    // MARK: -
     private func createRequest(with path: String, method: String) async throws -> URLRequest {
         guard await PlanetStatus.shared.serverIsOnline() else { throw PlanetError.APIServerIsInactiveError }
         let serverURL = PlanetAppViewModel.shared.currentServerURLString
@@ -46,69 +47,7 @@ class PlanetManager: NSObject {
         return request
     }
 
-    // MARK: -
-    func basicAuthenticationValue(username: String, password: String) throws -> String {
-        let loginString = "\(username):\(password)"
-        guard let loginData = loginString.data(using: .utf8) else {
-            throw PlanetError.APIServerAuthenticationInvalidError
-        }
-        let base64LoginString = loginData.base64EncodedString()
-        return "Basic \(base64LoginString)"
-    }
-
-    func getPlanetPath(forID planetID: String) -> URL? {
-        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else {
-            return nil
-        }
-        let myPlanetPath = documentDirectory
-            .appending(path: nodeID)
-            .appending(path: "My")
-            .appending(path: planetID)
-        if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
-            try? FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true, attributes: nil)
-            debugPrint("Folder created at path: \(myPlanetPath.path)")
-        }
-        return myPlanetPath
-    }
-
-    func getPlanetArticlesPath(forID planetID: String) -> URL? {
-        guard let _ = PlanetAppViewModel.shared.currentNodeID else {
-            return nil
-        }
-        let planetPath = getPlanetPath(forID: planetID)
-        let myPlanetArticlesPath = planetPath?.appending(path: "articles.json")
-        return myPlanetArticlesPath
-    }
-    
-    func getPlanetArticlePath(forID planetID: String, articleID: String) -> URL? {
-        guard let _ = PlanetAppViewModel.shared.currentNodeID else {
-            return nil
-        }
-        guard let planetPath = getPlanetPath(forID: planetID) else {
-            return nil
-        }
-        let articlePath = planetPath.appending(path: articleID)
-        if !FileManager.default.fileExists(atPath: articlePath.path) {
-            try? FileManager.default.createDirectory(at: articlePath, withIntermediateDirectories: true)
-        }
-        return articlePath
-    }
-    
-    func getPlanetArticleURL(forID planetID: String, articleID: String) -> URL? {
-        guard let articlePath = getPlanetArticlePath(forID: planetID, articleID: articleID) else { return nil }
-        let indexURL = articlePath.appending(path: "index.html")
-        let simpleURL = articlePath.appending(path: "simple.html")
-        let infoURL = articlePath.appending(path: "article.json")
-        if FileManager.default.fileExists(atPath: indexURL.path) && FileManager.default.fileExists(atPath: infoURL.path) {
-            if FileManager.default.fileExists(atPath: simpleURL.path) {
-                return simpleURL
-            }
-            return indexURL
-        }
-        return nil
-    }
-
-    // MARK: - API Methods
+    // MARK: - ⚙️ API Functions
     // MARK: - list my planets
     func getMyPlanets() async throws -> [Planet] {
         let request = try await createRequest(with: "/v0/planets/my", method: "GET")
@@ -371,34 +310,6 @@ class PlanetManager: NSObject {
         }
     }
 
-    // MARK: - load planets and articles locally
-    func loadPlanetsAndArticlesFromNode(byID id: String) throws -> (planets: [Planet], articles: [PlanetArticle]) {
-        let nodeURL = documentDirectory.appending(path: id)
-        guard FileManager.default.fileExists(atPath: nodeURL.path) else { throw PlanetError.APINodeNotExistsError }
-        let baseURL = nodeURL.appending(path: "My")
-        let planetIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: baseURL.path)
-        let decoder = JSONDecoder()
-        var planets: [Planet] = []
-        var articles: [PlanetArticle] = []
-        for planetID in planetIDs {
-            let planetInfoPath = baseURL.appending(path: planetID).appending(path: "planet.json")
-            if !FileManager.default.fileExists(atPath: planetInfoPath.path) {
-                continue
-            }
-            let planetData = try Data(contentsOf: planetInfoPath)
-            let planet = try decoder.decode(Planet.self, from: planetData)
-            planets.append(planet)
-            let articleInfoPath = baseURL.appending(path: planetID).appending(path: "articles.json")
-            if !FileManager.default.fileExists(atPath: articleInfoPath.path) {
-                continue
-            }
-            let articlesData = try Data(contentsOf: articleInfoPath)
-            let planetArticles = try decoder.decode([PlanetArticle].self, from: articlesData)
-            articles.append(contentsOf: planetArticles)
-        }
-        return (planets, articles)
-    }
-
     // MARK: - download article
     func downloadArticle(id: String, planetID: String) async throws {
         // GET /v0/planets/my/:uuid/articles/:uuid
@@ -476,6 +387,96 @@ class PlanetManager: NSObject {
                 NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
             }
         }
+    }
+
+    // MARK: - ⚙️ Helper Functions
+    func basicAuthenticationValue(username: String, password: String) throws -> String {
+        let loginString = "\(username):\(password)"
+        guard let loginData = loginString.data(using: .utf8) else {
+            throw PlanetError.APIServerAuthenticationInvalidError
+        }
+        let base64LoginString = loginData.base64EncodedString()
+        return "Basic \(base64LoginString)"
+    }
+
+    func getPlanetPath(forID planetID: String) -> URL? {
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else {
+            return nil
+        }
+        let myPlanetPath = documentDirectory
+            .appending(path: nodeID)
+            .appending(path: "My")
+            .appending(path: planetID)
+        if !FileManager.default.fileExists(atPath: myPlanetPath.path) {
+            try? FileManager.default.createDirectory(at: myPlanetPath, withIntermediateDirectories: true, attributes: nil)
+            debugPrint("Folder created at path: \(myPlanetPath.path)")
+        }
+        return myPlanetPath
+    }
+
+    func getPlanetArticlesPath(forID planetID: String) -> URL? {
+        guard let _ = PlanetAppViewModel.shared.currentNodeID else {
+            return nil
+        }
+        let planetPath = getPlanetPath(forID: planetID)
+        let myPlanetArticlesPath = planetPath?.appending(path: "articles.json")
+        return myPlanetArticlesPath
+    }
+    
+    func getPlanetArticlePath(forID planetID: String, articleID: String) -> URL? {
+        guard let _ = PlanetAppViewModel.shared.currentNodeID else {
+            return nil
+        }
+        guard let planetPath = getPlanetPath(forID: planetID) else {
+            return nil
+        }
+        let articlePath = planetPath.appending(path: articleID)
+        if !FileManager.default.fileExists(atPath: articlePath.path) {
+            try? FileManager.default.createDirectory(at: articlePath, withIntermediateDirectories: true)
+        }
+        return articlePath
+    }
+    
+    func getPlanetArticleURL(forID planetID: String, articleID: String) -> URL? {
+        guard let articlePath = getPlanetArticlePath(forID: planetID, articleID: articleID) else { return nil }
+        let indexURL = articlePath.appending(path: "index.html")
+        let simpleURL = articlePath.appending(path: "simple.html")
+        let infoURL = articlePath.appending(path: "article.json")
+        if FileManager.default.fileExists(atPath: indexURL.path) && FileManager.default.fileExists(atPath: infoURL.path) {
+            if FileManager.default.fileExists(atPath: simpleURL.path) {
+                return simpleURL
+            }
+            return indexURL
+        }
+        return nil
+    }
+
+    // MARK: - load planets and articles from disk
+    func loadPlanetsAndArticlesFromNode(byID id: String) throws -> (planets: [Planet], articles: [PlanetArticle]) {
+        let nodeURL = documentDirectory.appending(path: id)
+        guard FileManager.default.fileExists(atPath: nodeURL.path) else { throw PlanetError.APINodeNotExistsError }
+        let baseURL = nodeURL.appending(path: "My")
+        let planetIDs: [String] = try FileManager.default.contentsOfDirectory(atPath: baseURL.path)
+        let decoder = JSONDecoder()
+        var planets: [Planet] = []
+        var articles: [PlanetArticle] = []
+        for planetID in planetIDs {
+            let planetInfoPath = baseURL.appending(path: planetID).appending(path: "planet.json")
+            if !FileManager.default.fileExists(atPath: planetInfoPath.path) {
+                continue
+            }
+            let planetData = try Data(contentsOf: planetInfoPath)
+            let planet = try decoder.decode(Planet.self, from: planetData)
+            planets.append(planet)
+            let articleInfoPath = baseURL.appending(path: planetID).appending(path: "articles.json")
+            if !FileManager.default.fileExists(atPath: articleInfoPath.path) {
+                continue
+            }
+            let articlesData = try Data(contentsOf: articleInfoPath)
+            let planetArticles = try decoder.decode([PlanetArticle].self, from: articlesData)
+            articles.append(contentsOf: planetArticles)
+        }
+        return (planets, articles)
     }
 
     // MARK: - reset local cache
