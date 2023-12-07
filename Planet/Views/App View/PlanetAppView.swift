@@ -31,7 +31,7 @@ struct PlanetAppView: View {
                         .environmentObject(appViewModel)
                 }
             }
-            .navigationTitle(appViewModel.selectedTab.name())
+            .navigationTitle(navigationTitle())
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $appViewModel.chooseServer) {
                 if appViewModel.currentNodeID == nil {
@@ -125,5 +125,14 @@ struct PlanetAppView: View {
                 dismissButton: .default(Text("Dismiss"))
             )
         }
+    }
+
+    private func navigationTitle() -> String {
+        var name = appViewModel.selectedTab.name()
+        if appViewModel.currentServerName.count > 0 {
+            let serverName = appViewModel.currentServerName
+            name += " - \(serverName)"
+        }
+        return name
     }
 }
