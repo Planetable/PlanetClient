@@ -47,7 +47,7 @@ struct PlanetAppView: View {
                     Alert(
                         title: Text("Check Server Status"),
                         message: Text("Failed to reload from last connected server, please check server status then try again."),
-                        primaryButton: .default(Text("Choose")) {
+                        primaryButton: .default(Text("Check")) {
                             appViewModel.showSettings.toggle()
                         },
                         secondaryButton: .cancel(Text("Later"))
