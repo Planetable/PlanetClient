@@ -131,7 +131,7 @@ struct PlanetAppView: View {
         var name = appViewModel.selectedTab.name()
         if appViewModel.currentServerName.count > 0 {
             let serverName = appViewModel.currentServerName
-            name += " - \(serverName)"
+            name += " · \(serverName)"
         }
         return name
     }
