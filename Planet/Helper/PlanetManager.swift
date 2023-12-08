@@ -77,9 +77,6 @@ class PlanetManager: NSObject {
                         try? FileManager.default.removeItem(at: localAvatarURL)
                     }
                     try data.write(to: localAvatarURL)
-                    DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .reloadAvatar(byID: planet.id), object: nil)
-                    }
                 } catch {
                     debugPrint("failed to download avatar from url: \(remoteAvatarURL), error: \(error)")
                 }
