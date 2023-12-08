@@ -46,6 +46,31 @@ class PlanetManager: NSObject {
         }
         return request
     }
+    
+    private func downloadPlanetAvatar(planetID: String) async throws {
+        guard let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString), let planetPath = getPlanetPath(forID: planetID) else {
+            return
+        }
+        let remoteAvatarURL = serverURL
+            .appending(path: "/v0/planets/my/")
+            .appending(path: planetID)
+            .appending(path: "/public/avatar.png")
+        let localAvatarURL = planetPath.appending(path: "avatar.png")
+        let (data, _) = try await URLSession.shared.data(from: remoteAvatarURL)
+        if FileManager.default.fileExists(atPath: localAvatarURL.path) {
+            let remoteAvatarDataCount = UIImage(data: data)?.pngData()?.count ?? 0
+            let localAvatarDataCount = UIImage(contentsOfFile: localAvatarURL.path)?.pngData()?.count ?? 0
+            if remoteAvatarDataCount != localAvatarDataCount && remoteAvatarDataCount > 0 {
+                try? FileManager.default.removeItem(at: localAvatarURL)
+                try data.write(to: localAvatarURL)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    NotificationCenter.default.post(name: .reloadAvatar(byID: planetID), object: nil)
+                }
+            }
+        } else {
+            try data.write(to: localAvatarURL)
+        }
+    }
 
     // MARK: - ⚙️ API Functions
     // MARK: - list my planets
@@ -62,23 +87,12 @@ class PlanetManager: NSObject {
                 encoder.outputFormatting = .prettyPrinted
                 let data = try encoder.encode(planet)
                 try data.write(to: planetPath.appending(path: "planet.json"))
-                // Always download planet avatar from remote
-                guard let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString) else {
-                    continue
-                }
-                let remoteAvatarURL = serverURL
-                    .appending(path: "/v0/planets/my/")
-                    .appending(path: planet.id)
-                    .appending(path: "/public/avatar.png")
-                let localAvatarURL = planetPath.appending(path: "avatar.png")
-                do {
-                    let (data, _) = try await URLSession.shared.data(from: remoteAvatarURL)
-                    if FileManager.default.fileExists(atPath: localAvatarURL.path) {
-                        try? FileManager.default.removeItem(at: localAvatarURL)
+                Task(priority: .background) {
+                    do {
+                        try await self.downloadPlanetAvatar(planetID: planet.id)
+                    } catch {
+                        debugPrint("failed to download avatar for planet: \(planet.id), error: \(error)")
                     }
-                    try data.write(to: localAvatarURL)
-                } catch {
-                    debugPrint("failed to download avatar from url: \(remoteAvatarURL), error: \(error)")
                 }
             }
         }
