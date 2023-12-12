@@ -468,12 +468,12 @@ class PlanetManager: NSObject {
         return nil
     }
 
-    func renderArticlePreview(forTitle title: String, Content content: String, withTemplate name: String, andArticleID articleID: String) throws -> URL {
-        guard let template: BuiltInTemplate = templates.first(where: { $0.name == name }) else { throw PlanetError.MissingTemplateError }
+    func renderArticlePreview(forTitle title: String, content: String, andArticleID articleID: String) throws -> URL {
         let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
         let articlePath = tmp.appending(path: articleID).appendingPathExtension("html")
         try? FileManager.default.removeItem(at: articlePath)
-        let html = CMarkRenderer.renderMarkdownHTML(markdown: content)
+        let titleAndContent = "# " + title + "\n" + content
+        let html = CMarkRenderer.renderMarkdownHTML(markdown: titleAndContent)
         let output = try previewRenderEnv.renderTemplate(
             name: previewTemplatePath.path,
             context: ["content_html": html as Any]

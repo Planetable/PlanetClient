@@ -23,6 +23,8 @@ struct PlanetNewArticleView: View {
     @State private var isPickerPresented: Bool = false
     @State private var isPreview: Bool = false
     @State private var previewPath: URL?
+    @State private var shouldSaveAsDraft: Bool = false
+    private var articleID: UUID = UUID()
 
     var body: some View {
         NavigationStack {
@@ -65,12 +67,27 @@ struct PlanetNewArticleView: View {
             )
             .navigationTitle(isPreview ? "Preview" :"New Post")
             .navigationBarTitleDisplayMode(.inline)
+            .alert(isPresented: $shouldSaveAsDraft) {
+                Alert(
+                    title: Text("Save as Draft?"),
+                    primaryButton: .default(Text("Save")) {
+                        saveAsDraftAction()
+                        dismissAction()
+                    },
+                    secondaryButton: .cancel(Text("Discard")) {
+                        dismissAction()
+                    }
+                )
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
                     if !isPreview {
                         Button {
-                            dismiss()
-                            removeAttachments()
+                            if title.count > 0 || content.count > 0 {
+                                shouldSaveAsDraft.toggle()
+                            } else {
+                                dismissAction()
+                            }
                         } label: {
                             Image(systemName: "xmark")
                         }
@@ -80,14 +97,16 @@ struct PlanetNewArticleView: View {
                     Button {
                         withAnimation {
                             self.isPreview.toggle()
-                            if self.isPreview {
-                                do {
-                                    let url = try PlanetManager.shared.renderArticlePreview(forTitle: self.title, Content: self.content, withTemplate: "8-bit", andArticleID: UUID().uuidString, planetID: nil)
-                                    Task { @MainActor in
-                                        self.previewPath = url
+                            Task(priority: .userInitiated) {
+                                if self.isPreview {
+                                    do {
+                                        let url = try PlanetManager.shared.renderArticlePreview(forTitle: self.title, content: self.content, andArticleID: self.articleID.uuidString)
+                                        Task { @MainActor in
+                                            self.previewPath = url
+                                        }
+                                    } catch {
+                                        debugPrint("failed to render preview: \(error)")
                                     }
-                                } catch {
-                                    debugPrint("failed to render preview: \(error)")
                                 }
                             }
                         }
@@ -181,6 +200,15 @@ struct PlanetNewArticleView: View {
             }
             .disabled(appViewModel.myPlanets.count == 0)
         }
+    }
+
+    private func saveAsDraftAction() {
+        // MARK: TODO: save as draft
+    }
+
+    private func dismissAction() {
+        dismiss()
+        removeAttachments()
     }
 
     private func removeAttachments() {
