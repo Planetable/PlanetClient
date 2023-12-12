@@ -468,16 +468,11 @@ class PlanetManager: NSObject {
         return nil
     }
 
-    func renderArticlePreview(forTitle title: String, Content content: String, withTemplate name: String, andArticleID articleID: String, planetID: String?) throws -> URL {
+    func renderArticlePreview(forTitle title: String, Content content: String, withTemplate name: String, andArticleID articleID: String) throws -> URL {
         guard let template: BuiltInTemplate = templates.first(where: { $0.name == name }) else { throw PlanetError.MissingTemplateError }
         let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
         let articlePath = tmp.appending(path: articleID).appendingPathExtension("html")
         try? FileManager.default.removeItem(at: articlePath)
-        if let planetID {
-            // create new article for planet.
-        } else {
-            // create new article in drafts, no planet selected yet.
-        }
         let html = CMarkRenderer.renderMarkdownHTML(markdown: content)
         let output = try previewRenderEnv.renderTemplate(
             name: previewTemplatePath.path,

@@ -155,18 +155,6 @@
 
     /* end: table */
   </style>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      let pos = JSON.parse(localStorage.getItem('scrollpos'));
-      if (pos) {
-        window.scrollTo(0, pos);
-      }
-    });
-    function scrollPosition(positionPercent) {
-      window.scrollTo(0, document.body.scrollHeight * positionPercent);
-      localStorage.setItem('scrollpos', JSON.stringify(window.scrollY));
-    }
-  </script>
 </head>
 
 <body>
