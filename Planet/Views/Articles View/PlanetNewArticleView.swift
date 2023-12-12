@@ -22,14 +22,14 @@ struct PlanetNewArticleView: View {
     @State private var content: String = ""
     @State private var isPickerPresented: Bool = false
     @State private var isPreview: Bool = false
+    @State private var previewPath: URL?
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if isPreview {
-                    let previewContent = title + "\n" + content
-                    TextEditor(text: .constant(previewContent))
-                        .disabled(true)
+                if isPreview, let previewPath {
+                    PlanetArticleWebView(url: previewPath)
+                        .ignoresSafeArea(edges: .bottom)
                 } else {
                     HStack(spacing: 12) {
                         Button(action: {
@@ -80,6 +80,16 @@ struct PlanetNewArticleView: View {
                     Button {
                         withAnimation {
                             self.isPreview.toggle()
+                            if self.isPreview {
+                                do {
+                                    let url = try PlanetManager.shared.renderArticlePreview(forTitle: self.title, Content: self.content, withTemplate: "8-bit", andArticleID: UUID().uuidString, planetID: nil)
+                                    Task { @MainActor in
+                                        self.previewPath = url
+                                    }
+                                } catch {
+                                    debugPrint("failed to render preview: \(error)")
+                                }
+                            }
                         }
                     } label: {
                         Image(systemName: isPreview ? "xmark" : "eye.fill")

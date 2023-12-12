@@ -8,13 +8,17 @@
 import Foundation
 import UIKit
 import PlanetSiteTemplates
+import Stencil
+import PathKit
 
 
 class PlanetManager: NSObject {
     static let shared = PlanetManager()
-    
+
     var templates: [BuiltInTemplate] = []
     var documentDirectory: URL
+    var previewTemplatePath: URL
+    var previewRenderEnv: Environment
 
     private override init() {
         debugPrint("Planet Manager Init.")
@@ -22,6 +26,8 @@ class PlanetManager: NSObject {
             fatalError("can't access to document directory, abort init.")
         }
         documentDirectory = documentPath
+        previewTemplatePath = Bundle.main.url(forResource: "WriterBasic", withExtension: "html")!
+        previewRenderEnv = Environment(loader: FileSystemLoader(paths: [Path(previewTemplatePath.path)]), extensions: [StencilExtension.common])
         super.init()
         Task(priority: .utility) {
             self.templates = PlanetSiteTemplates.builtInTemplates
@@ -460,6 +466,25 @@ class PlanetManager: NSObject {
             return indexURL
         }
         return nil
+    }
+
+    func renderArticlePreview(forTitle title: String, Content content: String, withTemplate name: String, andArticleID articleID: String, planetID: String?) throws -> URL {
+        guard let template: BuiltInTemplate = templates.first(where: { $0.name == name }) else { throw PlanetError.MissingTemplateError }
+        let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
+        let articlePath = tmp.appending(path: articleID).appendingPathExtension("html")
+        try? FileManager.default.removeItem(at: articlePath)
+        if let planetID {
+            // create new article for planet.
+        } else {
+            // create new article in drafts, no planet selected yet.
+        }
+        let html = CMarkRenderer.renderMarkdownHTML(markdown: content)
+        let output = try previewRenderEnv.renderTemplate(
+            name: previewTemplatePath.path,
+            context: ["content_html": html as Any]
+        )
+        try output.data(using: .utf8)?.write(to: articlePath)
+        return articlePath
     }
 
     // MARK: - load planets and articles from disk

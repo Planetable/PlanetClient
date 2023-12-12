@@ -11,9 +11,15 @@
 		2A2748362B200E7800725487 /* PlanetArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2748352B200E7800725487 /* PlanetArticle.swift */; };
 		2A2748382B200EB200725487 /* PlanetServerInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2748372B200EB200725487 /* PlanetServerInfo.swift */; };
 		2A4CD10129A40B160085F6CC /* PlanetAttachmentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4CD10029A40B160085F6CC /* PlanetAttachmentsView.swift */; };
+		2A5832A12B281CF200A478CA /* Stencil in Frameworks */ = {isa = PBXBuildFile; productRef = 2A5832A02B281CF200A478CA /* Stencil */; };
 		2A6386C12B14D21400451465 /* PlanetStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6386C02B14D21400451465 /* PlanetStatus.swift */; };
 		2A6A01602B062E6C007D3DD0 /* PlanetEditArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */; };
 		2A6A01622B0BB1E6007D3DD0 /* PlanetAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6A01612B0BB1E6007D3DD0 /* PlanetAppView.swift */; };
+		2A85B0712B2862E200CF6823 /* libcmark_gfm in Frameworks */ = {isa = PBXBuildFile; productRef = 2A85B0702B2862E200CF6823 /* libcmark_gfm */; };
+		2A85B0742B28630E00CF6823 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 2A85B0732B28630E00CF6823 /* SwiftSoup */; };
+		2A85B0762B28633400CF6823 /* MarkdownUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85B0752B28633400CF6823 /* MarkdownUtils.swift */; };
+		2A85B0792B28636600CF6823 /* HTMLEntities in Frameworks */ = {isa = PBXBuildFile; productRef = 2A85B0782B28636600CF6823 /* HTMLEntities */; };
+		2A85B07B2B286AFF00CF6823 /* WriterBasic.html in Resources */ = {isa = PBXBuildFile; fileRef = 2A85B07A2B286AFF00CF6823 /* WriterBasic.html */; };
 		2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */; };
 		2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B22B01FF26001303A7 /* PlanetError.swift */; };
 		2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */; };
@@ -49,6 +55,8 @@
 		2A6386C02B14D21400451465 /* PlanetStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetStatus.swift; sourceTree = "<group>"; };
 		2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetEditArticleView.swift; sourceTree = "<group>"; };
 		2A6A01612B0BB1E6007D3DD0 /* PlanetAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAppView.swift; sourceTree = "<group>"; };
+		2A85B0752B28633400CF6823 /* MarkdownUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownUtils.swift; sourceTree = "<group>"; };
+		2A85B07A2B286AFF00CF6823 /* WriterBasic.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = WriterBasic.html; sourceTree = "<group>"; };
 		2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		2A9C28B22B01FF26001303A7 /* PlanetError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetError.swift; sourceTree = "<group>"; };
 		2AAF3E3A299E07B600CA60AD /* Planet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,7 +91,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A85B0712B2862E200CF6823 /* libcmark_gfm in Frameworks */,
+				2A85B0742B28630E00CF6823 /* SwiftSoup in Frameworks */,
+				2A85B0792B28636600CF6823 /* HTMLEntities in Frameworks */,
 				2AC03E512B15AE7C0026144A /* PlanetSiteTemplates in Frameworks */,
+				2A5832A12B281CF200A478CA /* Stencil in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,8 +110,17 @@
 				2AC7CC2029A240AE0089C58C /* PlanetHelper.swift */,
 				2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */,
 				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
+				2A85B0752B28633400CF6823 /* MarkdownUtils.swift */,
 			);
 			path = Helper;
+			sourceTree = "<group>";
+		};
+		2A85B07C2B286BC100CF6823 /* Templates */ = {
+			isa = PBXGroup;
+			children = (
+				2A85B07A2B286AFF00CF6823 /* WriterBasic.html */,
+			);
+			path = Templates;
 			sourceTree = "<group>";
 		};
 		2AAF3E31299E07B600CA60AD = {
@@ -123,6 +144,7 @@
 			children = (
 				2AC7CC1929A1F8350089C58C /* Info.plist */,
 				2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */,
+				2A85B07C2B286BC100CF6823 /* Templates */,
 				2A6386C22B1759A200451465 /* Helper */,
 				2AC7CC0029A0AC960089C58C /* Views */,
 				6A73C0B42AF5CCE100EEF711 /* Models */,
@@ -244,6 +266,10 @@
 			name = Planet;
 			packageProductDependencies = (
 				2AC03E502B15AE7C0026144A /* PlanetSiteTemplates */,
+				2A5832A02B281CF200A478CA /* Stencil */,
+				2A85B0702B2862E200CF6823 /* libcmark_gfm */,
+				2A85B0732B28630E00CF6823 /* SwiftSoup */,
+				2A85B0782B28636600CF6823 /* HTMLEntities */,
 			);
 			productName = Planet;
 			productReference = 2AAF3E3A299E07B600CA60AD /* Planet.app */;
@@ -275,6 +301,10 @@
 			mainGroup = 2AAF3E31299E07B600CA60AD;
 			packageReferences = (
 				2AC03E4F2B15AE7C0026144A /* XCRemoteSwiftPackageReference "PlanetSiteTemplates" */,
+				2A58329F2B281CF200A478CA /* XCRemoteSwiftPackageReference "Stencil" */,
+				2A85B06F2B2862E200CF6823 /* XCRemoteSwiftPackageReference "libcmark_gfm" */,
+				2A85B0722B28630E00CF6823 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				2A85B0772B28636600CF6823 /* XCRemoteSwiftPackageReference "swift-html-entities" */,
 			);
 			productRefGroup = 2AAF3E3B299E07B600CA60AD /* Products */;
 			projectDirPath = "";
@@ -290,6 +320,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A85B07B2B286AFF00CF6823 /* WriterBasic.html in Resources */,
 				2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */,
 				2AAF3E42299E07B700CA60AD /* Assets.xcassets in Resources */,
 			);
@@ -324,6 +355,7 @@
 				2AC7CC1329A156850089C58C /* PlanetNewPlanetView.swift in Sources */,
 				2A6A01622B0BB1E6007D3DD0 /* PlanetAppView.swift in Sources */,
 				2AC7CC2329A2AD510089C58C /* PlanetLatestView.swift in Sources */,
+				2A85B0762B28633400CF6823 /* MarkdownUtils.swift in Sources */,
 				2AC7CC0B29A141EF0089C58C /* PlanetManager.swift in Sources */,
 				2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */,
 				2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */,
@@ -549,6 +581,38 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		2A58329F2B281CF200A478CA /* XCRemoteSwiftPackageReference "Stencil" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stencilproject/Stencil.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.1;
+			};
+		};
+		2A85B06F2B2862E200CF6823 /* XCRemoteSwiftPackageReference "libcmark_gfm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/KristopherGBaker/libcmark_gfm";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.29.4;
+			};
+		};
+		2A85B0722B28630E00CF6823 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.1;
+			};
+		};
+		2A85B0772B28636600CF6823 /* XCRemoteSwiftPackageReference "swift-html-entities" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Kitura/swift-html-entities";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.1;
+			};
+		};
 		2AC03E4F2B15AE7C0026144A /* XCRemoteSwiftPackageReference "PlanetSiteTemplates" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Planetable/PlanetSiteTemplates";
@@ -560,6 +624,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2A5832A02B281CF200A478CA /* Stencil */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A58329F2B281CF200A478CA /* XCRemoteSwiftPackageReference "Stencil" */;
+			productName = Stencil;
+		};
+		2A85B0702B2862E200CF6823 /* libcmark_gfm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A85B06F2B2862E200CF6823 /* XCRemoteSwiftPackageReference "libcmark_gfm" */;
+			productName = libcmark_gfm;
+		};
+		2A85B0732B28630E00CF6823 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A85B0722B28630E00CF6823 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		2A85B0782B28636600CF6823 /* HTMLEntities */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A85B0772B28636600CF6823 /* XCRemoteSwiftPackageReference "swift-html-entities" */;
+			productName = HTMLEntities;
+		};
 		2AC03E502B15AE7C0026144A /* PlanetSiteTemplates */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2AC03E4F2B15AE7C0026144A /* XCRemoteSwiftPackageReference "PlanetSiteTemplates" */;
