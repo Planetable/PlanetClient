@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct PlanetLatestItemView: View {
-    var planet: Planet
+    var planet: Planet?
     var article: PlanetArticle
     var showAvatar: Bool = true
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            if showAvatar {
+            if let planet, showAvatar {
                 planet.avatarView(.medium)
             }
             VStack(alignment: .leading, spacing: 4) {
@@ -63,6 +63,7 @@ struct PlanetLatestItemView: View {
         }
         .contentShape(Rectangle())
         .task(id: article.id, priority: .background) {
+            guard let planet else { return }
             try? await PlanetManager.shared.downloadArticle(id: article.id, planetID: planet.id)
         }
     }

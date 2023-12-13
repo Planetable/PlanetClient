@@ -126,7 +126,7 @@ struct PlanetSettingsView: View {
                     }
                 }
             }
-            .navigationTitle(PlanetAppTab.settings.name())
+            .navigationTitle("Settings")
             .onReceive(settingsViewModel.timer) { t in
                 Task { @MainActor in
                     let status = await PlanetStatus.shared.serverIsOnline()

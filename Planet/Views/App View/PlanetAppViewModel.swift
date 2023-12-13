@@ -54,6 +54,8 @@ class PlanetAppViewModel: ObservableObject {
     @Published var chooseServer = false
     @Published var newArticle = false
     @Published var newPlanet = false
+    @Published var continueNewArticle = false
+    @Published var continueArticleDraft: PlanetArticle?
     @Published var failedToReload = false
     @Published var failedMessage = ""
 
@@ -181,5 +183,17 @@ class PlanetAppViewModel: ObservableObject {
         drafts = articles.sorted(by: { a, b in
             return a.created > b.created
         })
+    }
+
+    @MainActor
+    func removeDraft(_ draft: PlanetArticle) {
+        withAnimation {
+            drafts = drafts.filter({ a in
+                return a.id != draft.id
+            })
+        }
+        Task(priority: .userInitiated) {
+            PlanetManager.shared.removeArticleDraft(draft)
+        }
     }
 }

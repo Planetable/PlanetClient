@@ -4,7 +4,7 @@ import Foundation
 enum PlanetAppTab: Int, Hashable {
     case latest
     case myPlanets
-    case settings
+    case drafts
 
     func name() -> String {
         switch self {
@@ -12,8 +12,8 @@ enum PlanetAppTab: Int, Hashable {
             return "Latest"
         case .myPlanets:
             return "My Planets"
-        case .settings:
-            return "Settings"
+        case .drafts:
+            return "Drafts"
         }
     }
 }

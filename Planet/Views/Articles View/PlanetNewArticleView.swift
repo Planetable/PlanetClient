@@ -24,11 +24,17 @@ struct PlanetNewArticleView: View {
     @State private var isPreview: Bool = false
     @State private var previewPath: URL?
     @State private var shouldSaveAsDraft: Bool = false
-    
-    private let articleID: UUID
 
-    init() {
-        articleID = UUID()
+    private let articleID: UUID
+    var articleDraft: PlanetArticle?
+
+    init(withDraft draft: PlanetArticle?) {
+        if let draft {
+            articleID = UUID(uuidString: draft.id)!
+            articleDraft = draft
+        } else {
+            articleID = UUID()
+        }
     }
 
     var body: some View {
@@ -59,8 +65,12 @@ struct PlanetNewArticleView: View {
                     PlanetTextView(text: $content)
                         .padding(.horizontal, 12)
 
-                    PlanetAttachmentsView(planet: $selectedPlanet)
-                        .frame(height: 48)
+                    if let draft = articleDraft {
+                        // MARK: TODO: continue with attachments.
+                    } else {
+                        PlanetAttachmentsView(planet: $selectedPlanet)
+                            .frame(height: 48)
+                    }
                 }
             }
             .frame(
@@ -151,8 +161,32 @@ struct PlanetNewArticleView: View {
                 }
             }
             .task(priority: .utility) {
-                self.selectedPlanet =
-                    self.appViewModel.myPlanets[self.selectedPlanetIndex]
+                if let draft = articleDraft {
+                    title = draft.title ?? ""
+                    content = draft.content ?? ""
+                    if let planetID = draft.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
+                        selectedPlanet = planet
+                        var index: Int = 0
+                        for myPlanet in PlanetAppViewModel.shared.myPlanets {
+                            if myPlanet.id == planetID.uuidString {
+                                selectedPlanetIndex = index
+                            }
+                            index += 1
+                        }
+                        let articleDraftPath = PlanetManager.shared.draftsDirectory.appending(path: draft.id)
+                        if let attachments = draft.attachments {
+                            for attachment in attachments {
+                                let attachmentPath = articleDraftPath.appending(path: attachment)
+                                if let image = UIImage(contentsOfFile: attachmentPath.path) {
+                                    let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: attachmentPath)
+                                    selectedAttachments.append(articleAttachment)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: .addAttachment)) { n in
                 guard let attachment = n.object as? PlanetArticleAttachment else { return }
@@ -232,11 +266,5 @@ struct PlanetNewArticleView: View {
         for attachment in selectedAttachments {
             try? FileManager.default.removeItem(at: attachment.url)
         }
-    }
-}
-
-struct PlanetNewArticleView_Previews: PreviewProvider {
-    static var previews: some View {
-        PlanetNewArticleView()
     }
 }

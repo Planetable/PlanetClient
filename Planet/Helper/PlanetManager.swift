@@ -495,19 +495,40 @@ class PlanetManager: NSObject {
     }
 
     func loadArticleDrafts() throws -> [PlanetArticle] {
-        return []
+        let paths: [String] = try FileManager.default.contentsOfDirectory(atPath: draftsDirectory.path)
+        var drafts: [PlanetArticle] = []
+        for path in paths {
+            guard let id = UUID(uuidString: path) else { continue }
+            if let article = try? loadArticleDraft(byID: id) {
+                drafts.append(article)
+            }
+        }
+        return drafts
     }
 
     func loadArticleDraft(byID id: UUID) throws -> PlanetArticle {
-        debugPrint("loading article draft by id: \(id), document path: \(documentDirectory)")
-        return PlanetArticle(id: "", created: Date(), title: nil, content: nil, summary: nil, link: "", attachments: nil)
+        let articlePath = draftsDirectory.appending(path: id.uuidString)
+        guard FileManager.default.fileExists(atPath: articlePath.path) else {
+            throw PlanetError.PlanetDraftNotExistsError
+        }
+        let articleInfoPath = articlePath.appending(path: "draft.json")
+        let decoder = JSONDecoder()
+        let data = try Data(contentsOf: articleInfoPath)
+        let article = try decoder.decode(PlanetArticle.self, from: data)
+        debugPrint("loaded article draft: \(article), at: \(articlePath)")
+        return article
     }
 
     func saveArticleDraft(byID id: UUID, attachments: [String] = [], title: String?, content: String?, planetID: UUID?) throws {
         debugPrint("saving article draft by id: \(id) ...")
-        // [Documents]/Drafts/[ArticleUUID]/draft.json
-        // [Documents]/Drafts/[ArticleUUID]/draft.html
-        // [Documents]/Drafts/[ArticleUUID]/[attachment]
+        /*
+            Save as draft
+            - A draft's directory: [Documents]/Drafts/[Article UUID]/
+            - Inside:
+                - draft.json [Codable object of PlanetArticle]
+                - draft.html
+                - attachments
+         */
         let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
         let tempArticlePath = tempDirectory.appending(path: "\(id.uuidString).html")
         guard FileManager.default.fileExists(atPath: tempArticlePath.path) else {
@@ -541,6 +562,12 @@ class PlanetManager: NSObject {
                 debugPrint("failed to load drafts: \(error)")
             }
         }
+    }
+
+    func removeArticleDraft(_ draft: PlanetArticle) {
+        let articleDraftPath = draftsDirectory.appending(path: draft.id)
+        try? FileManager.default.removeItem(at: articleDraftPath)
+        debugPrint("removed article draft: \(articleDraftPath)")
     }
 
     // MARK: - load planets and articles from disk

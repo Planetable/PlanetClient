@@ -26,6 +26,9 @@ struct PlanetAppView: View {
                 case .latest:
                     PlanetLatestView()
                         .environmentObject(appViewModel)
+                case .drafts:
+                    PlanetDraftsView()
+                        .environmentObject(appViewModel)
                 default:
                     PlanetMyPlanetsView()
                         .environmentObject(appViewModel)
@@ -84,16 +87,6 @@ struct PlanetAppView: View {
                                 Label("Create Draft", systemImage: "plus")
                             }
                         }
-                        if appViewModel.drafts.count > 0 {
-                            if serverStatus {
-                                Divider()
-                            }
-                            Button {
-                                // Drafts View
-                            } label: {
-                                Label("Drafts", systemImage: "pencil")
-                            }
-                        }
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -104,6 +97,9 @@ struct PlanetAppView: View {
                             .tag(PlanetAppTab.latest)
                         Text(PlanetAppTab.myPlanets.name())
                             .tag(PlanetAppTab.myPlanets)
+                        Divider()
+                        Text(PlanetAppTab.drafts.name())
+                            .tag(PlanetAppTab.drafts)
                     } label: {
                         Text(appViewModel.selectedTab.name())
                     }
@@ -117,8 +113,14 @@ struct PlanetAppView: View {
                 .environmentObject(settingsViewModel)
         }
         .fullScreenCover(isPresented: $appViewModel.newArticle) {
-            PlanetNewArticleView()
+            PlanetNewArticleView(withDraft: nil)
                 .environmentObject(appViewModel)
+        }
+        .fullScreenCover(isPresented: $appViewModel.continueNewArticle) {
+            if let draft = appViewModel.continueArticleDraft {
+                PlanetNewArticleView(withDraft: draft)
+                    .environmentObject(appViewModel)
+            }
         }
         .sheet(isPresented: $appViewModel.newPlanet) {
             PlanetNewPlanetView()

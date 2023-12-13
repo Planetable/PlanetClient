@@ -13,14 +13,8 @@ Basic Features:
 - [x] Support basic offline reading
 - [x] Add template for offline rendering
 - [x] Planet with template options
-
-Next:
-- [ ] Preview an article inside writer (with template)
-- [ ] Offline writing (drafts)
-
-
-## Join TestFlight
-- [https://testflight.apple.com/join/UMQsmkbJ](https://testflight.apple.com/join/UMQsmkbJ)
+- [x] Preview an article inside writer
+- [ ] Drafts
 
 
 ## Running Locally
