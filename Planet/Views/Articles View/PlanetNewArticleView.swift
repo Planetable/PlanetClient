@@ -88,11 +88,10 @@ struct PlanetNewArticleView: View {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
                     if !isPreview {
                         Button {
-                            if PlanetManager.shared.shouldSaveArticleDraft(byID: articleID) {
+                            if title.count > 0 || content.count > 0 || selectedAttachments.count > 0 {
                                 shouldSaveAsDraft.toggle()
-                            } else {
-                                dismissAction()
                             }
+                            dismissAction()
                         } label: {
                             Image(systemName: "xmark")
                         }

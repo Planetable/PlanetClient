@@ -503,11 +503,6 @@ class PlanetManager: NSObject {
         return PlanetArticle(id: "", created: Date(), title: nil, content: nil, summary: nil, link: "", attachments: nil)
     }
 
-    func shouldSaveArticleDraft(byID id: UUID) -> Bool {
-        // MARK: TODO: detect draft changes
-        return true
-    }
-
     func saveArticleDraft(byID id: UUID, attachments: [String] = [], title: String?, content: String?, planetID: UUID?) throws {
         debugPrint("saving article draft by id: \(id) ...")
         // [Documents]/Drafts/[ArticleUUID]/draft.json
