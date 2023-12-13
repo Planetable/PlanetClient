@@ -148,6 +148,9 @@ struct PlanetNewArticleView: View {
                                     self.removeAttachments()
                                     Task { @MainActor in
                                         self.appViewModel.selectedTab = .latest
+                                        if let articleDraft {
+                                            self.appViewModel.removeDraft(articleDraft)
+                                        }
                                     }
                                 }
                                 catch {
