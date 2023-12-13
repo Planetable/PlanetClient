@@ -9,6 +9,7 @@ enum PlanetError: Error {
     case PlanetFeedError
     case PlanetExistsError
     case PlanetNotExistsError
+    case PlanetDraftError
     case MissingTemplateError
     case MissingPlanetKeyError
     case AvatarError
@@ -63,6 +64,8 @@ extension PlanetError: LocalizedError {
             return NSLocalizedString("Planet Exists Error", comment: "")
         case .PlanetNotExistsError:
             return NSLocalizedString("Planet Not Exists Error", comment: "")
+        case .PlanetDraftError:
+            return NSLocalizedString("Article Draft Not Exists Error", comment: "")
         case .MissingTemplateError:
             return NSLocalizedString("Missing Template Error", comment: "")
         case .MissingPlanetKeyError:

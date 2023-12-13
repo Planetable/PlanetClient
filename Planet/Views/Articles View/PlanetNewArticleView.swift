@@ -24,7 +24,12 @@ struct PlanetNewArticleView: View {
     @State private var isPreview: Bool = false
     @State private var previewPath: URL?
     @State private var shouldSaveAsDraft: Bool = false
-    private var articleID: UUID = UUID()
+    
+    private let articleID: UUID
+
+    init() {
+        articleID = UUID()
+    }
 
     var body: some View {
         NavigationStack {
@@ -203,7 +208,18 @@ struct PlanetNewArticleView: View {
     }
 
     private func saveAsDraftAction() {
-        // MARK: TODO: save as draft
+        do {
+            let attachments = selectedAttachments.map() { a in
+                return a.url.lastPathComponent
+            }
+            var planetID: UUID?
+            if let selectedPlanet, let theID = UUID(uuidString: selectedPlanet.id) {
+                planetID = theID
+            }
+            try PlanetManager.shared.saveArticleDraft(byID: articleID, attachments: attachments, title: title, content: content, planetID: planetID)
+        } catch {
+            debugPrint("failed to save draft: \(error)")
+        }
     }
 
     private func dismissAction() {

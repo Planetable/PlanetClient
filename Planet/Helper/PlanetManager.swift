@@ -17,6 +17,7 @@ class PlanetManager: NSObject {
 
     var templates: [BuiltInTemplate] = []
     var documentDirectory: URL
+    var draftsDirectory: URL
     var previewTemplatePath: URL
     var previewRenderEnv: Environment
 
@@ -26,6 +27,14 @@ class PlanetManager: NSObject {
             fatalError("can't access to document directory, abort init.")
         }
         documentDirectory = documentPath
+        draftsDirectory = documentDirectory.appending(path: "Drafts")
+        do {
+            if !FileManager.default.fileExists(atPath: draftsDirectory.path) {
+                try FileManager.default.createDirectory(at: draftsDirectory, withIntermediateDirectories: true)
+            }
+        } catch {
+            fatalError("can't create drafts directory, abort init.")
+        }
         guard let path = Bundle.main.url(forResource: "WriterBasic", withExtension: "html") else {
             fatalError("preview template not loaded, abort init.")
         }
@@ -483,6 +492,45 @@ class PlanetManager: NSObject {
         )
         try output.data(using: .utf8)?.write(to: articlePath)
         return articlePath
+    }
+
+    func loadArticleDrafts() throws -> [PlanetArticle] {
+        return []
+    }
+
+    func loadArticleDraft(byID id: UUID) throws -> PlanetArticle {
+        debugPrint("loading article draft by id: \(id), document path: \(documentDirectory)")
+        return PlanetArticle(id: "", created: Date(), title: nil, content: nil, summary: nil, link: "", attachments: nil)
+    }
+
+    func saveArticleDraft(byID id: UUID, attachments: [String] = [], title: String?, content: String?, planetID: UUID?) throws {
+        debugPrint("saving article draft by id: \(id) ...")
+        // [Documents]/Drafts/[ArticleUUID]/draft.json
+        // [Documents]/Drafts/[ArticleUUID]/draft.html
+        // [Documents]/Drafts/[ArticleUUID]/[attachment]
+        let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempArticlePath = tempDirectory.appending(path: "\(id.uuidString).html")
+        guard FileManager.default.fileExists(atPath: tempArticlePath.path) else {
+            throw PlanetError.PlanetDraftError
+        }
+        let articleDraftPath = draftsDirectory.appending(path: id.uuidString)
+        if FileManager.default.fileExists(atPath: articleDraftPath.path) {
+            try FileManager.default.removeItem(at: articleDraftPath)
+        }
+        try FileManager.default.createDirectory(at: articleDraftPath, withIntermediateDirectories: true)
+        let articlePath = articleDraftPath.appending(path: "draft.html")
+        try FileManager.default.moveItem(at: tempArticlePath, to: articlePath)
+        for attachment in attachments {
+            let tempAttachmentPath = tempDirectory.appending(path: attachment)
+            let attachmentPath = articleDraftPath.appending(path: attachment)
+            try? FileManager.default.moveItem(at: tempAttachmentPath, to: attachmentPath)
+        }
+        let article = PlanetArticle(id: id.uuidString, created: Date(), title: title, content: content, summary: nil, link: id.uuidString, attachments: attachments, planetID: planetID)
+        let encoder = JSONEncoder()
+        let articleInfoPath = articleDraftPath.appending(path: "draft.json")
+        let data = try encoder.encode(article)
+        try data.write(to: articleInfoPath)
+        debugPrint("saved article draft at: \(articleDraftPath)")
     }
 
     // MARK: - load planets and articles from disk
