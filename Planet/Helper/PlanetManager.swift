@@ -26,7 +26,10 @@ class PlanetManager: NSObject {
             fatalError("can't access to document directory, abort init.")
         }
         documentDirectory = documentPath
-        previewTemplatePath = Bundle.main.url(forResource: "WriterBasic", withExtension: "html")!
+        guard let path = Bundle.main.url(forResource: "WriterBasic", withExtension: "html") else {
+            fatalError("preview template not loaded, abort init.")
+        }
+        previewTemplatePath = path
         previewRenderEnv = Environment(loader: FileSystemLoader(paths: [Path(previewTemplatePath.path)]), extensions: [StencilExtension.common])
         super.init()
         Task(priority: .utility) {
