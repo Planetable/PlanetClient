@@ -88,7 +88,7 @@ struct PlanetNewArticleView: View {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
                     if !isPreview {
                         Button {
-                            if title.count > 0 || content.count > 0 {
+                            if PlanetManager.shared.shouldSaveArticleDraft(byID: articleID) {
                                 shouldSaveAsDraft.toggle()
                             } else {
                                 dismissAction()
