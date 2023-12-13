@@ -66,7 +66,8 @@ struct PlanetNewArticleView: View {
                         .padding(.horizontal, 12)
 
                     if let draft = articleDraft {
-                        // MARK: TODO: continue with attachments.
+                        PlanetAttachmentsView(planet: $selectedPlanet, draftArticle: draft)
+                            .frame(height: 48)
                     } else {
                         PlanetAttachmentsView(planet: $selectedPlanet)
                             .frame(height: 48)

@@ -11,6 +11,7 @@ import PhotosUI
 
 struct PlanetAttachmentsView: View {
     @Binding var planet: Planet?
+    var draftArticle: PlanetArticle?
 
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
@@ -116,6 +117,20 @@ struct PlanetAttachmentsView: View {
                 }
             } label: {
                 Text("Remove Attachment")
+            }
+        }
+        .task(priority: .utility) {
+            if let draft = draftArticle {
+                let articleDraftPath = PlanetManager.shared.draftsDirectory.appending(path: draft.id)
+                if let attachments = draft.attachments {
+                    for attachment in attachments {
+                        let attachmentPath = articleDraftPath.appending(path: attachment)
+                        if let image = UIImage(contentsOfFile: attachmentPath.path) {
+                            let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: attachmentPath)
+                            uploadedImages.append(articleAttachment)
+                        }
+                    }
+                }
             }
         }
     }
