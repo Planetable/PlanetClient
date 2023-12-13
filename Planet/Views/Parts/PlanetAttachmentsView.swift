@@ -125,8 +125,10 @@ struct PlanetAttachmentsView: View {
                 if let attachments = draft.attachments {
                     for attachment in attachments {
                         let attachmentPath = articleDraftPath.appending(path: attachment)
-                        if let image = UIImage(contentsOfFile: attachmentPath.path) {
-                            let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: attachmentPath)
+                        let tempPath = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: attachment)
+                        try? FileManager.default.copyItem(at: attachmentPath, to: tempPath)
+                        if let image = UIImage(contentsOfFile: tempPath.path) {
+                            let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: tempPath)
                             uploadedImages.append(articleAttachment)
                         }
                     }

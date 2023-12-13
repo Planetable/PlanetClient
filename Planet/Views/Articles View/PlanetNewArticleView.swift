@@ -147,7 +147,7 @@ struct PlanetNewArticleView: View {
                                     )
                                     self.removeAttachments()
                                     Task { @MainActor in
-                                        PlanetAppViewModel.shared.selectedTab = .latest
+                                        self.appViewModel.selectedTab = .latest
                                     }
                                 }
                                 catch {
