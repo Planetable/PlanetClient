@@ -209,6 +209,7 @@ struct PlanetNewArticleView: View {
 
     private func saveAsDraftAction() {
         do {
+            _ = try PlanetManager.shared.renderArticlePreview(forTitle: title, content: content, andArticleID: articleID.uuidString)
             let attachments = selectedAttachments.map() { a in
                 return a.url.lastPathComponent
             }
