@@ -76,6 +76,24 @@ struct PlanetAppView: View {
                             Label("New Planet", systemImage: "plus")
                         }
                         .disabled(!serverStatus)
+                        if !serverStatus {
+                            Divider()
+                            Button {
+                                // Crerate Draft.
+                            } label: {
+                                Label("Create Draft", systemImage: "plus")
+                            }
+                        }
+                        if appViewModel.drafts.count > 0 {
+                            if serverStatus {
+                                Divider()
+                            }
+                            Button {
+                                // Drafts View
+                            } label: {
+                                Label("Drafts", systemImage: "pencil")
+                            }
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }

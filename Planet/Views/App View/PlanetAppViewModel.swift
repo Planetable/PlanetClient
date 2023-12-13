@@ -60,7 +60,8 @@ class PlanetAppViewModel: ObservableObject {
     // MARK: -
     @Published private(set) var myPlanets: [Planet] = []
     @Published private(set) var myArticles: [PlanetArticle] = []
-    
+    @Published private(set) var drafts: [PlanetArticle] = []
+
     init() {
         debugPrint("Planet App View Model Init.")
         guard let currentNodeID else {
@@ -83,6 +84,14 @@ class PlanetAppViewModel: ObservableObject {
                 Task { @MainActor in
                     self.resetAndChooseServer()
                 }
+            }
+            do {
+                let drafts = try PlanetManager.shared.loadArticleDrafts()
+                Task { @MainActor in
+                    self.updateDrafts(drafts)
+                }
+            } catch {
+                debugPrint("failed to load drafts: \(error)")
             }
         }
     }
@@ -164,5 +173,13 @@ class PlanetAppViewModel: ObservableObject {
                 planet.reloadTemplate()
             }
         }
+    }
+
+    @MainActor
+    func updateDrafts(_ articles: [PlanetArticle]) {
+        debugPrint("updated drafts: \(articles.count)")
+        drafts = articles.sorted(by: { a, b in
+            return a.created > b.created
+        })
     }
 }

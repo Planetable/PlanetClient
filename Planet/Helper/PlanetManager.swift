@@ -531,6 +531,16 @@ class PlanetManager: NSObject {
         let data = try encoder.encode(article)
         try data.write(to: articleInfoPath)
         debugPrint("saved article draft at: \(articleDraftPath)")
+        Task(priority: .background) {
+            do {
+                let drafts = try self.loadArticleDrafts()
+                Task { @MainActor in
+                    PlanetAppViewModel.shared.updateDrafts(drafts)
+                }
+            } catch {
+                debugPrint("failed to load drafts: \(error)")
+            }
+        }
     }
 
     // MARK: - load planets and articles from disk

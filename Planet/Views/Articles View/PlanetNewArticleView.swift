@@ -90,8 +90,9 @@ struct PlanetNewArticleView: View {
                         Button {
                             if title.count > 0 || content.count > 0 || selectedAttachments.count > 0 {
                                 shouldSaveAsDraft.toggle()
+                            } else {
+                                dismissAction()
                             }
-                            dismissAction()
                         } label: {
                             Image(systemName: "xmark")
                         }
