@@ -101,10 +101,20 @@ struct PlanetNewArticleView: View {
                     if !isPreview {
                         Button {
                             if title.count > 0 || content.count > 0 || selectedAttachments.count > 0 {
-                                shouldSaveAsDraft.toggle()
-                            } else {
-                                dismissAction()
+                                if let draft = articleDraft {
+                                    let selectedAttachmentNames: [String] = selectedAttachments.map() { a in
+                                        return a.url.lastPathComponent
+                                    }
+                                    if title != draft.title || content != draft.content || selectedAttachmentNames != draft.attachments {
+                                        shouldSaveAsDraft.toggle()
+                                        return
+                                    }
+                                } else {
+                                    shouldSaveAsDraft.toggle()
+                                    return
+                                }
                             }
+                            dismissAction()
                         } label: {
                             Image(systemName: "xmark")
                         }
