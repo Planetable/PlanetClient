@@ -65,13 +65,14 @@ struct PlanetNewArticleView: View {
                     PlanetTextView(text: $content)
                         .padding(.horizontal, 12)
 
-                    if let draft = articleDraft {
-                        PlanetAttachmentsView(planet: $selectedPlanet, draftArticle: draft)
-                            .frame(height: 48)
-                    } else {
-                        PlanetAttachmentsView(planet: $selectedPlanet)
-                            .frame(height: 48)
+                    Group {
+                        if let draft = articleDraft {
+                            PlanetAttachmentsView(planet: $selectedPlanet, articleDraft: draft)
+                        } else {
+                            PlanetAttachmentsView(planet: $selectedPlanet)
+                        }
                     }
+                    .frame(height: 48)
                 }
             }
             .frame(
@@ -166,28 +167,7 @@ struct PlanetNewArticleView: View {
             }
             .task(priority: .utility) {
                 if let draft = articleDraft {
-                    title = draft.title ?? ""
-                    content = draft.content ?? ""
-                    if let planetID = draft.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
-                        selectedPlanet = planet
-                        var index: Int = 0
-                        for myPlanet in PlanetAppViewModel.shared.myPlanets {
-                            if myPlanet.id == planetID.uuidString {
-                                selectedPlanetIndex = index
-                            }
-                            index += 1
-                        }
-                        let articleDraftPath = PlanetManager.shared.draftsDirectory.appending(path: draft.id)
-                        if let attachments = draft.attachments {
-                            for attachment in attachments {
-                                let attachmentPath = articleDraftPath.appending(path: attachment)
-                                if let image = UIImage(contentsOfFile: attachmentPath.path) {
-                                    let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: attachmentPath)
-                                    selectedAttachments.append(articleAttachment)
-                                }
-                            }
-                        }
-                    }
+                    self.restoreFromDraft(draft)
                 } else {
                     self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
                 }
@@ -269,6 +249,31 @@ struct PlanetNewArticleView: View {
     private func removeAttachments() {
         for attachment in selectedAttachments {
             try? FileManager.default.removeItem(at: attachment.url)
+        }
+    }
+
+    private func restoreFromDraft(_ draft: PlanetArticle) {
+        title = draft.title ?? ""
+        content = draft.content ?? ""
+        if let planetID = draft.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
+            selectedPlanet = planet
+            var index: Int = 0
+            for myPlanet in PlanetAppViewModel.shared.myPlanets {
+                if myPlanet.id == planetID.uuidString {
+                    selectedPlanetIndex = index
+                }
+                index += 1
+            }
+            let articleDraftPath = PlanetManager.shared.draftsDirectory.appending(path: draft.id)
+            if let attachments = draft.attachments {
+                for attachment in attachments {
+                    let attachmentPath = articleDraftPath.appending(path: attachment)
+                    if let image = UIImage(contentsOfFile: attachmentPath.path) {
+                        let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: attachmentPath)
+                        selectedAttachments.append(articleAttachment)
+                    }
+                }
+            }
         }
     }
 }

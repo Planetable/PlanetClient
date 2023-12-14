@@ -11,7 +11,7 @@ import PhotosUI
 
 struct PlanetAttachmentsView: View {
     @Binding var planet: Planet?
-    var draftArticle: PlanetArticle?
+    var articleDraft: PlanetArticle?
 
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
@@ -120,18 +120,22 @@ struct PlanetAttachmentsView: View {
             }
         }
         .task(priority: .utility) {
-            if let draft = draftArticle {
-                let articleDraftPath = PlanetManager.shared.draftsDirectory.appending(path: draft.id)
-                if let attachments = draft.attachments {
-                    for attachment in attachments {
-                        let attachmentPath = articleDraftPath.appending(path: attachment)
-                        let tempPath = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: attachment)
-                        try? FileManager.default.copyItem(at: attachmentPath, to: tempPath)
-                        if let image = UIImage(contentsOfFile: tempPath.path) {
-                            let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: tempPath)
-                            uploadedImages.append(articleAttachment)
-                        }
-                    }
+            if let draft = articleDraft {
+                restoreFromDraft(draft)
+            }
+        }
+    }
+
+    private func restoreFromDraft(_ draft: PlanetArticle) {
+        let articleDraftPath = PlanetManager.shared.draftsDirectory.appending(path: draft.id)
+        if let attachments = draft.attachments {
+            for attachment in attachments {
+                let attachmentPath = articleDraftPath.appending(path: attachment)
+                let tempPath = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: attachment)
+                try? FileManager.default.copyItem(at: attachmentPath, to: tempPath)
+                if let image = UIImage(contentsOfFile: tempPath.path) {
+                    let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: tempPath)
+                    uploadedImages.append(articleAttachment)
                 }
             }
         }
