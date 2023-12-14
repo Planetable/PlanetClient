@@ -82,9 +82,12 @@ struct PlanetAppView: View {
                         if !serverStatus {
                             Divider()
                             Button {
-                                // Crerate Draft.
+                                /*
+                                    WIP:
+                                 */
+//                                appViewModel.newArticleDraft.toggle()
                             } label: {
-                                Label("Create Draft", systemImage: "plus")
+                                Label("New Draft", systemImage: "plus")
                             }
                         }
                     } label: {
@@ -113,12 +116,16 @@ struct PlanetAppView: View {
                 .environmentObject(settingsViewModel)
         }
         .fullScreenCover(isPresented: $appViewModel.newArticle) {
-            PlanetNewArticleView(withDraft: nil)
+            PlanetNewArticleView(withDraft: nil, draftMode: false)
+                .environmentObject(appViewModel)
+        }
+        .fullScreenCover(isPresented: $appViewModel.newArticleDraft) {
+            PlanetNewArticleView(withDraft: nil, draftMode: true)
                 .environmentObject(appViewModel)
         }
         .fullScreenCover(isPresented: $appViewModel.resumeNewArticle) {
             if let draft = appViewModel.resumedArticleDraft {
-                PlanetNewArticleView(withDraft: draft)
+                PlanetNewArticleView(withDraft: draft, draftMode: false)
                     .environmentObject(appViewModel)
             }
         }

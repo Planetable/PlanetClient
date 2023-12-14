@@ -53,6 +53,7 @@ class PlanetAppViewModel: ObservableObject {
     @Published var showSettings = false
     @Published var chooseServer = false
     @Published var newArticle = false
+    @Published var newArticleDraft = false
     @Published var newPlanet = false
     @Published var resumeNewArticle = false
     @Published var resumedArticleDraft: PlanetArticle?

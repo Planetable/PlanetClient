@@ -14,7 +14,7 @@ Basic Features:
 - [x] Add template for offline rendering
 - [x] Planet with template options
 - [x] Preview an article inside writer
-- [ ] Drafts
+- [x] Drafts
 
 
 ## Running Locally

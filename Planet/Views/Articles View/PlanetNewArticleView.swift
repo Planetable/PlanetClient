@@ -27,13 +27,15 @@ struct PlanetNewArticleView: View {
 
     private let articleID: UUID
     var articleDraft: PlanetArticle?
+    var newDraftMode: Bool = false
 
-    init(withDraft draft: PlanetArticle?) {
+    init(withDraft draft: PlanetArticle?, draftMode: Bool) {
         if let draft {
             articleID = UUID(uuidString: draft.id)!
             articleDraft = draft
         } else {
             articleID = UUID()
+            newDraftMode = draftMode
         }
     }
 
@@ -45,11 +47,13 @@ struct PlanetNewArticleView: View {
                         .ignoresSafeArea(edges: .bottom)
                 } else {
                     HStack(spacing: 12) {
-                        Button(action: {
-                            isPickerPresented = true
-                        }) {
-                            if let planet = selectedPlanet {
-                                planet.avatarView(.medium)
+                        if !newDraftMode {
+                            Button(action: {
+                                isPickerPresented = true
+                            }) {
+                                if let planet = selectedPlanet {
+                                    planet.avatarView(.medium)
+                                }
                             }
                         }
 
@@ -179,7 +183,9 @@ struct PlanetNewArticleView: View {
                 if let draft = articleDraft {
                     self.restoreFromDraft(draft)
                 } else {
-                    self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
+                    if !newDraftMode {
+                        self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
+                    }
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .addAttachment)) { n in
