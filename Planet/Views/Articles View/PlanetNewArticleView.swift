@@ -259,7 +259,9 @@ struct PlanetNewArticleView: View {
 
     private func dismissAction() {
         dismiss()
-        removeAttachments()
+        if articleDraft == nil {
+            removeAttachments()
+        }
     }
 
     private func removeAttachments() {
