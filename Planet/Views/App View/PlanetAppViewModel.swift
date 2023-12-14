@@ -54,8 +54,8 @@ class PlanetAppViewModel: ObservableObject {
     @Published var chooseServer = false
     @Published var newArticle = false
     @Published var newPlanet = false
-    @Published var continueNewArticle = false
-    @Published var continueArticleDraft: PlanetArticle?
+    @Published var resumeNewArticle = false
+    @Published var resumedArticleDraft: PlanetArticle?
     @Published var failedToReload = false
     @Published var failedMessage = ""
 

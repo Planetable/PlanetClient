@@ -29,8 +29,8 @@ struct PlanetDraftsView: View {
                         .listRowSeparator(.hidden)
                         .onTapGesture {
                             Task { @MainActor in
-                                self.appViewModel.continueArticleDraft = article
-                                self.appViewModel.continueNewArticle = true
+                                self.appViewModel.resumedArticleDraft = article
+                                self.appViewModel.resumeNewArticle = true
                             }
                         }
                     }

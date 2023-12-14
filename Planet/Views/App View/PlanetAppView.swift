@@ -116,8 +116,8 @@ struct PlanetAppView: View {
             PlanetNewArticleView(withDraft: nil)
                 .environmentObject(appViewModel)
         }
-        .fullScreenCover(isPresented: $appViewModel.continueNewArticle) {
-            if let draft = appViewModel.continueArticleDraft {
+        .fullScreenCover(isPresented: $appViewModel.resumeNewArticle) {
+            if let draft = appViewModel.resumedArticleDraft {
                 PlanetNewArticleView(withDraft: draft)
                     .environmentObject(appViewModel)
             }
