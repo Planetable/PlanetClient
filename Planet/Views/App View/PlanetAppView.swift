@@ -79,17 +79,14 @@ struct PlanetAppView: View {
                             Label("New Planet", systemImage: "plus")
                         }
                         .disabled(!serverStatus)
-                        if !serverStatus {
-                            Divider()
-                            Button {
-                                /*
-                                    WIP:
-                                 */
+//                        if !serverStatus {
+//                            Divider()
+//                            Button {
 //                                appViewModel.newArticleDraft.toggle()
-                            } label: {
-                                Label("New Draft", systemImage: "plus")
-                            }
-                        }
+//                            } label: {
+//                                Label("New Draft", systemImage: "plus")
+//                            }
+//                        }
                     } label: {
                         Image(systemName: "plus")
                     }
