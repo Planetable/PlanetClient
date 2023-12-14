@@ -21,9 +21,8 @@ struct PlanetAttachmentsView: View {
     @State private var selectedPhotoData: Data? {
         didSet {
             Task(priority: .utility) {
-                if let selectedPhotoData, let planet, let image = UIImage(data: selectedPhotoData), let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
-                    let planetID = planet.id
-                    let imageName = planetID.prefix(4) + "-" + String(UUID().uuidString.prefix(4)) + ".png"
+                if let selectedPhotoData, let image = UIImage(data: selectedPhotoData), let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
+                    let imageName = String(UUID().uuidString.prefix(4)) + ".png"
                     let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
                     let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: noEXIFImage, url: url)
                     do {
