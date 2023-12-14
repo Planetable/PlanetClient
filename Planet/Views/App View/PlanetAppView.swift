@@ -66,29 +66,30 @@ struct PlanetAppView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
+                    switch appViewModel.selectedTab {
+                    case .latest:
                         Button {
                             appViewModel.newArticle.toggle()
                         } label: {
-                            Label("New Article", systemImage: "plus")
+                            Image(systemName: "plus")
                         }
                         .disabled(!serverStatus)
+                        .help("New Article")
+                    case .myPlanets:
                         Button {
                             appViewModel.newPlanet.toggle()
                         } label: {
-                            Label("New Planet", systemImage: "plus")
+                            Image(systemName: "plus")
                         }
                         .disabled(!serverStatus)
-//                        if !serverStatus {
-//                            Divider()
-//                            Button {
-//                                appViewModel.newArticleDraft.toggle()
-//                            } label: {
-//                                Label("New Draft", systemImage: "plus")
-//                            }
-//                        }
-                    } label: {
-                        Image(systemName: "plus")
+                        .help("New Planet")
+                    case .drafts:
+                        Button {
+//                            appViewModel.newArticleDraft.toggle()
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .help("New Draft")
                     }
                 }
                 ToolbarTitleMenu {
@@ -97,7 +98,6 @@ struct PlanetAppView: View {
                             .tag(PlanetAppTab.latest)
                         Text(PlanetAppTab.myPlanets.name())
                             .tag(PlanetAppTab.myPlanets)
-                        Divider()
                         Text(PlanetAppTab.drafts.name())
                             .tag(PlanetAppTab.drafts)
                     } label: {
