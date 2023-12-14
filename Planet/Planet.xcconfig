@@ -12,4 +12,6 @@ ORGANIZATION_IDENTIFIER_PREFIX = xyz.planetable
 
 DEVELOPMENT_TEAM = 66KP7KX9MX;
 
+#include "marketing_version.xcconfig"
+#include "versioning.xcconfig"
 #include? "local.xcconfig"
