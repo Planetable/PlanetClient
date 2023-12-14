@@ -42,42 +42,37 @@ struct PlanetNewArticleView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if isPreview, let previewPath {
-                    PlanetArticleWebView(url: previewPath)
-                        .ignoresSafeArea(edges: .bottom)
-                } else {
-                    HStack(spacing: 12) {
-                        if !newDraftMode {
-                            Button(action: {
-                                isPickerPresented = true
-                            }) {
-                                if let planet = selectedPlanet {
-                                    planet.avatarView(.medium)
-                                }
+                HStack(spacing: 12) {
+                    if !newDraftMode {
+                        Button(action: {
+                            isPickerPresented = true
+                        }) {
+                            if let planet = selectedPlanet {
+                                planet.avatarView(.medium)
                             }
                         }
-
-                        TextField("Title", text: $title)
-                            .textFieldStyle(.plain)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 12)
 
-                    Divider()
-                        .padding(.vertical, 0)
-
-                    PlanetTextView(text: $content)
-                        .padding(.horizontal, 12)
-
-                    Group {
-                        if let draft = articleDraft {
-                            PlanetAttachmentsView(planet: $selectedPlanet, articleDraft: draft)
-                        } else {
-                            PlanetAttachmentsView(planet: $selectedPlanet)
-                        }
-                    }
-                    .frame(height: 48)
+                    TextField("Title", text: $title)
+                        .textFieldStyle(.plain)
                 }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 12)
+
+                Divider()
+                    .padding(.vertical, 0)
+
+                PlanetTextView(text: $content)
+                    .padding(.horizontal, 12)
+
+                Group {
+                    if let draft = articleDraft {
+                        PlanetAttachmentsView(planet: $selectedPlanet, articleDraft: draft)
+                    } else {
+                        PlanetAttachmentsView(planet: $selectedPlanet)
+                    }
+                }
+                .frame(height: 48)
             }
             .frame(
                 minWidth: 0,
@@ -126,18 +121,16 @@ struct PlanetNewArticleView: View {
                 }
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button {
-                        withAnimation {
-                            self.isPreview.toggle()
-                            Task(priority: .userInitiated) {
-                                if self.isPreview {
-                                    do {
-                                        let url = try PlanetManager.shared.renderArticlePreview(forTitle: self.title, content: self.content, andArticleID: self.articleID.uuidString)
-                                        Task { @MainActor in
-                                            self.previewPath = url
-                                        }
-                                    } catch {
-                                        debugPrint("failed to render preview: \(error)")
+                        self.isPreview.toggle()
+                        Task(priority: .userInitiated) {
+                            if self.isPreview {
+                                do {
+                                    let url = try PlanetManager.shared.renderArticlePreview(forTitle: self.title, content: self.content, andArticleID: self.articleID.uuidString)
+                                    Task { @MainActor in
+                                        self.previewPath = url
                                     }
+                                } catch {
+                                    debugPrint("failed to render preview: \(error)")
                                 }
                             }
                         }
@@ -206,6 +199,11 @@ struct PlanetNewArticleView: View {
             }
             .sheet(isPresented: $isPickerPresented) {
                 planetPickerView()
+            }
+            .sheet(isPresented: $isPreview) {
+                if let previewPath {
+                    PlanetPreviewArticleView(url: previewPath)
+                }
             }
         }
     }

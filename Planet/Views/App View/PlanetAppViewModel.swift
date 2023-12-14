@@ -181,9 +181,11 @@ class PlanetAppViewModel: ObservableObject {
     @MainActor
     func updateDrafts(_ articles: [PlanetArticle]) {
         debugPrint("updated drafts: \(articles.count)")
-        drafts = articles.sorted(by: { a, b in
-            return a.created > b.created
-        })
+        withAnimation {
+            drafts = articles.sorted(by: { a, b in
+                return a.created > b.created
+            })
+        }
     }
 
     @MainActor
