@@ -84,12 +84,13 @@ struct PlanetAppView: View {
                         .disabled(!serverStatus)
                         .help("New Planet")
                     case .drafts:
-                        Button {
+                        Text("")
+//                        Button {
 //                            appViewModel.newArticleDraft.toggle()
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                        .help("New Draft")
+//                        } label: {
+//                            Image(systemName: "plus")
+//                        }
+//                        .help("New Draft")
                     }
                 }
                 ToolbarTitleMenu {
