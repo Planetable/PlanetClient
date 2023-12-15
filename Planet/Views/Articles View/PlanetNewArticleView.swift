@@ -41,46 +41,56 @@ struct PlanetNewArticleView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                HStack(spacing: 12) {
-                    if !newDraftMode {
-                        Button(action: {
-                            isPickerPresented = true
-                        }) {
-                            if let planet = selectedPlanet {
-                                planet.avatarView(.medium)
+            GeometryReader { g in
+                VStack(spacing: 0) {
+                    HStack(spacing: 12) {
+                        if !newDraftMode {
+                            Button(action: {
+                                isPickerPresented = true
+                            }) {
+                                if let planet = selectedPlanet {
+                                    planet.avatarView(.medium)
+                                }
                             }
                         }
+
+                        TextField("Title", text: $title)
+                            .textFieldStyle(.plain)
                     }
-
-                    TextField("Title", text: $title)
-                        .textFieldStyle(.plain)
-                }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 12)
-
-                Divider()
-                    .padding(.vertical, 0)
-
-                PlanetTextView(text: $content)
                     .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
 
-                Group {
-                    if let draft = articleDraft {
-                        PlanetAttachmentsView(planet: $selectedPlanet, articleDraft: draft)
-                    } else {
-                        PlanetAttachmentsView(planet: $selectedPlanet)
+                    Divider()
+                        .padding(.vertical, 0)
+
+                    PlanetTextView(text: $content)
+                        .padding(.horizontal, 12)
+
+                    Group {
+                        if let draft = articleDraft {
+                            PlanetAttachmentsView(planet: $selectedPlanet, articleDraft: draft)
+                        } else {
+                            PlanetAttachmentsView(planet: $selectedPlanet)
+                        }
                     }
+                    .frame(height: 48)
+
+                    Text(" ")
+                        .frame(height: g.safeAreaInsets.bottom)
+                        .frame(maxWidth: .infinity)
+                        .background {
+                            Color.secondary.opacity(0.15)
+                        }
                 }
-                .frame(height: 48)
+                .frame(
+                    minWidth: 0,
+                    maxWidth: .infinity,
+                    minHeight: 0,
+                    maxHeight: .infinity,
+                    alignment: .leading
+                )
+                .ignoresSafeArea(.container, edges: .bottom)
             }
-            .frame(
-                minWidth: 0,
-                maxWidth: .infinity,
-                minHeight: 0,
-                maxHeight: .infinity,
-                alignment: .leading
-            )
             .navigationTitle(isPreview ? "Preview" :"New Post")
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $shouldSaveAsDraft) {

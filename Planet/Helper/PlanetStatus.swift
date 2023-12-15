@@ -31,9 +31,6 @@ actor PlanetStatus {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 let responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
                 let status: Bool = responseStatusCode == 200
-                if status {
-                    debugPrint("server (\(serverURLString)) is online.")
-                }
                 return status
             } catch {}
         }

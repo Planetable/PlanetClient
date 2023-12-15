@@ -46,31 +46,41 @@ struct PlanetEditArticleView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                HStack(spacing: 12) {
-                    TextField("Title", text: $title)
-                        .textFieldStyle(.plain)
-                    Spacer(minLength: 1)
-                }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 12)
-                
-                Divider()
-                    .padding(.vertical, 0)
-                
-                PlanetTextView(text: $content)
+            GeometryReader { g in
+                VStack(spacing: 0) {
+                    HStack(spacing: 12) {
+                        TextField("Title", text: $title)
+                            .textFieldStyle(.plain)
+                        Spacer(minLength: 1)
+                    }
                     .padding(.horizontal, 12)
-                
-                attachmentsView()
-                    .frame(height: 48)
+                    .padding(.bottom, 12)
+
+                    Divider()
+                        .padding(.vertical, 0)
+
+                    PlanetTextView(text: $content)
+                        .padding(.horizontal, 12)
+
+                    attachmentsView()
+                        .frame(height: 48)
+
+                    Text(" ")
+                        .frame(height: g.safeAreaInsets.bottom)
+                        .frame(maxWidth: .infinity)
+                        .background {
+                            Color.secondary.opacity(0.15)
+                        }
+                }
+                .frame(
+                    minWidth: 0,
+                    maxWidth: .infinity,
+                    minHeight: 0,
+                    maxHeight: .infinity,
+                    alignment: .leading
+                )
+                .ignoresSafeArea(.container, edges: .bottom)
             }
-            .frame(
-                minWidth: 0,
-                maxWidth: .infinity,
-                minHeight: 0,
-                maxHeight: .infinity,
-                alignment: .leading
-            )
             .navigationTitle("Edit Post")
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $shouldDiscardChanges) {
@@ -162,7 +172,7 @@ struct PlanetEditArticleView: View {
         ScrollView(.horizontal, showsIndicators: true) {
             LazyHStack {
                 PhotosPicker(selection: $selectedItem, matching: .any(of: [.images, .not(.livePhotos)])) {
-                    Image(systemName: "plus")
+                    Image(systemName: "plus.circle")
                         .resizable()
                         .frame(width: 14, height: 14)
                 }
@@ -203,7 +213,7 @@ struct PlanetEditArticleView: View {
         }
         .frame(maxWidth: .infinity)
         .background {
-            Color.secondary.opacity(0.25)
+            Color.secondary.opacity(0.15)
         }
         .confirmationDialog("", isPresented: $isTapped) {
             Button(role: .cancel) {
