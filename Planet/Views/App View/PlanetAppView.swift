@@ -106,7 +106,7 @@ struct PlanetAppView: View {
                 }
             }
         }
-        .ignoresSafeArea(edges: .bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .sheet(isPresented: $appViewModel.showSettings) {
             PlanetSettingsView()
                 .environmentObject(appViewModel)

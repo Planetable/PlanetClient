@@ -10,6 +10,13 @@ import SwiftUI
 import WebKit
 
 
+private class FullScreenWKWebView: WKWebView {
+    override var safeAreaInsets: UIEdgeInsets {
+        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
+}
+
+
 struct PlanetArticleWebView: UIViewRepresentable {
     var url: URL
     
@@ -18,7 +25,7 @@ struct PlanetArticleWebView: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> some UIView {
-        let wv = WKWebView()
+        let wv = FullScreenWKWebView()
         wv.scrollView.contentInsetAdjustmentBehavior = .always
         wv.customUserAgent = "Planet/0.0.1"
         wv.navigationDelegate = context.coordinator
