@@ -75,18 +75,23 @@ class PlanetManager: NSObject {
             .appending(path: "/public/avatar.png")
         let localAvatarURL = planetPath.appending(path: "avatar.png")
         let (data, _) = try await URLSession.shared.data(from: remoteAvatarURL)
+        var shouldReloadAvatar: Bool = false
         if FileManager.default.fileExists(atPath: localAvatarURL.path) {
             let remoteAvatarDataCount = UIImage(data: data)?.pngData()?.count ?? 0
             let localAvatarDataCount = UIImage(contentsOfFile: localAvatarURL.path)?.pngData()?.count ?? 0
             if remoteAvatarDataCount != localAvatarDataCount && remoteAvatarDataCount > 0 {
                 try? FileManager.default.removeItem(at: localAvatarURL)
                 try data.write(to: localAvatarURL)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    NotificationCenter.default.post(name: .reloadAvatar(byID: planetID), object: nil)
-                }
+                shouldReloadAvatar = true
             }
         } else {
             try data.write(to: localAvatarURL)
+            shouldReloadAvatar = true
+        }
+        if shouldReloadAvatar {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                NotificationCenter.default.post(name: .reloadAvatar(byID: planetID), object: nil)
+            }
         }
     }
 
