@@ -178,7 +178,7 @@ struct PlanetNewArticleView: View {
                         } label: {
                             Image(systemName: "paperplane.fill")
                         }
-                        .disabled(title == "" || appViewModel.myPlanets.count == 0)
+                        .disabled(appViewModel.myPlanets.count == 0)
                     }
                 }
             }
