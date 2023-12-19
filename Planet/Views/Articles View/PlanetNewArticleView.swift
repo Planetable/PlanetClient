@@ -89,7 +89,7 @@ struct PlanetNewArticleView: View {
                     maxHeight: .infinity,
                     alignment: .leading
                 )
-                .ignoresSafeArea(.container, edges: .bottom)
+                .ignoresSafeArea(edges: .bottom)
             }
             .navigationTitle(isPreview ? "Preview" :"New Post")
             .navigationBarTitleDisplayMode(.inline)
