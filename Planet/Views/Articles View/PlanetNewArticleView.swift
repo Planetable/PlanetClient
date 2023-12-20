@@ -20,7 +20,7 @@ struct PlanetNewArticleView: View {
     @State private var selectedAttachments: [PlanetArticleAttachment] = []
     @State private var title: String = ""
     @State private var content: String = ""
-    @State private var isPickerPresented: Bool = false
+    @State private var choosePlanet: Bool = false
     @State private var isPreview: Bool = false
     @State private var previewPath: URL?
     @State private var shouldSaveAsDraft: Bool = false
@@ -46,7 +46,7 @@ struct PlanetNewArticleView: View {
                     HStack(spacing: 12) {
                         if !newDraftMode {
                             Button(action: {
-                                isPickerPresented = true
+                                choosePlanet = true
                             }) {
                                 if let planet = selectedPlanet {
                                     planet.avatarView(.medium)
@@ -207,45 +207,15 @@ struct PlanetNewArticleView: View {
                     }
                 }
             }
-            .sheet(isPresented: $isPickerPresented) {
-                planetPickerView()
+            .sheet(isPresented: $choosePlanet) {
+                PlanetPickerView(selectedPlanetIndex: $selectedPlanetIndex, selectedPlanet: $selectedPlanet)
+                    .environmentObject(appViewModel)
             }
             .sheet(isPresented: $isPreview) {
                 if let previewPath {
                     PlanetPreviewArticleView(url: previewPath)
                 }
             }
-        }
-    }
-    
-    @ViewBuilder
-    private func planetPickerView() -> some View {
-        NavigationView {
-            List {
-                ForEach(appViewModel.myPlanets.indices, id: \.self) {
-                    index in
-                    let planet = appViewModel.myPlanets[index]
-                    planet.listItemView(showCheckmark: selectedPlanetIndex == index)
-                        .onTapGesture {
-                            selectedPlanetIndex = index
-                            selectedPlanet = planet
-                            debugPrint("selected planet: \(planet)")
-                            isPickerPresented = false  // Assuming you want to dismiss the view on selection
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                                NotificationCenter.default.post(name: .reloadAvatar(byID: planet.id), object: nil)
-                            }
-                        }
-                }
-            }
-            .navigationTitle("Select a Planet")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        isPickerPresented = false
-                    }
-                }
-            }
-            .disabled(appViewModel.myPlanets.count == 0)
         }
     }
 

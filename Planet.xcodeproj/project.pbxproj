@@ -44,6 +44,7 @@
 		2AC7CC2C29A38E880089C58C /* PlanetArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */; };
 		2AC7CC2E29A3AA2E0089C58C /* PlanetArticleWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */; };
 		2AC8D6E92B03BE5400AA0E32 /* PlanetAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC8D6E82B03BE5400AA0E32 /* PlanetAvatarView.swift */; };
+		2ACD8CD72B3302CD004FB4C4 /* PlanetPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD8CD62B3302CD004FB4C4 /* PlanetPickerView.swift */; };
 		6A1C68D02B2AEB6500DE24B2 /* marketing_version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 6A1C68CF2B2AEB6500DE24B2 /* marketing_version.xcconfig */; };
 		6A1C68D22B2AEB8300DE24B2 /* versioning.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 6A1C68D12B2AEB8300DE24B2 /* versioning.xcconfig */; };
 		6A4F52502AF4128000323A81 /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4F524F2AF4128000323A81 /* ViewUtils.swift */; };
@@ -86,6 +87,7 @@
 		2AC7CC2B29A38E880089C58C /* PlanetArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetArticleView.swift; sourceTree = "<group>"; };
 		2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetArticleWebView.swift; sourceTree = "<group>"; };
 		2AC8D6E82B03BE5400AA0E32 /* PlanetAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAvatarView.swift; sourceTree = "<group>"; };
+		2ACD8CD62B3302CD004FB4C4 /* PlanetPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetPickerView.swift; sourceTree = "<group>"; };
 		6A1C68CF2B2AEB6500DE24B2 /* marketing_version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = marketing_version.xcconfig; sourceTree = "<group>"; };
 		6A1C68D12B2AEB8300DE24B2 /* versioning.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = versioning.xcconfig; sourceTree = "<group>"; };
 		6A30A4762AEFCE53007E763C /* Planet.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Planet.xcconfig; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 				2AC7CC2D29A3AA2E0089C58C /* PlanetArticleWebView.swift */,
 				2AC7CC2529A2AE6B0089C58C /* PlanetNewArticleView.swift */,
 				2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */,
+				2ACD8CD62B3302CD004FB4C4 /* PlanetPickerView.swift */,
 				2A72D05D2B2968380022C376 /* PlanetDraftsView.swift */,
 				2A7F09292B2B4A1B00E19B84 /* PlanetPreviewArticleView.swift */,
 			);
@@ -377,6 +380,7 @@
 				2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */,
 				2A2748382B200EB200725487 /* PlanetServerInfo.swift in Sources */,
 				6A5EA27E2AECF9BA006DEBC1 /* BonjourListView.swift in Sources */,
+				2ACD8CD72B3302CD004FB4C4 /* PlanetPickerView.swift in Sources */,
 				2AC6A3A529A3F63A00636DC5 /* PlanetTextView.swift in Sources */,
 				6A73C0B62AF5CCFB00EEF711 /* Planet.swift in Sources */,
 			);
