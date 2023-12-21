@@ -166,6 +166,29 @@ struct PlanetEditArticleView: View {
         restoreAttachments()
     }
 
+    private func restoreAttachments() {
+        guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
+        let editPath = articlePath.appending(path: Self.editAttachment)
+        defer {
+            try? FileManager.default.removeItem(at: editPath)
+        }
+        guard initAttachments.count > 0, FileManager.default.fileExists(atPath: editPath.path) else { return }
+        for attachment in initAttachments {
+            let filename = attachment.url.lastPathComponent
+            let aPath = editPath.appending(path: filename)
+            let previousPath = articlePath.appending(path: filename)
+            if !FileManager.default.fileExists(atPath: previousPath.path) {
+                try? FileManager.default.copyItem(at: aPath, to: previousPath)
+            }
+        }
+    }
+    
+    private func cleanupEditAttachments() {
+        guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
+        let editPath = articlePath.appending(path: Self.editAttachment)
+        try? FileManager.default.removeItem(at: editPath)
+    }
+
     @ViewBuilder
     private func attachmentsView() -> some View {
         ScrollView(.horizontal, showsIndicators: true) {
@@ -247,28 +270,5 @@ struct PlanetEditArticleView: View {
                 Text("Remove Attachment")
             }
         }
-    }
-    
-    private func restoreAttachments() {
-        guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
-        let editPath = articlePath.appending(path: Self.editAttachment)
-        defer {
-            try? FileManager.default.removeItem(at: editPath)
-        }
-        guard initAttachments.count > 0, FileManager.default.fileExists(atPath: editPath.path) else { return }
-        for attachment in initAttachments {
-            let filename = attachment.url.lastPathComponent
-            let aPath = editPath.appending(path: filename)
-            let previousPath = articlePath.appending(path: filename)
-            if !FileManager.default.fileExists(atPath: previousPath.path) {
-                try? FileManager.default.copyItem(at: aPath, to: previousPath)
-            }
-        }
-    }
-    
-    private func cleanupEditAttachments() {
-        guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
-        let editPath = articlePath.appending(path: Self.editAttachment)
-        try? FileManager.default.removeItem(at: editPath)
     }
 }
