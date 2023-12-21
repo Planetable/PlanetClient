@@ -189,6 +189,9 @@ struct PlanetEditArticleView: View {
         try? FileManager.default.removeItem(at: editPath)
     }
 
+    /*
+        TODO: PlanetArticleAttachmentsView
+     */
     @ViewBuilder
     private func attachmentsView() -> some View {
         ScrollView(.horizontal, showsIndicators: true) {

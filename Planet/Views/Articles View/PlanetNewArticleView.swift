@@ -284,6 +284,9 @@ struct PlanetNewArticleView: View {
         }
     }
 
+    /*
+        TODO: PlanetArticleAttachmentsView
+     */
     @ViewBuilder
     private func attachmentsView() -> some View {
         ScrollView(.horizontal, showsIndicators: true) {
