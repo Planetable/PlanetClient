@@ -140,9 +140,3 @@ struct PlanetAttachmentsView: View {
         }
     }
 }
-
-struct PlanetAttachmentsView_Previews: PreviewProvider {
-    static var previews: some View {
-        PlanetAttachmentsView(planet: .constant(nil))
-    }
-}

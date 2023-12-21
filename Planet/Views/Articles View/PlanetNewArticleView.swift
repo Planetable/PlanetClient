@@ -1,10 +1,3 @@
-//
-//  PlanetNewArticleView.swift
-//  Planet
-//
-//  Created by Kai on 2/20/23.
-//
-
 import SwiftUI
 
 struct PlanetNewArticleView: View {
@@ -27,7 +20,6 @@ struct PlanetNewArticleView: View {
 
     private let articleID: UUID
     var articleDraft: PlanetArticle?
-    var newDraftMode: Bool = false
 
     init(withDraft draft: PlanetArticle?, draftMode: Bool) {
         if let draft {
@@ -35,7 +27,6 @@ struct PlanetNewArticleView: View {
             articleDraft = draft
         } else {
             articleID = UUID()
-            newDraftMode = draftMode
         }
     }
 
@@ -44,13 +35,11 @@ struct PlanetNewArticleView: View {
             GeometryReader { g in
                 VStack(spacing: 0) {
                     HStack(spacing: 12) {
-                        if !newDraftMode {
-                            Button(action: {
-                                choosePlanet = true
-                            }) {
-                                if let planet = selectedPlanet {
-                                    planet.avatarView(.medium)
-                                }
+                        Button(action: {
+                            choosePlanet = true
+                        }) {
+                            if let planet = selectedPlanet {
+                                planet.avatarView(.medium)
                             }
                         }
 
@@ -66,14 +55,8 @@ struct PlanetNewArticleView: View {
                     PlanetTextView(text: $content)
                         .padding(.horizontal, 12)
 
-                    Group {
-                        if let draft = articleDraft {
-                            PlanetAttachmentsView(planet: $selectedPlanet, articleDraft: draft)
-                        } else {
-                            PlanetAttachmentsView(planet: $selectedPlanet)
-                        }
-                    }
-                    .frame(height: 48)
+                    PlanetAttachmentsView(planet: $selectedPlanet, articleDraft: articleDraft)
+                        .frame(height: 48)
 
                     Text(" ")
                         .frame(height: g.safeAreaInsets.bottom)
@@ -186,9 +169,7 @@ struct PlanetNewArticleView: View {
                 if let draft = articleDraft {
                     self.restoreFromDraft(draft)
                 } else {
-                    if !newDraftMode {
-                        self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
-                    }
+                    self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .addAttachment)) { n in
