@@ -13,10 +13,7 @@ struct PlanetEditArticleView: View {
     @State private var title: String = ""
     @State private var content: String = ""
     @State private var initAttachments: [PlanetArticleAttachment] = []
-
     @State private var uploadedImages: [PlanetArticleAttachment] = []
-    @State private var selectedItem: PhotosPickerItem?
-    @State private var selectedPhotoData: Data?
     @State private var shouldDiscardChanges: Bool = false
 
     var body: some View {
@@ -37,7 +34,7 @@ struct PlanetEditArticleView: View {
                     PlanetTextView(text: $content)
                         .padding(.horizontal, 12)
 
-                    PlanetArticleAttachmentsView(selectedItem: $selectedItem, selectedPhotoData: $selectedPhotoData, uploadedImages: $uploadedImages)
+                    PlanetArticleAttachmentsView(attachments: $uploadedImages)
 
                     Text(" ")
                         .frame(height: g.safeAreaInsets.bottom)

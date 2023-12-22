@@ -8,8 +8,12 @@ import PhotosUI
 
 
 struct PlanetArticleAttachmentsView: View {
-    @Binding var selectedItem: PhotosPickerItem?
-    @Binding var selectedPhotoData: Data? {
+    @Binding var attachments: [PlanetArticleAttachment]
+
+    @State private var isTapped: Bool = false
+    @State private var tappedIndex: Int?
+    @State private var selectedItem: PhotosPickerItem?
+    @State private var selectedPhotoData: Data? {
         didSet {
             Task(priority: .utility) {
                 if let selectedPhotoData, let image = UIImage(data: selectedPhotoData), let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
@@ -22,7 +26,7 @@ struct PlanetArticleAttachmentsView: View {
                         }
                         try imageData.write(to: url)
                         Task { @MainActor in
-                            self.uploadedImages.insert(attachment, at:0)
+                            self.attachments.insert(attachment, at:0)
                             NotificationCenter.default.post(name: .insertAttachment, object: attachment)
                         }
                     } catch {
@@ -34,11 +38,6 @@ struct PlanetArticleAttachmentsView: View {
             }
         }
     }
-
-    @Binding var uploadedImages: [PlanetArticleAttachment]
-
-    @State private var isTapped: Bool = false
-    @State private var tappedIndex: Int?
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: true) {
@@ -67,12 +66,12 @@ struct PlanetArticleAttachmentsView: View {
                     }
                 }
 
-                ForEach(0..<uploadedImages.count, id: \.self) { index in
+                ForEach(0..<attachments.count, id: \.self) { index in
                     Button {
                         isTapped.toggle()
                         tappedIndex = index
                     } label: {
-                        Image(uiImage: uploadedImages[index].image)
+                        Image(uiImage: attachments[index].image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 48, height: 48)
@@ -97,7 +96,7 @@ struct PlanetArticleAttachmentsView: View {
             }
             Button {
                 if let tappedIndex {
-                    let attachment = uploadedImages[tappedIndex]
+                    let attachment = attachments[tappedIndex]
                     Task {
                         await MainActor.run {
                             NotificationCenter.default.post(name: .insertAttachment, object: attachment)
@@ -110,7 +109,7 @@ struct PlanetArticleAttachmentsView: View {
             }
             Button(role: .destructive) {
                 if let tappedIndex {
-                    let removed = uploadedImages.remove(at: tappedIndex)
+                    let removed = attachments.remove(at: tappedIndex)
                     do {
                         try FileManager.default.removeItem(at: removed.url)
                     } catch {
