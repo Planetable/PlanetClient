@@ -324,6 +324,8 @@ class PlanetManager: NSObject {
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
             UserDefaults.standard.removeObject(forKey: editKey)
+            NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
     }
     
