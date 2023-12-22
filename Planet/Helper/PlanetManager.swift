@@ -321,7 +321,7 @@ class PlanetManager: NSObject {
             try? await Task.sleep(for: .seconds(2))
             try? await self.downloadArticle(id: id, planetID: planetID)
         }
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
             UserDefaults.standard.removeObject(forKey: editKey)
         }

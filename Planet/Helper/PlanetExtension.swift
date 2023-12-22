@@ -44,7 +44,6 @@ extension URL {
 extension Notification.Name {
     static let updatePlanets = Notification.Name("PlanetUpdatePlanetsNotification")
     static let reloadArticles = Notification.Name("PlanetReloadArticlesNotification")
-    static let addAttachment = Notification.Name("PlanetArticleAddAttachmentNotification")
     static let insertAttachment = Notification.Name("PlanetArticleInsertAttachmentNotification")
     
     static func startEditingArticle(byID id: String) -> Notification.Name {
