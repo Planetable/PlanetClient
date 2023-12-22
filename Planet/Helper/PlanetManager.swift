@@ -321,7 +321,7 @@ class PlanetManager: NSObject {
             try? await Task.sleep(for: .seconds(2))
             try? await self.downloadArticle(id: id, planetID: planetID)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.async {
             NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
             UserDefaults.standard.removeObject(forKey: editKey)
         }
@@ -338,7 +338,10 @@ class PlanetManager: NSObject {
                 try? FileManager.default.removeItem(at: articlePath)
             }
             try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
+            Task { @MainActor in
+                NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            }
+            Task { @MainActor in
                 NotificationCenter.default.post(name: .updatePlanets, object: nil)
             }
         }
