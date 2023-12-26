@@ -26,7 +26,7 @@ struct PlanetNewArticleView: View {
     private let articleID: UUID
     var articleDraft: PlanetArticle?
 
-    init(withDraft draft: PlanetArticle?, draftMode: Bool) {
+    init(withDraft draft: PlanetArticle?) {
         if let draft {
             articleID = UUID(uuidString: draft.id)!
             articleDraft = draft
@@ -78,7 +78,7 @@ struct PlanetNewArticleView: View {
                 )
                 .ignoresSafeArea(edges: .bottom)
             }
-            .navigationTitle(isPreview ? "Preview" :"New Post")
+            .navigationTitle(isPreview ? "Preview" : "New Post")
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $shouldSaveAsDraft) {
                 Alert(

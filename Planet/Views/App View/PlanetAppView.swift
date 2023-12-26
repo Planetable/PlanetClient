@@ -84,13 +84,12 @@ struct PlanetAppView: View {
                         .disabled(!serverStatus)
                         .help("New Planet")
                     case .drafts:
-                        Text("")
-//                        Button {
-//                            appViewModel.newArticleDraft.toggle()
-//                        } label: {
-//                            Image(systemName: "plus")
-//                        }
-//                        .help("New Draft")
+                        Button {
+                            appViewModel.newArticleDraft.toggle()
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .help("New Draft")
                     }
                 }
                 ToolbarTitleMenu {
@@ -114,16 +113,16 @@ struct PlanetAppView: View {
                 .environmentObject(settingsViewModel)
         }
         .fullScreenCover(isPresented: $appViewModel.newArticle) {
-            PlanetNewArticleView(withDraft: nil, draftMode: false)
+            PlanetNewArticleView(withDraft: nil)
                 .environmentObject(appViewModel)
         }
         .fullScreenCover(isPresented: $appViewModel.newArticleDraft) {
-            PlanetNewArticleView(withDraft: nil, draftMode: true)
+            PlanetNewDraftView()
                 .environmentObject(appViewModel)
         }
         .fullScreenCover(isPresented: $appViewModel.resumeNewArticle) {
             if let draft = appViewModel.resumedArticleDraft {
-                PlanetNewArticleView(withDraft: draft, draftMode: false)
+                PlanetNewArticleView(withDraft: draft)
                     .environmentObject(appViewModel)
             }
         }

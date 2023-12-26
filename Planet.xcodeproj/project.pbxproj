@@ -123,6 +123,7 @@
 				2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */,
 				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
 				2A85B0752B28633400CF6823 /* MarkdownUtils.swift */,
+				6A4F524F2AF4128000323A81 /* ViewUtils.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -223,7 +224,6 @@
 			children = (
 				2AC6A3A429A3F63A00636DC5 /* PlanetTextView.swift */,
 				2AC8D6E82B03BE5400AA0E32 /* PlanetAvatarView.swift */,
-				6A4F524F2AF4128000323A81 /* ViewUtils.swift */,
 			);
 			path = Parts;
 			sourceTree = "<group>";
