@@ -76,7 +76,8 @@ struct PlanetNewDraftView: View {
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $shouldSaveAsDraft) {
                 Alert(
-                    title: Text("Save Changes?"),
+                    title: Text("Unsaved Changes"),
+                    message: Text("Would you like to save before closing?"),
                     primaryButton: .default(Text("Save")) {
                         saveAsDraftAction()
                         dismissAction()
