@@ -59,7 +59,7 @@ struct PlanetArticleView: View {
                 }
             }
         }
-        .sheet(isPresented: $isEdit) {
+        .fullScreenCover(isPresented: $isEdit) {
             PlanetEditArticleView(planet: planet, article: article)
         }
         .confirmationDialog("Delete Planet", isPresented: $isDelete) {

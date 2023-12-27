@@ -26,7 +26,7 @@ struct PlanetArticleAttachmentsView: View {
                         }
                         try imageData.write(to: url)
                         Task { @MainActor in
-                            self.attachments.insert(attachment, at:0)
+                            self.attachments.insert(attachment, at: 0)
                             NotificationCenter.default.post(name: .insertAttachment, object: attachment)
                         }
                     } catch {

@@ -132,38 +132,36 @@ struct PlanetNewArticleView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: isPreview ? "xmark" : "eye.fill")
+                        Image(systemName: "eye.fill")
                     }
                     .disabled(title == "" && content == "")
-                    if !isPreview {
-                        Button {
-                            dismiss()
-                            guard let selectedPlanet else { return }
-                            Task(priority: .userInitiated) {
-                                do {
-                                    try await PlanetManager.shared.createArticle(
-                                        title: self.title,
-                                        content: self.content,
-                                        attachments: self.uploadedImages,
-                                        forPlanet: selectedPlanet
-                                    )
-                                    self.removeAttachments()
-                                    Task { @MainActor in
-                                        self.appViewModel.selectedTab = .latest
-                                        if let articleDraft {
-                                            self.appViewModel.removeDraft(articleDraft)
-                                        }
+                    Button {
+                        dismiss()
+                        guard let selectedPlanet else { return }
+                        Task(priority: .userInitiated) {
+                            do {
+                                try await PlanetManager.shared.createArticle(
+                                    title: self.title,
+                                    content: self.content,
+                                    attachments: self.uploadedImages,
+                                    forPlanet: selectedPlanet
+                                )
+                                self.removeAttachments()
+                                Task { @MainActor in
+                                    self.appViewModel.selectedTab = .latest
+                                    if let articleDraft {
+                                        self.appViewModel.removeDraft(articleDraft)
                                     }
                                 }
-                                catch {
-                                    debugPrint("failed to save article: \(error)")
-                                }
                             }
-                        } label: {
-                            Image(systemName: "paperplane.fill")
+                            catch {
+                                debugPrint("failed to save article: \(error)")
+                            }
                         }
-                        .disabled(appViewModel.myPlanets.count == 0)
+                    } label: {
+                        Image(systemName: "paperplane.fill")
                     }
+                    .disabled(appViewModel.myPlanets.count == 0 || isPreview)
                 }
             }
             .task(priority: .utility) {

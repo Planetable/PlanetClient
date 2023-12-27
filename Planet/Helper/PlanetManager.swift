@@ -504,6 +504,22 @@ class PlanetManager: NSObject {
         return articlePath
     }
 
+    func renderEditArticlePreview(forTitle title: String, content: String, articleID: String, andAttachmentsPath attachmentsPath: URL) throws -> URL {
+        guard FileManager.default.fileExists(atPath: attachmentsPath.path) else {
+            throw PlanetError.InternalError
+        }
+        let articlePath = attachmentsPath.appending(path: articleID).appendingPathExtension("html")
+        try? FileManager.default.removeItem(at: articlePath)
+        let titleAndContent = "# " + title + "\n" + content
+        let html = CMarkRenderer.renderMarkdownHTML(markdown: titleAndContent)
+        let output = try previewRenderEnv.renderTemplate(
+            name: previewTemplatePath.path,
+            context: ["content_html": html as Any]
+        )
+        try output.data(using: .utf8)?.write(to: articlePath)
+        return articlePath
+    }
+
     func loadArticleDrafts() throws -> [PlanetArticle] {
         let paths: [String] = try FileManager.default.contentsOfDirectory(atPath: draftsDirectory.path)
         var drafts: [PlanetArticle] = []

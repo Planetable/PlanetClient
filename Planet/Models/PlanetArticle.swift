@@ -18,7 +18,7 @@ struct PlanetArticle: Codable, Identifiable {
     }
 }
 
-struct PlanetArticleAttachment {
+struct PlanetArticleAttachment: Equatable {
     let id: UUID
     let created: Date
     let image: UIImage

@@ -89,14 +89,16 @@ struct PlanetNewDraftView: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
-                    Button {
-                        if title.count > 0 || content.count > 0 || uploadedImages.count > 0 {
-                            shouldSaveAsDraft.toggle()
-                            return
+                    if !isPreview {
+                        Button {
+                            if title.count > 0 || content.count > 0 || uploadedImages.count > 0 {
+                                shouldSaveAsDraft.toggle()
+                                return
+                            }
+                            dismissAction()
+                        } label: {
+                            Image(systemName: "xmark")
                         }
-                        dismissAction()
-                    } label: {
-                        Image(systemName: "xmark")
                     }
                 }
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -115,17 +117,16 @@ struct PlanetNewDraftView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: isPreview ? "xmark" : "eye.fill")
+                        Image(systemName: "eye.fill")
                     }
                     .disabled(title == "" && content == "")
-                    if !isPreview {
-                        Button {
-                            saveAsDraftAction()
-                            dismiss()
-                        } label: {
-                            Text("Save")
-                        }
+                    Button {
+                        saveAsDraftAction()
+                        dismiss()
+                    } label: {
+                        Text("Save")
                     }
+                    .disabled(isPreview)
                 }
             }
             .task(priority: .utility) {

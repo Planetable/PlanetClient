@@ -15,6 +15,8 @@ struct PlanetEditArticleView: View {
     @State private var initAttachments: [PlanetArticleAttachment] = []
     @State private var uploadedImages: [PlanetArticleAttachment] = []
     @State private var shouldDiscardChanges: Bool = false
+    @State private var isPreview: Bool = false
+    @State private var previewPath: URL?
 
     var body: some View {
         NavigationStack {
@@ -35,6 +37,9 @@ struct PlanetEditArticleView: View {
                         .padding(.horizontal, 12)
 
                     PlanetArticleAttachmentsView(attachments: $uploadedImages)
+                        .onChange(of: uploadedImages) { _ in
+                            self.updateAttachments()
+                        }
 
                     Text(" ")
                         .frame(height: g.safeAreaInsets.bottom)
@@ -52,7 +57,7 @@ struct PlanetEditArticleView: View {
                 )
                 .ignoresSafeArea(edges: .bottom)
             }
-            .navigationTitle("Edit Post")
+            .navigationTitle(isPreview ? "Preview" : "Edit Post")
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $shouldDiscardChanges) {
                 Alert(
@@ -68,25 +73,48 @@ struct PlanetEditArticleView: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
-                    Button {
-                        let initAttachmentNames: [String] = initAttachments.map() { a in
-                            return a.url.lastPathComponent
+                    if !isPreview {
+                        Button {
+                            let initAttachmentNames: [String] = initAttachments.map() { a in
+                                return a.url.lastPathComponent
+                            }
+                            if article.title != title || article.content != content || initAttachmentNames != article.attachments {
+                                shouldDiscardChanges.toggle()
+                            } else {
+                                dismissAction()
+                            }
+                        } label: {
+                            Image(systemName: "xmark")
                         }
-                        if article.title != title || article.content != content || initAttachmentNames != article.attachments {
-                            shouldDiscardChanges.toggle()
-                        } else {
-                            dismissAction()
-                        }
-                    } label: {
-                        Image(systemName: "xmark")
                     }
                 }
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+                        self.isPreview.toggle()
+                        Task(priority: .userInitiated) {
+                            if self.isPreview, let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) {
+                                do {
+                                    let attachmentsPath = articlePath.appending(path: Self.editAttachment)
+                                    let url = try PlanetManager.shared.renderEditArticlePreview(forTitle: self.title, content: self.content, articleID: self.article.id, andAttachmentsPath: attachmentsPath)
+                                    debugPrint("got preview article url: \(url)")
+                                    Task { @MainActor in
+                                        self.previewPath = url
+                                    }
+                                } catch {
+                                    debugPrint("failed to render preview: \(error)")
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "eye.fill")
+                    }
+                    .disabled(title == "" && content == "")
                     Button {
                         saveAction()
                     } label: {
                         Image(systemName: "paperplane.fill")
                     }
+                    .disabled(isPreview)
                 }
             }
             .task(priority: .utility) {
@@ -114,6 +142,11 @@ struct PlanetEditArticleView: View {
                             }
                         }
                     }
+                }
+            }
+            .sheet(isPresented: $isPreview) {
+                if let previewPath {
+                    PlanetPreviewArticleView(url: previewPath)
                 }
             }
         }
@@ -153,7 +186,25 @@ struct PlanetEditArticleView: View {
             }
         }
     }
-    
+
+    private func updateAttachments() {
+        guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
+        let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
+        let editPath = articlePath.appending(path: Self.editAttachment)
+        let tmpAttachments: [PlanetArticleAttachment] = uploadedImages.filter { a in
+            if a.url.deletingLastPathComponent() == tmp {
+                return true
+            }
+            return false
+        }
+        guard tmpAttachments.count > 0 else { return }
+        for a in tmpAttachments {
+            let targetPath = editPath.appending(path: a.url.lastPathComponent)
+            try? FileManager.default.removeItem(at: targetPath)
+            try? FileManager.default.copyItem(at: a.url, to: targetPath)
+        }
+    }
+
     private func cleanupEditAttachments() {
         guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
         let editPath = articlePath.appending(path: Self.editAttachment)
