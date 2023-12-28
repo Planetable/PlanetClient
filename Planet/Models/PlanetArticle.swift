@@ -13,7 +13,9 @@ struct PlanetArticle: Codable, Identifiable {
     var planetID: UUID?
 
     var shareLink: URL? {
-        // MARK: TODO: a share link for both offline mode and normal mode.
+        if let planetID, let planet = Planet.getPlanet(forID: planetID.uuidString), let ipns = planet.ipns {
+            return URL(string: "https://\(ipns).ipfs2.eth.limo/\(id)/")
+        }
         return nil
     }
 }
