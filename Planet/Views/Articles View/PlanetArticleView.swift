@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-
 struct PlanetArticleView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     var planet: Planet
     var article: PlanetArticle
 
@@ -21,13 +20,13 @@ struct PlanetArticleView: View {
     @State private var isShare: Bool = false
     @State private var isDelete: Bool = false
     @State private var serverStatus: Bool = false
-    
+
     init(planet: Planet, article: PlanetArticle) {
         _isWaitingEdit = State(wrappedValue: UserDefaults.standard.value(forKey: .editingArticleKey(byID: article.id)) != nil)
         self.planet = planet
         self.article = article
     }
-    
+
     var body: some View {
         Group {
             if let articleURL {
@@ -98,7 +97,7 @@ struct PlanetArticleView: View {
             }
         }
     }
-    
+
     private func reloadAction() async {
         await MainActor.run {
             self.articleURL = nil
@@ -116,7 +115,7 @@ struct PlanetArticleView: View {
             self.articleURL = url
         }
     }
-    
+
     @ViewBuilder
     private func optionsMenu() -> some View {
         VStack {
@@ -127,9 +126,9 @@ struct PlanetArticleView: View {
             } label: {
                 Label("Reload", systemImage: "arrow.clockwise")
             }
-            
+
             Divider()
-            
+
             Button {
                 Task {
                     if await PlanetStatus.shared.serverIsOnline() {
@@ -150,7 +149,7 @@ struct PlanetArticleView: View {
             if let shareLink = article.shareLink {
                 ShareLink("Share", item: shareLink)
             }
-            
+
             Divider()
 
             Button(role: .destructive) {

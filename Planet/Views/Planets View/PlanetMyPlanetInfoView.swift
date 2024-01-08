@@ -1,13 +1,12 @@
 import SwiftUI
 import PhotosUI
 
-
 struct PlanetMyPlanetInfoView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
 
     var planet: Planet
-    
+
     @State private var isEdit: Bool = false
     @State private var isDelete: Bool = false
     @State private var serverStatus: Bool = false

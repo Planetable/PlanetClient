@@ -1,7 +1,6 @@
 import SwiftUI
 import PhotosUI
 
-
 struct PlanetNewArticleView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
@@ -98,7 +97,7 @@ struct PlanetNewArticleView: View {
                         Button {
                             if title.count > 0 || content.count > 0 || uploadedImages.count > 0 {
                                 if let draft = articleDraft {
-                                    let selectedAttachmentNames: [String] = uploadedImages.map() { a in
+                                    let selectedAttachmentNames: [String] = uploadedImages.map { a in
                                         return a.url.lastPathComponent
                                     }
                                     if title != draft.title || content != draft.content || selectedAttachmentNames != draft.attachments {
@@ -153,8 +152,7 @@ struct PlanetNewArticleView: View {
                                         self.appViewModel.removeDraft(articleDraft)
                                     }
                                 }
-                            }
-                            catch {
+                            } catch {
                                 debugPrint("failed to save article: \(error)")
                             }
                         }
@@ -186,7 +184,7 @@ struct PlanetNewArticleView: View {
     private func saveAsDraftAction() {
         do {
             _ = try PlanetManager.shared.renderArticlePreview(forTitle: title, content: content, andArticleID: articleID.uuidString)
-            let attachments = uploadedImages.map() { a in
+            let attachments = uploadedImages.map { a in
                 return a.url.lastPathComponent
             }
             var planetID: UUID?

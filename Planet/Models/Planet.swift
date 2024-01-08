@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 import PlanetSiteTemplates
 
-
 enum PlanetAvatarSize {
     case small  // 24
     case medium  // 48
@@ -144,8 +143,7 @@ struct Planet: Codable, Identifiable, Hashable {
                         .stroke(Color("BorderColor"), lineWidth: 0.5)
                 )
                 .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
-            }
-            else {
+            } else {
                 planetAvatarPlaceholder(size: size)
             }
         }
@@ -194,8 +192,7 @@ struct Planet: Codable, Identifiable, Hashable {
                     withIntermediateDirectories: true
                 )
                 debugPrint("Created directory for my planet: \(myPlanetPath)")
-            }
-            catch {
+            } catch {
                 debugPrint("Failed to create directory for my planet: \(error)")
                 return nil
             }

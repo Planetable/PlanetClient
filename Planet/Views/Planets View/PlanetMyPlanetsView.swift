@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-
 struct PlanetMyPlanetsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
 
     @State private var isCreating: Bool = false
-    
+
     var body: some View {
         Group {
             if appViewModel.myPlanets.count == 0 {
@@ -48,7 +47,7 @@ struct PlanetMyPlanetsView: View {
             refreshAction()
         }
     }
-    
+
     private func refreshAction(skipAlert: Bool = true) {
         Task {
             do {

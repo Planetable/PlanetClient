@@ -1,15 +1,14 @@
 import SwiftUI
 import PhotosUI
 
-
 struct PlanetEditArticleView: View {
     @Environment(\.dismiss) private var dismiss
 
     static let editAttachment: String = "edit_attachment"
-    
+
     var planet: Planet
     var article: PlanetArticle
-    
+
     @State private var title: String = ""
     @State private var content: String = ""
     @State private var initAttachments: [PlanetArticleAttachment] = []
@@ -75,7 +74,7 @@ struct PlanetEditArticleView: View {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
                     if !isPreview {
                         Button {
-                            let initAttachmentNames: [String] = initAttachments.map() { a in
+                            let initAttachmentNames: [String] = initAttachments.map { a in
                                 return a.url.lastPathComponent
                             }
                             if article.title != title || article.content != content || initAttachmentNames != article.attachments {
@@ -157,8 +156,7 @@ struct PlanetEditArticleView: View {
         Task(priority: .userInitiated) {
             do {
                 try await PlanetManager.shared.modifyArticle(id: self.article.id, title: self.title, content: self.content, attachments: self.uploadedImages, planetID: self.planet.id)
-            }
-            catch {
+            } catch {
                 debugPrint("failed to save article: \(error)")
             }
             self.cleanupEditAttachments()

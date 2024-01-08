@@ -1,6 +1,5 @@
 import Foundation
 
-
 enum PlanetError: Error {
     case PersistenceError
     case NetworkError
@@ -46,7 +45,6 @@ enum PlanetError: Error {
     case InternalError
     case UnknownError(Error)
 }
-
 
 extension PlanetError: LocalizedError {
     public var errorDescription: String? {

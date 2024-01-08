@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 
-
 class PlanetSettingsViewModel: ObservableObject {
     static let shared = PlanetSettingsViewModel()
 
@@ -38,7 +37,7 @@ class PlanetSettingsViewModel: ObservableObject {
             serverPassword = password
         }
     }
-    
+
     private func getServerURLString() -> String? {
         if serverProtocol.isEmpty || serverHost.isEmpty {
             return nil

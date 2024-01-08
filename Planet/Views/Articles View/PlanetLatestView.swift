@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-
 struct PlanetLatestView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
 
     @State private var isCreating: Bool = false
-    
+
     var body: some View {
         /* First, load what is already on disk, then attempt to pull the latest content from the remote source.
          */
@@ -51,7 +50,7 @@ struct PlanetLatestView: View {
             refreshAction()
         }
     }
-    
+
     private func refreshAction(skipAlert: Bool = true) {
         Task {
             do {

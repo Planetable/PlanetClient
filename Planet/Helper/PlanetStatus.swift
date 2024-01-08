@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-
 actor PlanetStatus {
     static let shared = PlanetStatus()
 

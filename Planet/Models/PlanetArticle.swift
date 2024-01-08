@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-
 struct PlanetArticle: Codable, Identifiable {
     let id: String
     let created: Date

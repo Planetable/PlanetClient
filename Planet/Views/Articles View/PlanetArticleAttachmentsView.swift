@@ -6,7 +6,6 @@
 import SwiftUI
 import PhotosUI
 
-
 struct PlanetArticleAttachmentsView: View {
     @Binding var attachments: [PlanetArticleAttachment]
 

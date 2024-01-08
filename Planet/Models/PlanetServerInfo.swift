@@ -1,6 +1,5 @@
 import Foundation
 
-
 /// Info returned from /v0/info
 struct PlanetServerInfo: Codable {
     var hostName: String // Host name

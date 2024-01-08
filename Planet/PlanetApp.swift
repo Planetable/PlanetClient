@@ -18,7 +18,7 @@ struct PlanetApp: App {
         _appViewModel = StateObject(wrappedValue: PlanetAppViewModel.shared)
         _settingsViewModel = StateObject(wrappedValue: PlanetSettingsViewModel.shared)
     }
-    
+
     var body: some Scene {
         WindowGroup {
             PlanetAppView()

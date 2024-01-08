@@ -53,8 +53,7 @@ struct PlanetAvatarView: View {
         Group {
             if let avatarURL = planet.avatarURL,
                 FileManager.default.fileExists(atPath: avatarURL.path),
-                let data = try? Data(contentsOf: avatarURL), data.count > 1
-            {
+                let data = try? Data(contentsOf: avatarURL), data.count > 1 {
                 if let img {
                     Image(uiImage: img)
                         .resizable()
@@ -66,8 +65,7 @@ struct PlanetAvatarView: View {
                                 .stroke(Color("BorderColor"), lineWidth: 0.5)
                         )
                         .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
-                }
-                else {
+                } else {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .task(priority: .utility) {
@@ -96,8 +94,7 @@ struct PlanetAvatarView: View {
                         }
                         .controlSize(.small)
                 }
-            }
-            else {
+            } else {
                 planet.planetAvatarPlaceholder(size: size)
                     .task(priority: .background) {
                         await self.downloadAvatarFromRemote()
@@ -147,8 +144,7 @@ struct PlanetAvatarView: View {
             if !FileManager.default.fileExists(atPath: localAvatarURL.path) {
                 try data.write(to: localAvatarURL)
             }
-        }
-        catch {
+        } catch {
             debugPrint("failed to download avatar from url: \(remoteAvatarURL), error: \(error)")
         }
     }

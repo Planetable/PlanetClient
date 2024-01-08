@@ -11,7 +11,6 @@ import PlanetSiteTemplates
 import Stencil
 import PathKit
 
-
 class PlanetManager: NSObject {
     static let shared = PlanetManager()
 
@@ -64,7 +63,7 @@ class PlanetManager: NSObject {
         }
         return request
     }
-    
+
     private func downloadPlanetAvatar(planetID: String) async throws {
         guard let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString), let planetPath = getPlanetPath(forID: planetID) else {
             return
@@ -121,7 +120,7 @@ class PlanetManager: NSObject {
         }
         return planets
     }
-    
+
     // MARK: - create planet
     func createPlanet(name: String, about: String, templateName: String, avatarPath: String) async throws {
         var request = try await createRequest(with: "/v0/planets/my", method: "POST")
@@ -228,7 +227,7 @@ class PlanetManager: NSObject {
         if planets.count == 0 {
             planets = try await getMyPlanets()
         }
-        let planetIDs: [String] = planets.map() { p in
+        let planetIDs: [String] = planets.map { p in
             return p.id
         }
         guard planetIDs.count > 0 else { return [] }
@@ -241,7 +240,7 @@ class PlanetManager: NSObject {
                     let (data, _) = try await URLSession.shared.data(for: request)
                     let decoder = JSONDecoder()
                     let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
-                    let result = planetArticles.map() { p in
+                    let result = planetArticles.map { p in
                         var t = p
                         t.planetID = UUID(uuidString: planetID)
                         return t
@@ -263,7 +262,7 @@ class PlanetManager: NSObject {
             return articles
         }
     }
-    
+
     // MARK: - create article
     func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet) async throws {
         var request = try await createRequest(with: "/v0/planets/my/\(planet.id)/articles", method: "POST")
@@ -291,7 +290,7 @@ class PlanetManager: NSObject {
             }
         }
     }
-    
+
     // MARK: - modify article
     func modifyArticle(id: String, title: String, content: String, attachments: [PlanetArticleAttachment], planetID: String) async throws {
         let editKey = String.editingArticleKey(byID: id)
@@ -328,7 +327,7 @@ class PlanetManager: NSObject {
             NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
     }
-    
+
     // MARK: - delete article
     func deleteArticle(id: String, planetID: String) async throws {
         // DELETE /v0/planets/my/:uuid/articles/:uuid
@@ -461,7 +460,7 @@ class PlanetManager: NSObject {
         let myPlanetArticlesPath = planetPath?.appending(path: "articles.json")
         return myPlanetArticlesPath
     }
-    
+
     func getPlanetArticlePath(forID planetID: String, articleID: String) -> URL? {
         guard let _ = PlanetAppViewModel.shared.currentNodeID else {
             return nil
@@ -475,7 +474,7 @@ class PlanetManager: NSObject {
         }
         return articlePath
     }
-    
+
     func getPlanetArticleURL(forID planetID: String, articleID: String) -> URL? {
         guard let articlePath = getPlanetArticlePath(forID: planetID, articleID: articleID) else { return nil }
         let indexURL = articlePath.appending(path: "index.html")

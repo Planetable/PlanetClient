@@ -5,7 +5,6 @@
 
 import SwiftUI
 
-
 struct PlanetPreviewArticleView: View {
     @Environment(\.dismiss) private var dismiss
 

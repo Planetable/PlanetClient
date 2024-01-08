@@ -27,27 +27,23 @@ struct PlanetLatestItemView: View {
                         Text(content.prefix(280))
                             .foregroundColor(.secondary)
 
-                    }
-                    else if let title = article.title, title.count == 0, let content = article.content, content.count > 0 {
+                    } else if let title = article.title, title.count == 0, let content = article.content, content.count > 0 {
                         // With only content
                         Text(content.prefix(280))
                             .lineLimit(2)
                             .foregroundColor(.secondary)
-                    }
-                    else if let title = article.title, title.count > 0, let content = article.content, content.count == 0 {
+                    } else if let title = article.title, title.count > 0, let content = article.content, content.count == 0 {
                         // With only title
                         Text(title)
                             .font(.headline)
                             .lineLimit(2)
                             .foregroundColor(.primary)
-                    }
-                    else if let attachments = article.attachments, attachments.count > 0 {
+                    } else if let attachments = article.attachments, attachments.count > 0 {
                         // With only attachments
                         Text(attachmentsLabel())
                             .lineLimit(2)
                             .foregroundColor(.secondary)
-                    }
-                    else {
+                    } else {
                         // With no content
                         Spacer()
                     }
@@ -72,8 +68,7 @@ struct PlanetLatestItemView: View {
         if let attachments = article.attachments, attachments.count > 0 {
             if attachments.count == 1 {
                 return attachments[0]
-            }
-            else {
+            } else {
                 return "\(attachments[0]) & \(attachments.count - 1) more"
             }
         }

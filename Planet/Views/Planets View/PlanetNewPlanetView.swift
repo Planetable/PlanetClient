@@ -1,17 +1,16 @@
 import SwiftUI
 import PhotosUI
 
-
 struct PlanetNewPlanetView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var serverStatus: Bool = false
-    
+
     @State private var planetName: String = ""
     @State private var planetAbout: String = ""
     @State private var planetTemplateName: String = ""
     @State private var planetAvatarPath: String = ""
-    
+
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedPhotoData: Data? {
         didSet {
@@ -30,7 +29,7 @@ struct PlanetNewPlanetView: View {
             }
         }
     }
-    
+
     var body: some View {
         NavigationStack {
             List {

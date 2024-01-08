@@ -1,6 +1,5 @@
 import Foundation
 
-
 enum PlanetAppTab: Int, Hashable {
     case latest
     case myPlanets

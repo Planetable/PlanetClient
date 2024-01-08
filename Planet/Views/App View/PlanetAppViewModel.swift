@@ -98,7 +98,7 @@ class PlanetAppViewModel: ObservableObject {
             }
         }
     }
-    
+
     @MainActor
     func resetAndChooseServer() {
         self.chooseServer = true
@@ -132,7 +132,7 @@ class PlanetAppViewModel: ObservableObject {
             }
         }
     }
-    
+
     func reloadPlanetsAndArticles() async throws {
         let planets = try await PlanetManager.shared.getMyPlanets()
         Task { @MainActor in

@@ -17,7 +17,7 @@ struct StencilExtension {
             "-": "\\u002D",
             ";": "\\u003B",
             "\u{2028}": "\\u2028",
-            "\u{2029}": "\\u2029",
+            "\u{2029}": "\\u2029"
         ]
         for i in 0..<32 {
             let char = Character(Unicode.Scalar(i)!)
@@ -31,8 +31,7 @@ struct StencilExtension {
         let ext = Extension()
         ext.registerFilter("md2html") { value in
             if let value = value,
-                let md = value as? String
-            {
+                let md = value as? String {
                 if let html = CMarkRenderer.renderMarkdownHTML(markdown: md) {
                     return html
                 }
@@ -41,20 +40,17 @@ struct StencilExtension {
         }
         ext.registerFilter("absoluteImageURL") { (value: Any?, arguments: [Any?]) in
             if let input = value as? String,
-                let doc = try? SwiftSoup.parseBodyFragment(input)
-            {
+                let doc = try? SwiftSoup.parseBodyFragment(input) {
                 let images = try? doc.select("img")
                 if let images = images {
                     for image in images {
                         if let src = try? image.attr("src") {
                             if src.hasPrefix("https://") || src.hasPrefix("http://") {
                                 continue
-                            }
-                            else {
+                            } else {
                                 // Convert relative img src to absolute full URL
                                 if let site = arguments.first as? String,
-                                    let articleID: UUID = arguments[1] as? UUID
-                                {
+                                    let articleID: UUID = arguments[1] as? UUID {
                                     let prefix = "\(site)/\(articleID.uuidString)/"
                                     debugPrint("prefix: \(prefix)")
                                     let absoluteURL = prefix + src
@@ -72,8 +68,7 @@ struct StencilExtension {
         }
         ext.registerFilter("formatDate") { value in
             if let value = value,
-                let date = value as? Date
-            {
+                let date = value as? Date {
                 let format = DateFormatter()
                 format.dateStyle = .medium
                 format.timeStyle = .medium
@@ -83,8 +78,7 @@ struct StencilExtension {
         }
         ext.registerFilter("formatDateC") { value in
             if let value = value,
-                let date = value as? Date
-            {
+                let date = value as? Date {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
                 let formattedDate = formatter.string(from: date)
@@ -94,8 +88,7 @@ struct StencilExtension {
         }
         ext.registerFilter("ymd") { value in
             if let value = value,
-                let date = value as? Date
-            {
+                let date = value as? Date {
                 let format = DateFormatter()
                 format.dateStyle = .medium
                 format.timeStyle = .none
@@ -105,8 +98,7 @@ struct StencilExtension {
         }
         ext.registerFilter("mdyydot") { value in
             if let value = value,
-                let date = value as? Date
-            {
+                let date = value as? Date {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "M.d.yy"
                 let formattedDate = formatter.string(from: date)
@@ -116,8 +108,7 @@ struct StencilExtension {
         }
         ext.registerFilter("hhmmss") { value in
             if let value = value,
-                let seconds = value as? Int
-            {
+                let seconds = value as? Int {
                 let hours = seconds / 3600
                 let minutes = (seconds % 3600) / 60
                 let seconds = seconds % 60
@@ -127,8 +118,7 @@ struct StencilExtension {
         }
         ext.registerFilter("rfc822") { value in
             if let value = value,
-                let date = value as? Date
-            {
+                let date = value as? Date {
                 let RFC822DateFormatter = DateFormatter()
                 RFC822DateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 RFC822DateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
@@ -138,14 +128,12 @@ struct StencilExtension {
         }
         ext.registerFilter("escapejs") { value in
             if let value = value,
-                let str = value as? String
-            {
+                let str = value as? String {
                 var escapedString = ""
                 for char in str {
                     if let escapedChar = escapeJSTable[char] {
                         escapedString.append(escapedChar)
-                    }
-                    else {
+                    } else {
                         escapedString.append(char)
                     }
                 }
@@ -155,8 +143,7 @@ struct StencilExtension {
         }
         ext.registerFilter("escape") { value in
             if let value = value,
-                let str = value as? String
-            {
+                let str = value as? String {
                 return str.htmlEscape()
             }
             return value

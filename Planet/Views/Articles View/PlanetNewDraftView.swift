@@ -1,7 +1,6 @@
 import SwiftUI
 import PhotosUI
 
-
 struct PlanetNewDraftView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
@@ -147,7 +146,7 @@ struct PlanetNewDraftView: View {
     private func saveAsDraftAction() {
         do {
             _ = try PlanetManager.shared.renderArticlePreview(forTitle: title, content: content, andArticleID: draftID.uuidString)
-            let attachments = uploadedImages.map() { a in
+            let attachments = uploadedImages.map { a in
                 return a.url.lastPathComponent
             }
             var planetID: UUID?

@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 
-
 struct ViewUtils {
     static let presetGradients = [
         Gradient(colors: [Color(hex: 0x88D3FA), Color(hex: 0x4C9FED)]), // Sky Blue
@@ -17,7 +16,7 @@ struct ViewUtils {
         Gradient(colors: [Color(hex: 0xF39066), Color(hex: 0xF0636E)]), // Red
         Gradient(colors: [Color(hex: 0xACDB86), Color(hex: 0x74C771)]), // Green
         Gradient(colors: [Color(hex: 0x8AB2FB), Color(hex: 0x6469FA)]), // Violet
-        Gradient(colors: [Color(hex: 0x7FE9D7), Color(hex: 0x5DC6B8)]), // Cyan
+        Gradient(colors: [Color(hex: 0x7FE9D7), Color(hex: 0x5DC6B8)]) // Cyan
     ]
 
     static let emojiList: [String] = [

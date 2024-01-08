@@ -89,8 +89,7 @@ struct PlanetSettingsView: View {
                             Text("Connecting...")
                                 .foregroundColor(.secondary)
                         }
-                    }
-                    else {
+                    } else {
                         Button {
                             Task(priority: .userInitiated) {
                                 await settingsViewModel.saveAndConnect()
@@ -127,7 +126,7 @@ struct PlanetSettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .onReceive(settingsViewModel.timer) { t in
+            .onReceive(settingsViewModel.timer) { _ in
                 Task { @MainActor in
                     let status = await PlanetStatus.shared.serverIsOnline()
                     self.serverOnlineStatus = status
@@ -190,8 +189,7 @@ struct PlanetSettingsView: View {
                         .foregroundColor(serverOnlineStatus ? .green : .gray)
                     if serverOnlineStatus {
                         Text("Server is connected.")
-                    }
-                    else {
+                    } else {
                         Text("Server is not connected.")
                     }
                 }

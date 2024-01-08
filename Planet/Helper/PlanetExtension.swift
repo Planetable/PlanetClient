@@ -4,7 +4,6 @@ import SwiftUI
 import MobileCoreServices
 import UniformTypeIdentifiers
 
-
 // MARK: - String -
 extension String {
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
@@ -19,17 +18,16 @@ extension String {
     static let settingsServerUsernameKey = "PlanetSettingsServerUsernameKey"
     static let settingsServerPasswordKey = "PlanetSettingsServerPasswordKey"
     static let settingsNodeIDKey = "PlanetSettingsNodeIDKey"
-    
+
     static func editingArticleKey(byID id: String) -> String {
         return "PlanetEditingArticleKey-\(id)"
     }
 }
 
-
 // MARK: - URL -
 extension URL {
     static let myPlanetsList = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appending(path: "myplanets.json")
-    
+
     func mimeType() -> String {
         if let mimeType = UTType(filenameExtension: self.pathExtension)?.preferredMIMEType {
             return mimeType
@@ -39,17 +37,16 @@ extension URL {
     }
 }
 
-
 // MARK: - Notification -
 extension Notification.Name {
     static let updatePlanets = Notification.Name("PlanetUpdatePlanetsNotification")
     static let reloadArticles = Notification.Name("PlanetReloadArticlesNotification")
     static let insertAttachment = Notification.Name("PlanetArticleInsertAttachmentNotification")
-    
+
     static func startEditingArticle(byID id: String) -> Notification.Name {
         return Notification.Name("PlanetStartEditingArticleNotification-\(id)")
     }
-    
+
     static func endEditingArticle(byID id: String) -> Notification.Name {
         return Notification.Name("PlanetEndEditingArticleNotification-\(id)")
     }
@@ -63,7 +60,6 @@ extension Notification.Name {
     }
 }
 
-
 // MARK: - Date -
 extension Date {
     func mmddyyyy() -> String {
@@ -74,14 +70,12 @@ extension Date {
     }
 }
 
-
 // MARK: - Data -
 extension Data {
     mutating func append(_ string: String) {
         self.append(string.data(using: .utf8, allowLossyConversion: true)!)
     }
 }
-
 
 // MARK: - UIImage -
 extension UIImage {
@@ -117,7 +111,6 @@ extension UIImage {
         return image
     }
 }
-
 
 // MARK: - Color -
 extension Color {

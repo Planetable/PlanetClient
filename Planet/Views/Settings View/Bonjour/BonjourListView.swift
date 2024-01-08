@@ -147,8 +147,7 @@ extension BonjourViewModel: NetServiceDelegate {
                 let serverURL: String
                 if ip.contains(":") {
                     serverURL = "http://[\(ip)]:\(sender.port)"
-                }
-                else {
+                } else {
                     serverURL = "http://\(ip):\(sender.port)"
                 }
                 debugPrint("Service IP: \(ip), Port: \(sender.port), URL: \(serverURL)")

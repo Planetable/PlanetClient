@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct PlanetAppView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel

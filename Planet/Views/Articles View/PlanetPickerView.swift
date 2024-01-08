@@ -5,7 +5,6 @@
 
 import SwiftUI
 
-
 struct PlanetPickerView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var appViewModel: PlanetAppViewModel

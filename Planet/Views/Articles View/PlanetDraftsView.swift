@@ -5,7 +5,6 @@
 
 import SwiftUI
 
-
 struct PlanetDraftsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
 

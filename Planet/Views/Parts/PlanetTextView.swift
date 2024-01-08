@@ -9,29 +9,28 @@ import Foundation
 import SwiftUI
 import UIKit
 
-
 struct PlanetTextView: UIViewRepresentable {
     @Binding var text: String
-    
+
     class Coordinator: NSObject, UITextViewDelegate {
         let parent: PlanetTextView
-        
+
         init(_ parent: PlanetTextView) {
             self.parent = parent
         }
-        
+
         func textViewDidChange(_ textView: UITextView) {
             parent.text = textView.text
         }
-        
+
         func textViewDidChangeSelection(_ textView: UITextView) {
         }
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     func makeUIView(context: Context) -> UITextView {
         let view = UITextView()
         view.isScrollEnabled = true
@@ -54,7 +53,7 @@ struct PlanetTextView: UIViewRepresentable {
         }
         return view
     }
-    
+
     func updateUIView(_ uiView: UITextView, context: Context) {
         uiView.text = text
     }

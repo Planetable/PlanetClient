@@ -1,7 +1,6 @@
 import Foundation
 import os
 
-
 class KeychainHelper: NSObject {
     static let shared = KeychainHelper()
 
