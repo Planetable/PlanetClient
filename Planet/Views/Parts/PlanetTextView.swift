@@ -39,6 +39,8 @@ struct PlanetTextView: UIViewRepresentable {
                     symbol = "[ ] "
                 } else if currentLine.hasPrefix("[x] ") {
                     symbol = "[x] "
+                } else if currentLine.hasPrefix("[X] ") {
+                    symbol = "[X] "
                 } else if let match = currentLine.range(of: "^\\d+\\. ", options: .regularExpression), !match.isEmpty {
                     if let number = Int(currentLine.trimmingCharacters(in: CharacterSet.decimalDigits.inverted)) {
                         symbol = "\(number + 1). "
