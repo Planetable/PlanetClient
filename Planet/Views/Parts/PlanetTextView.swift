@@ -31,29 +31,32 @@ struct PlanetTextView: UIViewRepresentable {
                 let currentLineRange = content.lineRange(for: NSRange(location: cursorPosition == 0 ? 0 : cursorPosition - 1, length: 0))
                 let currentLine = content.substring(with: currentLineRange)
                 var symbol = ""
-                if currentLine.hasPrefix("- ") {
-                    symbol = "- "
-                } else if currentLine.hasPrefix("* ") {
+                if currentLine.hasPrefix("* ") {
                     symbol = "* "
-                } else if currentLine.hasPrefix("[ ] ") {
-                    symbol = "[ ] "
-                } else if currentLine.hasPrefix("[x] ") {
-                    symbol = "[x] "
-                } else if currentLine.hasPrefix("[X] ") {
-                    symbol = "[X] "
+                } else if currentLine.hasPrefix("- [ ] ") {
+                    symbol = "- [ ] "
+                } else if currentLine.hasPrefix("- [x] ") {
+                    symbol = "- [ ] "
+                } else if currentLine.hasPrefix("- [X] ") {
+                    symbol = "- [ ] "
+                } else if currentLine.hasPrefix("- ") {
+                    symbol = "- "
                 } else if let match = currentLine.range(of: "^\\d+\\. ", options: .regularExpression), !match.isEmpty {
                     if let number = Int(currentLine.trimmingCharacters(in: CharacterSet.decimalDigits.inverted)) {
                         symbol = "\(number + 1). "
                         // Should remove previous auto completed list symbol if empty content returns
                         if String(number) + ". " == currentLine || String(number) + ". " == currentLine + "\n" {
                             textView.text = content.replacingCharacters(in: currentLineRange, with: "\n")
-                            return true
+                            return false
                         }
                     }
                 }
-                if symbol == currentLine || symbol == currentLine + "\n" {
+                if currentLine.hasSuffix("\n") {
+                    // Should skip this symbol
+                } else if symbol == currentLine || symbol == currentLine + "\n" {
                     // Should remove previous auto completed list symbol if empty content returns
                     textView.text = content.replacingCharacters(in: currentLineRange, with: "\n")
+                    return false
                 } else {
                     if !symbol.isEmpty {
                         if currentLine.trimmingCharacters(in: .whitespacesAndNewlines).count == symbol.count {
@@ -68,7 +71,6 @@ struct PlanetTextView: UIViewRepresentable {
                         }
                         return false
                     }
-
                 }
             }
             return true
