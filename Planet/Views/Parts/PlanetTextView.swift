@@ -23,7 +23,53 @@ struct PlanetTextView: UIViewRepresentable {
             parent.text = textView.text
         }
 
-        func textViewDidChangeSelection(_ textView: UITextView) {
+        func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+            if text == "\n" {
+                // Add first-level auto completion for list items and checkboxs:
+                let cursorPosition = textView.selectedRange.location
+                let content = textView.text as NSString
+                let currentLineRange = content.lineRange(for: NSRange(location: cursorPosition == 0 ? 0 : cursorPosition - 1, length: 0))
+                let currentLine = content.substring(with: currentLineRange)
+                var symbol = ""
+                if currentLine.hasPrefix("- ") {
+                    symbol = "- "
+                } else if currentLine.hasPrefix("* ") {
+                    symbol = "* "
+                } else if currentLine.hasPrefix("[ ] ") {
+                    symbol = "[ ] "
+                } else if currentLine.hasPrefix("[x] ") {
+                    symbol = "[x] "
+                } else if let match = currentLine.range(of: "^\\d+\\. ", options: .regularExpression), !match.isEmpty {
+                    if let number = Int(currentLine.trimmingCharacters(in: CharacterSet.decimalDigits.inverted)) {
+                        symbol = "\(number + 1). "
+                        // Should remove previous auto completed list symbol if empty content returns
+                        if String(number) + ". " == currentLine || String(number) + ". " == currentLine + "\n" {
+                            textView.text = content.replacingCharacters(in: currentLineRange, with: "\n")
+                            return true
+                        }
+                    }
+                }
+                if symbol == currentLine || symbol == currentLine + "\n" {
+                    // Should remove previous auto completed list symbol if empty content returns
+                    textView.text = content.replacingCharacters(in: currentLineRange, with: "\n")
+                } else {
+                    if !symbol.isEmpty {
+                        if currentLine.trimmingCharacters(in: .whitespacesAndNewlines).count == symbol.count {
+                            // If the current line is an empty list item or checkbox, remove the list symbol or checkbox
+                            let newContent = content.replacingCharacters(in: currentLineRange, with: "\n")
+                            textView.text = newContent
+                            textView.selectedRange = NSRange(location: currentLineRange.location + 1, length: 0)
+                        } else {
+                            // Otherwise, insert the appropriate symbol at the start of the new line
+                            textView.text = content.replacingCharacters(in: range, with: "\n" + symbol)
+                            textView.selectedRange = NSRange(location: cursorPosition + symbol.count + 1, length: 0)
+                        }
+                        return false
+                    }
+
+                }
+            }
+            return true
         }
     }
 
