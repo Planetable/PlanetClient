@@ -76,6 +76,9 @@ struct PlanetArticleAttachmentsView: View {
                         let pinPoint = CGPoint(x: point.x - tintedPinImage.size.width / 2.0,
                                                y: point.y - tintedPinImage.size.height / 2.0)
                         tintedPinImage.draw(at: pinPoint)
+                    } else {
+                        continuation.resume(throwing: PlanetError.InternalError)
+                        return
                     }
                     let finalImage = UIGraphicsGetImageFromCurrentImageContext()
                     UIGraphicsEndImageContext()
@@ -90,6 +93,7 @@ struct PlanetArticleAttachmentsView: View {
             }
         }
     }
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: true) {
             LazyHStack {
