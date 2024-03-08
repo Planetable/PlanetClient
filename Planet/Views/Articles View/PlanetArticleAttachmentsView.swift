@@ -60,21 +60,36 @@ struct PlanetArticleAttachmentsView: View {
         let minWidth = min(size.width, size.height)
         options.size = CGSize(width: minWidth, height: minWidth)
         options.scale = await UIScreen.main.scale
-        // MARK: TODO: Pin current location in the snapshot.
         let mapSnapshotter = MKMapSnapshotter(options: options)
         return try await withCheckedThrowingContinuation { continuation in
             mapSnapshotter.start { snapshot, error in
                 if let error = error {
                     continuation.resume(throwing: error)
                 } else if let snapshot = snapshot {
-                    continuation.resume(returning: snapshot.image)
+                    let pinImage = UIImage(systemName: "mappin.and.ellipse.circle.fill")
+                    let tintedPinImage = pinImage?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
+                    let imageRect = CGRect(origin: .zero, size: options.size)
+                    UIGraphicsBeginImageContextWithOptions(imageRect.size, true, 0)
+                    snapshot.image.draw(at: .zero)
+                    let point = snapshot.point(for: location.coordinate)
+                    if let tintedPinImage = tintedPinImage {
+                        let pinPoint = CGPoint(x: point.x - tintedPinImage.size.width / 2.0,
+                                               y: point.y - tintedPinImage.size.height / 2.0)
+                        tintedPinImage.draw(at: pinPoint)
+                    }
+                    let finalImage = UIGraphicsGetImageFromCurrentImageContext()
+                    UIGraphicsEndImageContext()
+                    if let finalImage = finalImage {
+                        continuation.resume(returning: finalImage)
+                    } else {
+                        continuation.resume(throwing: PlanetError.InternalError)
+                    }
                 } else {
                     continuation.resume(throwing: PlanetError.InternalError)
                 }
             }
         }
     }
-
     var body: some View {
         ScrollView(.horizontal, showsIndicators: true) {
             LazyHStack {
