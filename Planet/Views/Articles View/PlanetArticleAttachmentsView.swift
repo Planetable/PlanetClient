@@ -8,6 +8,7 @@ import SwiftUI
 import PhotosUI
 #if !targetEnvironment(simulator)
 import JournalingSuggestions
+import MapKit
 #endif
 
 
@@ -52,6 +53,27 @@ struct PlanetArticleAttachmentsView: View {
         }
     }
 
+    private func generateImageFromLocation(_ location: CLLocation) async throws -> UIImage {
+        let options = MKMapSnapshotter.Options()
+        options.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000)
+        let size = await UIScreen.main.bounds.size
+        let minWidth = min(size.width, size.height)
+        options.size = CGSize(width: minWidth, height: minWidth)
+        options.scale = await UIScreen.main.scale
+        let mapSnapshotter = MKMapSnapshotter(options: options)
+        return try await withCheckedThrowingContinuation { continuation in
+            mapSnapshotter.start { snapshot, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let snapshot = snapshot {
+                    continuation.resume(returning: snapshot.image)
+                } else {
+                    continuation.resume(throwing: PlanetError.InternalError)
+                }
+            }
+        }
+    }
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: true) {
             LazyHStack {
@@ -68,13 +90,13 @@ struct PlanetArticleAttachmentsView: View {
                                 debugPrint("failed to process and insert image: \(error)")
                             }
                         }
-                        // MARK: TODO: handle suggested location
                         for suggestedLocation in suggestion.items.filter({ item in
                             return item.hasContent(ofType: JournalingSuggestion.Location.self)
                         }) {
                             do {
-                                if let location = try await suggestedLocation.content(forType: JournalingSuggestion.Location.self) {
-                                    debugPrint("got location: \(location)")
+                                if let location: CLLocation = try await suggestedLocation.content(forType: JournalingSuggestion.Location.self)?.location {
+                                    let locationSnapshot = try await self.generateImageFromLocation(location)
+                                    try processAndInsertImage(locationSnapshot)
                                 }
                             } catch {
                                 debugPrint("failed to parse location: \(error)")
