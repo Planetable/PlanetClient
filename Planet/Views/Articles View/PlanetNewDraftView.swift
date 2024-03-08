@@ -129,7 +129,9 @@ struct PlanetNewDraftView: View {
                 }
             }
             .task(priority: .utility) {
-                self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
+                if self.appViewModel.myPlanets.count > self.selectedPlanetIndex {
+                    self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
+                }
             }
             .sheet(isPresented: $choosePlanet) {
                 PlanetPickerView(selectedPlanetIndex: $selectedPlanetIndex, selectedPlanet: $selectedPlanet)
