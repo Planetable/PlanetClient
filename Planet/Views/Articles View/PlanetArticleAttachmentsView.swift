@@ -60,6 +60,7 @@ struct PlanetArticleAttachmentsView: View {
         let minWidth = min(size.width, size.height)
         options.size = CGSize(width: minWidth, height: minWidth)
         options.scale = await UIScreen.main.scale
+        // MARK: TODO: Pin current location in the snapshot.
         let mapSnapshotter = MKMapSnapshotter(options: options)
         return try await withCheckedThrowingContinuation { continuation in
             mapSnapshotter.start { snapshot, error in
