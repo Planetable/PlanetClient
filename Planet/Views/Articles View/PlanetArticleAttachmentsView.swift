@@ -3,10 +3,16 @@
 //  Planet
 //
 
+import UIKit
 import SwiftUI
 import PhotosUI
+#if !targetEnvironment(simulator)
+import JournalingSuggestions
+#endif
+
 
 struct PlanetArticleAttachmentsView: View {
+    @Binding var title: String
     @Binding var attachments: [PlanetArticleAttachment]
 
     @State private var isTapped: Bool = false
@@ -15,21 +21,11 @@ struct PlanetArticleAttachmentsView: View {
     @State private var selectedPhotoData: Data? {
         didSet {
             Task(priority: .utility) {
-                if let selectedPhotoData, let image = UIImage(data: selectedPhotoData), let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
-                    let imageName = String(UUID().uuidString.prefix(4)) + ".png"
-                    let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
-                    let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+                if let selectedPhotoData, let image = UIImage(data: selectedPhotoData) {
                     do {
-                        if FileManager.default.fileExists(atPath: url.path) {
-                            try FileManager.default.removeItem(at: url)
-                        }
-                        try imageData.write(to: url)
-                        Task { @MainActor in
-                            self.attachments.insert(attachment, at: 0)
-                            NotificationCenter.default.post(name: .insertAttachment, object: attachment)
-                        }
+                        try self.processAndInsertImage(image)
                     } catch {
-                        debugPrint("failed to save photo data: \(error)")
+                        debugPrint("failed to process and insert image: \(error)")
                     }
                 } else {
                     debugPrint("failed to save photo data.")
@@ -38,16 +34,66 @@ struct PlanetArticleAttachmentsView: View {
         }
     }
 
+    private func processAndInsertImage(_ image: UIImage) throws {
+        if let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
+            let imageName = String(UUID().uuidString.prefix(4)) + ".png"
+            let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
+            let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+            if FileManager.default.fileExists(atPath: url.path) {
+                try? FileManager.default.removeItem(at: url)
+            }
+            try imageData.write(to: url)
+            Task { @MainActor in
+                self.attachments.insert(attachment, at: 0)
+                NotificationCenter.default.post(name: .insertAttachment, object: attachment)
+            }
+        } else {
+            throw PlanetError.InternalError
+        }
+    }
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: true) {
             LazyHStack {
+                if #available(iOS 17.2, *) {
+                    JournalingSuggestionsPicker {
+                        Image(systemName: "wand.and.stars")
+                    } onCompletion: { suggestion in
+                        self.title = suggestion.title
+                        let images: [UIImage] = await suggestion.content(forType: UIImage.self)
+                        for image in images {
+                            do {
+                                try processAndInsertImage(image)
+                            } catch {
+                                debugPrint("failed to process and insert image: \(error)")
+                            }
+                        }
+                        // MARK: TODO: handle suggested location
+                        for suggestedLocation in suggestion.items.filter({ item in
+                            return item.hasContent(ofType: JournalingSuggestion.Location.self)
+                        }) {
+                            do {
+                                if let location = try await suggestedLocation.content(forType: JournalingSuggestion.Location.self) {
+                                    debugPrint("got location: \(location)")
+                                }
+                            } catch {
+                                debugPrint("failed to parse location: \(error)")
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.leading, 22)
+                    .padding(.trailing, 10)
+                } else {
+                    Text("")
+                        .frame(width: 12)
+                }
                 PhotosPicker(selection: $selectedItem, matching: .any(of: [.images, .not(.livePhotos)])) {
                     Image(systemName: "plus.circle")
                         .resizable()
                         .frame(width: 20, height: 20)
                 }
                 .buttonStyle(.plain)
-                .padding(.leading, 24)
                 .padding(.trailing, 8)
                 .onChange(of: selectedItem) { newValue in
                     Task(priority: .utility) {
@@ -64,7 +110,6 @@ struct PlanetArticleAttachmentsView: View {
                         }
                     }
                 }
-
                 ForEach(0..<attachments.count, id: \.self) { index in
                     Button {
                         isTapped.toggle()
@@ -101,7 +146,6 @@ struct PlanetArticleAttachmentsView: View {
                             NotificationCenter.default.post(name: .insertAttachment, object: attachment)
                         }
                     }
-
                 }
             } label: {
                 Text("Insert Attachment")

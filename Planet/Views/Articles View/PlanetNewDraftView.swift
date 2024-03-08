@@ -53,7 +53,7 @@ struct PlanetNewDraftView: View {
                     PlanetTextView(text: $content)
                         .padding(.horizontal, 12)
 
-                    PlanetArticleAttachmentsView(attachments: $uploadedImages)
+                    PlanetArticleAttachmentsView(title: $title, attachments: $uploadedImages)
 
                     Text(" ")
                         .frame(height: g.safeAreaInsets.bottom)

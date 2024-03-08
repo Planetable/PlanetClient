@@ -35,7 +35,7 @@ struct PlanetEditArticleView: View {
                     PlanetTextView(text: $content)
                         .padding(.horizontal, 12)
 
-                    PlanetArticleAttachmentsView(attachments: $uploadedImages)
+                    PlanetArticleAttachmentsView(title: $title, attachments: $uploadedImages)
                         .onChange(of: uploadedImages) { _ in
                             self.updateAttachments()
                         }
