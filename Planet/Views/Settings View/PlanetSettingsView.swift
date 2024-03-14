@@ -100,7 +100,7 @@ struct PlanetSettingsView: View {
                     } else {
                         Button {
                             Task(priority: .userInitiated) {
-                                await applySettingsInformation()
+                                await applyServerInformation()
                                 await settingsViewModel.saveAndConnect()
                             }
                         } label: {
@@ -143,7 +143,7 @@ struct PlanetSettingsView: View {
             }
             .onAppear {
                 Task { @MainActor in
-                    await syncSettingsInformation()
+                    await syncServerInformation()
                 }
                 Task(priority: .userInitiated) {
                     let status = await PlanetStatus.shared.serverIsOnline()
@@ -192,7 +192,7 @@ struct PlanetSettingsView: View {
     }
 
     @MainActor
-    private func syncSettingsInformation() async {
+    private func syncServerInformation() async {
         self.serverURLString = self.settingsViewModel.serverURLString
         self.serverProtocol = self.settingsViewModel.serverProtocol
         self.serverHost = self.settingsViewModel.serverHost
@@ -203,7 +203,7 @@ struct PlanetSettingsView: View {
     }
 
     @MainActor
-    private func applySettingsInformation() async {
+    private func applyServerInformation() async {
         self.settingsViewModel.serverURLString = self.serverURLString
         self.settingsViewModel.serverProtocol = self.serverProtocol
         self.settingsViewModel.serverHost = self.serverHost
