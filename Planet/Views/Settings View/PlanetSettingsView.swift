@@ -12,8 +12,16 @@ struct PlanetSettingsView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
-    @State var serverOnlineStatus: Bool = false
-    @State var isShowingConfirmResetLocalCache: Bool = false
+    @State private var serverURLString: String = ""
+    @State private var serverProtocol: String = ""
+    @State private var serverHost: String = ""
+    @State private var serverPort: String = ""
+    @State private var serverAuthenticationEnabled: Bool = false
+    @State private var serverUsername: String = ""
+    @State private var serverPassword: String = ""
+
+    @State private var serverOnlineStatus: Bool = false
+    @State private var isShowingConfirmResetLocalCache: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -21,7 +29,7 @@ struct PlanetSettingsView: View {
                 Section(
                     header: Text("Server Info")
                 ) {
-                    Picker("Protocol", selection: $settingsViewModel.serverProtocol) {
+                    Picker("Protocol", selection: $serverProtocol) {
                         Text("http").tag("http")
                         Text("https").tag("https")
                     }.pickerStyle(.navigationLink)
@@ -29,7 +37,7 @@ struct PlanetSettingsView: View {
                     LabeledContent {
                         TextField(
                             "Host",
-                            text: $settingsViewModel.serverHost,
+                            text: $serverHost,
                             prompt: Text("Host name or IP address")
                         )
                         .multilineTextAlignment(.trailing)
@@ -43,7 +51,7 @@ struct PlanetSettingsView: View {
                     LabeledContent {
                         TextField(
                             "Port",
-                            text: $settingsViewModel.serverPort,
+                            text: $serverPort,
                             prompt: Text("Port")
                         )
                         .multilineTextAlignment(.trailing)
@@ -52,13 +60,13 @@ struct PlanetSettingsView: View {
                         Text("Port")
                     }
 
-                    Toggle("Authentication", isOn: $settingsViewModel.serverAuthenticationEnabled)
+                    Toggle("Authentication", isOn: $serverAuthenticationEnabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     LabeledContent {
                         TextField(
                             "Username",
-                            text: $settingsViewModel.serverUsername,
+                            text: $serverUsername,
                             prompt: Text("Username")
                         )
                         .multilineTextAlignment(.trailing)
@@ -67,12 +75,12 @@ struct PlanetSettingsView: View {
                     } label: {
                         Text("Username")
                     }
-                    .disabled(!settingsViewModel.serverAuthenticationEnabled)
+                    .disabled(!serverAuthenticationEnabled)
 
                     LabeledContent {
                         SecureField(
                             "Password",
-                            text: $settingsViewModel.serverPassword,
+                            text: $serverPassword,
                             prompt: Text("Password")
                         )
                         .multilineTextAlignment(.trailing)
@@ -81,7 +89,7 @@ struct PlanetSettingsView: View {
                     } label: {
                         Text("Password")
                     }
-                    .disabled(!settingsViewModel.serverAuthenticationEnabled)
+                    .disabled(!serverAuthenticationEnabled)
 
                     if settingsViewModel.isConnecting {
                         HStack(spacing: 10) {
@@ -92,6 +100,7 @@ struct PlanetSettingsView: View {
                     } else {
                         Button {
                             Task(priority: .userInitiated) {
+                                await applySettingsInformation()
                                 await settingsViewModel.saveAndConnect()
                             }
                         } label: {
@@ -133,6 +142,9 @@ struct PlanetSettingsView: View {
                 }
             }
             .onAppear {
+                Task { @MainActor in
+                    await syncSettingsInformation()
+                }
                 Task(priority: .userInitiated) {
                     let status = await PlanetStatus.shared.serverIsOnline()
                     await MainActor.run {
@@ -177,6 +189,28 @@ struct PlanetSettingsView: View {
         } message: {
             Text("This will remove all local cache, including all attachments and drafts.")
         }
+    }
+
+    @MainActor
+    private func syncSettingsInformation() async {
+        self.serverURLString = self.settingsViewModel.serverURLString
+        self.serverProtocol = self.settingsViewModel.serverProtocol
+        self.serverHost = self.settingsViewModel.serverHost
+        self.serverPort = self.settingsViewModel.serverPort
+        self.serverAuthenticationEnabled = self.settingsViewModel.serverAuthenticationEnabled
+        self.serverUsername = self.settingsViewModel.serverUsername
+        self.serverPassword = self.settingsViewModel.serverPassword
+    }
+
+    @MainActor
+    private func applySettingsInformation() async {
+        self.settingsViewModel.serverURLString = self.serverURLString
+        self.settingsViewModel.serverProtocol = self.serverProtocol
+        self.settingsViewModel.serverHost = self.serverHost
+        self.settingsViewModel.serverPort = self.serverPort
+        self.settingsViewModel.serverAuthenticationEnabled = self.serverAuthenticationEnabled
+        self.settingsViewModel.serverUsername = self.serverUsername
+        self.settingsViewModel.serverPassword = self.serverPassword
     }
 
     @ViewBuilder
