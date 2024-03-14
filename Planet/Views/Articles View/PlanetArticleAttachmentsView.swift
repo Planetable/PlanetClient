@@ -53,6 +53,7 @@ struct PlanetArticleAttachmentsView: View {
         }
     }
 
+    #if !targetEnvironment(simulator)
     private func generateImageFromLocation(_ location: CLLocation) async throws -> UIImage {
         let options = MKMapSnapshotter.Options()
         options.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000)
@@ -93,11 +94,13 @@ struct PlanetArticleAttachmentsView: View {
             }
         }
     }
+    #endif
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: true) {
             LazyHStack {
                 if #available(iOS 17.2, *) {
+                    #if !targetEnvironment(simulator)
                     JournalingSuggestionsPicker {
                         Image(systemName: "wand.and.stars")
                     } onCompletion: { suggestion in
@@ -126,6 +129,10 @@ struct PlanetArticleAttachmentsView: View {
                     .buttonStyle(.plain)
                     .padding(.leading, 22)
                     .padding(.trailing, 10)
+                    #else
+                    Text("")
+                        .frame(width: 12)
+                    #endif
                 } else {
                     Text("")
                         .frame(width: 12)
