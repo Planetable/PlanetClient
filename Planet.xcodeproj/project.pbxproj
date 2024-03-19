@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A25932B2BA9327800DE758C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2A25932A2BA9327800DE758C /* PrivacyInfo.xcprivacy */; };
 		2A2748342B200E5300725487 /* PlanetAppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2748332B200E5300725487 /* PlanetAppTab.swift */; };
 		2A2748362B200E7800725487 /* PlanetArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2748352B200E7800725487 /* PlanetArticle.swift */; };
 		2A2748382B200EB200725487 /* PlanetServerInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2748372B200EB200725487 /* PlanetServerInfo.swift */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		2A1324BE2B9AAA5D002329F0 /* Planet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Planet.entitlements; sourceTree = "<group>"; };
+		2A25932A2BA9327800DE758C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		2A2748332B200E5300725487 /* PlanetAppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAppTab.swift; sourceTree = "<group>"; };
 		2A2748352B200E7800725487 /* PlanetArticle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetArticle.swift; sourceTree = "<group>"; };
 		2A2748372B200EB200725487 /* PlanetServerInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetServerInfo.swift; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 			children = (
 				2A1324BE2B9AAA5D002329F0 /* Planet.entitlements */,
 				2AC7CC1929A1F8350089C58C /* Info.plist */,
+				2A25932A2BA9327800DE758C /* PrivacyInfo.xcprivacy */,
 				2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */,
 				2A85B07C2B286BC100CF6823 /* Templates */,
 				2A6386C22B1759A200451465 /* Helper */,
@@ -340,6 +343,7 @@
 			files = (
 				2A85B07B2B286AFF00CF6823 /* WriterBasic.html in Resources */,
 				2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */,
+				2A25932B2BA9327800DE758C /* PrivacyInfo.xcprivacy in Resources */,
 				2AAF3E42299E07B700CA60AD /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
