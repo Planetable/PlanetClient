@@ -268,7 +268,7 @@ class PlanetManager: NSObject {
         var request = try await createRequest(with: "/v0/planets/my/\(planet.id)/articles", method: "POST")
         var form: MultipartForm = MultipartForm(parts: [
             MultipartForm.Part(name: "title", value: title),
-            MultipartForm.Part(name: "date", value: Date().description),
+            MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
             MultipartForm.Part(name: "content", value: content)
         ])
         for attachment in attachments {
@@ -302,7 +302,7 @@ class PlanetManager: NSObject {
         var request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "POST")
         var form: MultipartForm = MultipartForm(parts: [
             MultipartForm.Part(name: "title", value: title),
-            MultipartForm.Part(name: "date", value: Date().description),
+            MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
             MultipartForm.Part(name: "content", value: content)
         ])
         for attachment in attachments {
