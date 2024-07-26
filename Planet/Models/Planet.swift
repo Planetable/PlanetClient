@@ -205,8 +205,8 @@ struct Planet: Codable, Identifiable, Hashable {
             return nil
         }
         return serverURL
-            .appending(path: "/v0/planets/my/")
+//            .appending(path: "/v0/planets/my/")
             .appending(path: self.id)
-            .appending(path: "/public/avatar.png")
+            .appending(path: "avatar.png")
     }
 }

@@ -69,9 +69,9 @@ class PlanetManager: NSObject {
             return
         }
         let remoteAvatarURL = serverURL
-            .appending(path: "/v0/planets/my/")
+//            .appending(path: "/v0/planets/my/")
             .appending(path: planetID)
-            .appending(path: "/public/avatar.png")
+            .appending(path: "avatar.png")
         let localAvatarURL = planetPath.appending(path: "avatar.png")
         let (data, _) = try await URLSession.shared.data(from: remoteAvatarURL)
         var shouldReloadAvatar: Bool = false
@@ -239,6 +239,7 @@ class PlanetManager: NSObject {
                     let request = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
                     let (data, _) = try await URLSession.shared.data(for: request)
                     let decoder = JSONDecoder()
+                    debugPrint("about to get my articles from data: \(data)")
                     let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
                     let result = planetArticles.map { p in
                         var t = p
@@ -298,8 +299,8 @@ class PlanetManager: NSObject {
             UserDefaults.standard.setValue(1, forKey: editKey)
             NotificationCenter.default.post(name: .startEditingArticle(byID: id), object: nil)
         }
-        // POST /v0/planets/my/:uuid/articles/:uuid
-        var request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "POST")
+        // POST /v0/articles/my/:my
+        var request = try await createRequest(with: "/v0/articles/my/\(planetID):\(id)", method: "POST")
         var form: MultipartForm = MultipartForm(parts: [
             MultipartForm.Part(name: "title", value: title),
             MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
@@ -330,8 +331,8 @@ class PlanetManager: NSObject {
 
     // MARK: - delete article
     func deleteArticle(id: String, planetID: String) async throws {
-        // DELETE /v0/planets/my/:uuid/articles/:uuid
-        let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "DELETE")
+        // DELETE /v0/articles/my/:my
+        let request = try await createRequest(with: "/v0/articles/my/\(planetID):\(id)", method: "DELETE")
         let (_, response) = try await URLSession.shared.data(for: request)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
@@ -350,8 +351,8 @@ class PlanetManager: NSObject {
 
     // MARK: - download article
     func downloadArticle(id: String, planetID: String) async throws {
-        // GET /v0/planets/my/:uuid/articles/:uuid
-        let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
+        // GET /v0/articles/my/:my
+        let request = try await createRequest(with: "/v0/articles/my/\(planetID):\(id)", method: "GET")
         let (data, response) = try await URLSession.shared.data(for: request)
         let statusCode = (response as! HTTPURLResponse).statusCode
         guard statusCode == 200 else { throw PlanetError.APIArticleNotFoundError }
