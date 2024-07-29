@@ -239,8 +239,10 @@ class PlanetManager: NSObject {
                     let request = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
                     let (data, _) = try await URLSession.shared.data(for: request)
                     let decoder = JSONDecoder()
-                    debugPrint("about to get my articles from data: \(data)")
-                    let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
+                    // skip situations that articles not found
+                    guard let planetArticles: [PlanetArticle] = try? decoder.decode([PlanetArticle].self, from: data) else {
+                        return []
+                    }
                     let result = planetArticles.map { p in
                         var t = p
                         t.planetID = UUID(uuidString: planetID)
@@ -252,7 +254,9 @@ class PlanetManager: NSObject {
                         let encoder = JSONEncoder()
                         encoder.outputFormatting = .prettyPrinted
                         let data = try encoder.encode(result)
-                        try data.write(to: articlesPath)
+                        if !FileManager.default.fileExists(atPath: articlesPath.path) {
+                            try data.write(to: articlesPath)
+                        }
                     }
                     return result
                 }
