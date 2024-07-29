@@ -299,8 +299,8 @@ class PlanetManager: NSObject {
             UserDefaults.standard.setValue(1, forKey: editKey)
             NotificationCenter.default.post(name: .startEditingArticle(byID: id), object: nil)
         }
-        // POST /v0/articles/my/:my
-        var request = try await createRequest(with: "/v0/articles/my/\(planetID):\(id)", method: "POST")
+        // POST /v0/planets/my/:planet_uuid/articles/:article_uuid
+        var request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "POST")
         var form: MultipartForm = MultipartForm(parts: [
             MultipartForm.Part(name: "title", value: title),
             MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
@@ -331,8 +331,8 @@ class PlanetManager: NSObject {
 
     // MARK: - delete article
     func deleteArticle(id: String, planetID: String) async throws {
-        // DELETE /v0/articles/my/:my
-        let request = try await createRequest(with: "/v0/articles/my/\(planetID):\(id)", method: "DELETE")
+        // DELETE /v0/planets/my/:planet_uuid/articles/:article_uuid
+        let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "DELETE")
         let (_, response) = try await URLSession.shared.data(for: request)
         let statusCode = (response as! HTTPURLResponse).statusCode
         if statusCode == 200 {
@@ -351,8 +351,8 @@ class PlanetManager: NSObject {
 
     // MARK: - download article
     func downloadArticle(id: String, planetID: String) async throws {
-        // GET /v0/articles/my/:my
-        let request = try await createRequest(with: "/v0/articles/my/\(planetID):\(id)", method: "GET")
+        // GET /v0/planets/my/:planet_uuid/articles/:article_uuid
+        let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
         let (data, response) = try await URLSession.shared.data(for: request)
         let statusCode = (response as! HTTPURLResponse).statusCode
         guard statusCode == 200 else { throw PlanetError.APIArticleNotFoundError }
