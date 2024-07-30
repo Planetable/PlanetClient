@@ -144,13 +144,9 @@ class PlanetManager: NSObject {
             ])
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
+        try await URLSession.shared.upload(for: request, from: form.bodyData)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
     }
 

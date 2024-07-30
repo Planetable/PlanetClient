@@ -148,6 +148,13 @@ struct PlanetAppView: View {
                 dismissButton: .default(Text("Dismiss"))
             )
         }
+        .alert(isPresented: $appViewModel.failedToCreateArticle) {
+            Alert(
+                title: Text("Failed to Create Article"),
+                message: Text(appViewModel.failedMessage),
+                dismissButton: .default(Text("Dismiss"))
+            )
+        }
     }
 
     private func navigationTitle() -> String {

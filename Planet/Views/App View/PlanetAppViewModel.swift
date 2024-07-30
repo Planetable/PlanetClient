@@ -20,7 +20,7 @@ class PlanetAppViewModel: ObservableObject {
     @Published var currentNodeID: String? = UserDefaults.standard.string(forKey: .settingsNodeIDKey) {
         willSet {
             if newValue != currentNodeID {
-                debugPrint("👌 New Node ID is: \(newValue)")
+                debugPrint("👌 New Node ID is: \(String(describing: newValue))")
                 Task(priority: .userInitiated) {
                     do {
                         if let newNodeID = newValue {
@@ -58,6 +58,7 @@ class PlanetAppViewModel: ObservableObject {
     @Published var resumeNewArticle = false
     @Published var resumedArticleDraft: PlanetArticle?
     @Published var failedToReload = false
+    @Published var failedToCreateArticle = false
     @Published var failedMessage = ""
 
     // MARK: -
