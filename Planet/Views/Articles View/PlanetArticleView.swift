@@ -105,6 +105,7 @@ struct PlanetArticleView: View {
         self.serverStatus = await PlanetStatus.shared.serverIsOnline()
         if !self.serverStatus {
             if let planetArticleURL = PlanetManager.shared.getPlanetArticleURL(forID: planet.id, articleID: article.id) {
+                debugPrint("got article: \(planetArticleURL)")
                 await MainActor.run {
                     self.articleURL = planetArticleURL
                 }

@@ -313,10 +313,32 @@ class PlanetManager: NSObject {
     // MARK: - delete article
     func deleteArticle(id: String, planetID: String) async throws {
         // DELETE /v0/planets/my/:planet_uuid/articles/:article_uuid
-        let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "DELETE")
-        let _ = try await URLSession.shared.data(for: request)
+        let deleteRequest = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "DELETE")
+        let _ = try await URLSession.shared.data(for: deleteRequest)
         if let articlePath = getPlanetArticlePath(forID: planetID, articleID: id) {
             try? FileManager.default.removeItem(at: articlePath)
+        }
+        // Update articles.json
+        // /Documents/:node_id/My/:planet_id/articles.json
+        let listRequest = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
+        let (data, _) = try await URLSession.shared.data(for: listRequest)
+        let updatedArticles: [PlanetArticle] = {
+            let decoder = JSONDecoder()
+            guard let articles: [PlanetArticle] = try? decoder.decode([PlanetArticle].self, from: data) else {
+                return []
+            }
+            return articles.map { p in
+                var t = p
+                t.planetID = UUID(uuidString: planetID)
+                return t
+            }
+        }()
+        if let articlesPath = self.getPlanetArticlesPath(forID: planetID) {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let data = try encoder.encode(updatedArticles)
+            try? FileManager.default.removeItem(at: articlesPath)
+            try data.write(to: articlesPath)
         }
         await MainActor.run {
             NotificationCenter.default.post(name: .reloadArticles, object: nil)

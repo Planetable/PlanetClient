@@ -67,7 +67,6 @@ class PlanetAppViewModel: ObservableObject {
     @Published private(set) var drafts: [PlanetArticle] = []
 
     init() {
-        debugPrint("Planet App View Model Init.")
         guard let currentNodeID else {
             debugPrint("No active node id found, notify users for connecting to a server.")
             Task { @MainActor in

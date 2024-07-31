@@ -12,8 +12,6 @@ struct PlanetApp: App {
     @StateObject private var appViewModel: PlanetAppViewModel
     @StateObject private var settingsViewModel: PlanetSettingsViewModel
 
-    @Environment(\.scenePhase) private var phase
-
     init() {
         _appViewModel = StateObject(wrappedValue: PlanetAppViewModel.shared)
         _settingsViewModel = StateObject(wrappedValue: PlanetSettingsViewModel.shared)
@@ -24,20 +22,6 @@ struct PlanetApp: App {
             PlanetAppView()
                 .environmentObject(appViewModel)
                 .environmentObject(settingsViewModel)
-                .onChange(of: phase) { newValue in
-                    switch newValue {
-                    case .active:
-                        Task.detached(priority: .utility) {
-                            do {
-                                try await self.appViewModel.reloadPlanetsAndArticles()
-                            } catch {
-                                debugPrint("failed to reload planets and articles: \(error)")
-                            }
-                        }
-                    default:
-                        break
-                    }
-                }
         }
     }
 }
