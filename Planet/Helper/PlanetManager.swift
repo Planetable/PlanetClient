@@ -272,15 +272,14 @@ class PlanetManager: NSObject {
             MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
             MultipartForm.Part(name: "content", value: content)
         ])
-        for attachment in attachments {
+        for i in 0..<attachments.count {
+            let attachment = attachments[i]
             let attachmentName = attachment.url.lastPathComponent
             let attachmentContentType = attachment.url.mimeType()
             let attachmentData = try Data(contentsOf: attachment.url)
-            let formData = MultipartForm.Part(name: "attachment", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
-            form.parts.append(formData)
-            debugPrint("Create Article: attachment: \(attachmentName), contentType: \(attachmentContentType)")
+            let data = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
+            form.parts.append(data)
         }
-        debugPrint("Create Article: title: \(title), content: \(content) with \(attachments.count) attachments.")
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let statusCode = (response as! HTTPURLResponse).statusCode
@@ -306,22 +305,18 @@ class PlanetManager: NSObject {
             MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
             MultipartForm.Part(name: "content", value: content)
         ])
-        for attachment in attachments {
+        for i in 0..<attachments.count {
+            let attachment = attachments[i]
             let attachmentName = attachment.url.lastPathComponent
             let attachmentContentType = attachment.url.mimeType()
             let attachmentData = try Data(contentsOf: attachment.url)
-            let formData = MultipartForm.Part(name: "attachment", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
+            let formData = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
             form.parts.append(formData)
-            debugPrint("Modify Article: attachment: \(attachmentName), contentType: \(attachmentContentType)")
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            try? await self.downloadArticle(id: id, planetID: planetID)
-        }
-        DispatchQueue.main.async {
+        try await URLSession.shared.upload(for: request, from: form.bodyData)
+        try? await self.downloadArticle(id: id, planetID: planetID)
+        await MainActor.run {
             NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
             UserDefaults.standard.removeObject(forKey: editKey)
             NotificationCenter.default.post(name: .reloadArticles, object: nil)
