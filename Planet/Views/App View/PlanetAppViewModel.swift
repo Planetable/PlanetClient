@@ -149,7 +149,6 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateMyPlanets(_ planets: [Planet]) {
-        debugPrint("updated my planets: \(planets.count)")
         myPlanets = planets.sorted(by: { a, b in
             return a.created > b.created
         })
@@ -162,7 +161,6 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateMyArticles(_ articles: [PlanetArticle]) {
-        debugPrint("updated my articles: \(articles.count)")
         myArticles = articles.sorted(by: { a, b in
             return a.created > b.created
         })
@@ -181,7 +179,6 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateDrafts(_ articles: [PlanetArticle]) {
-        debugPrint("updated drafts: \(articles.count)")
         withAnimation {
             drafts = articles.sorted(by: { a, b in
                 return a.created > b.created

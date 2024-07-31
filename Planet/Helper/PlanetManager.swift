@@ -144,7 +144,7 @@ class PlanetManager: NSObject {
             ])
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        try await URLSession.shared.upload(for: request, from: form.bodyData)
+        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
         await MainActor.run {
             NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
@@ -200,21 +200,16 @@ class PlanetManager: NSObject {
     // MARK: - delete planet
     func deletePlanet(id: String) async throws {
         let request = try await createRequest(with: "/v0/planets/my/\(id)", method: "DELETE")
-        let (_, response) = try await URLSession.shared.data(for: request)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
-            try? await Task.sleep(for: .seconds(1))
-            guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
-            let planetPath = documentDirectory
-                .appending(path: nodeID)
-                .appending(path: "My")
-                .appending(path: id)
-            try? FileManager.default.removeItem(at: planetPath)
+        let _ = try await URLSession.shared.data(for: request)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
+        let planetPath = documentDirectory
+            .appending(path: nodeID)
+            .appending(path: "My")
+            .appending(path: id)
+        try? FileManager.default.removeItem(at: planetPath)
     }
 
     // MARK: - list my articles
@@ -314,7 +309,7 @@ class PlanetManager: NSObject {
             form.parts.append(formData)
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        try await URLSession.shared.upload(for: request, from: form.bodyData)
+        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
         try? await self.downloadArticle(id: id, planetID: planetID)
         await MainActor.run {
             NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
@@ -328,19 +323,13 @@ class PlanetManager: NSObject {
     func deleteArticle(id: String, planetID: String) async throws {
         // DELETE /v0/planets/my/:planet_uuid/articles/:article_uuid
         let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "DELETE")
-        let (_, response) = try await URLSession.shared.data(for: request)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            if let articlePath = getPlanetArticlePath(forID: planetID, articleID: id) {
-                try? FileManager.default.removeItem(at: articlePath)
-            }
-            try? await Task.sleep(for: .seconds(2))
-            Task { @MainActor in
-                NotificationCenter.default.post(name: .reloadArticles, object: nil)
-            }
-            Task { @MainActor in
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
+        let _ = try await URLSession.shared.data(for: request)
+        if let articlePath = getPlanetArticlePath(forID: planetID, articleID: id) {
+            try? FileManager.default.removeItem(at: articlePath)
+        }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
     }
 

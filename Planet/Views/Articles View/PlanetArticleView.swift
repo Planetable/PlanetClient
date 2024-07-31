@@ -72,7 +72,7 @@ struct PlanetArticleView: View {
                         try await PlanetManager.shared.deleteArticle(id: article.id, planetID: planet.id)
                         self.dismiss()
                     } catch {
-                        debugPrint("failed to delete article: \(String(describing: article.title)), error: \(error)")
+                        debugPrint("failed to delete article: \(error)")
                     }
                 }
             } label: {
