@@ -173,27 +173,22 @@ class PlanetManager: NSObject {
             ])
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            var shouldReloadAvatar: Bool = false
-            if avatarPath != "", let planetPath = getPlanetPath(forID: id) {
-                shouldReloadAvatar = true
-                let planetAvatarPath = planetPath.appending(path: "avatar.png")
-                if FileManager.default.fileExists(atPath: planetAvatarPath.path) {
-                    try? FileManager.default.removeItem(at: planetAvatarPath)
-                    try? FileManager.default.copyItem(at: URL(fileURLWithPath: avatarPath), to: planetAvatarPath)
-                }
+        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        var shouldReloadAvatar: Bool = false
+        if avatarPath != "", let planetPath = getPlanetPath(forID: id) {
+            shouldReloadAvatar = true
+            let planetAvatarPath = planetPath.appending(path: "avatar.png")
+            if FileManager.default.fileExists(atPath: planetAvatarPath.path) {
+                try? FileManager.default.removeItem(at: planetAvatarPath)
+                try? FileManager.default.copyItem(at: URL(fileURLWithPath: avatarPath), to: planetAvatarPath)
             }
-            try? await Task.sleep(for: .seconds(2))
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
-            if shouldReloadAvatar {
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: .reloadAvatar(byID: id), object: nil)
-                }
-            }
+        }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
+        }
+        guard shouldReloadAvatar else { return }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadAvatar(byID: id), object: nil)
         }
     }
 
@@ -276,13 +271,9 @@ class PlanetManager: NSObject {
             form.parts.append(data)
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                NotificationCenter.default.post(name: .reloadArticles, object: nil)
-            }
+        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadArticles, object: nil)
         }
     }
 

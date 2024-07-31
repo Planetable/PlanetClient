@@ -27,7 +27,13 @@ struct PlanetApp: App {
                 .onChange(of: phase) { newValue in
                     switch newValue {
                     case .active:
-                        break
+                        Task.detached(priority: .utility) {
+                            do {
+                                try await self.appViewModel.reloadPlanetsAndArticles()
+                            } catch {
+                                debugPrint("failed to reload planets and articles: \(error)")
+                            }
+                        }
                     default:
                         break
                     }
