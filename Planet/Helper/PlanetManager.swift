@@ -240,9 +240,8 @@ class PlanetManager: NSObject {
                         let encoder = JSONEncoder()
                         encoder.outputFormatting = .prettyPrinted
                         let data = try encoder.encode(result)
-                        if !FileManager.default.fileExists(atPath: articlesPath.path) {
-                            try data.write(to: articlesPath)
-                        }
+                        try? FileManager.default.removeItem(at: articlesPath)
+                        try data.write(to: articlesPath)
                     }
                     return result
                 }
