@@ -75,8 +75,9 @@ class PlanetAppViewModel: ObservableObject {
             return
         }
         debugPrint("Try to load from last active node id: \(currentNodeID)")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        Task.detached(priority: .background) {
             do {
+                try await Task.sleep(nanoseconds: 500_000_000)
                 let (planets, articles) = try PlanetManager.shared.loadPlanetsAndArticlesFromNode(byID: currentNodeID)
                 Task { @MainActor in
                     self.updateMyPlanets(planets)
@@ -87,6 +88,7 @@ class PlanetAppViewModel: ObservableObject {
                 Task { @MainActor in
                     self.resetAndChooseServer()
                 }
+                return
             }
             do {
                 let drafts = try PlanetManager.shared.loadArticleDrafts()
@@ -95,6 +97,13 @@ class PlanetAppViewModel: ObservableObject {
                 }
             } catch {
                 debugPrint("failed to load drafts: \(error)")
+            }
+            Task { @MainActor in
+                do {
+                    try await PlanetAppViewModel.shared.reloadPlanetsAndArticles()
+                } catch {
+                    debugPrint("failed to reload planets and articles.")
+                }
             }
         }
     }
@@ -148,6 +157,7 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateMyPlanets(_ planets: [Planet]) {
+        debugPrint("updating my planets: \(planets.count)")
         myPlanets = planets.sorted(by: { a, b in
             return a.created > b.created
         })
@@ -160,6 +170,7 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateMyArticles(_ articles: [PlanetArticle]) {
+        debugPrint("updating my articles: \(articles.count)")
         myArticles = articles.sorted(by: { a, b in
             return a.created > b.created
         })
@@ -178,6 +189,7 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateDrafts(_ articles: [PlanetArticle]) {
+        debugPrint("updating drafts: \(articles.count)")
         withAnimation {
             drafts = articles.sorted(by: { a, b in
                 return a.created > b.created
