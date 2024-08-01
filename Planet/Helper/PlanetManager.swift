@@ -370,9 +370,7 @@ class PlanetManager: NSObject {
         planetArticle.planetID = UUID(uuidString: planetID)
         // download html and attachments, replace if exists.
         let articlePublicURL = serverURL
-            .appending(path: "/v0/planets/my")
             .appending(path: planetID)
-            .appending(path: "/public")
             .appending(path: id)
         // index.html, abort download task if not exists or failed.
         let articleURL = articlePublicURL.appending(path: "index.html")
@@ -385,18 +383,25 @@ class PlanetManager: NSObject {
         let blogPath = articlePath.appending(path: "blog.html")
         await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask(priority: .background) {
-                let (articleData, _) = try await URLSession.shared.data(from: articleURL)
-                try? FileManager.default.removeItem(at: articleIndexPath)
-                try articleData.write(to: articleIndexPath)
+                let (articleData, response) = try await URLSession.shared.data(from: articleURL)
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                if statusCode == 200 {
+                    try? FileManager.default.removeItem(at: articleIndexPath)
+                    try articleData.write(to: articleIndexPath)
+                }
             }
             group.addTask(priority: .background) {
-                if let (simpleData, _) = try? await URLSession.shared.data(from: simpleURL), simpleData.count > 1 {
+                let (simpleData, response) = try await URLSession.shared.data(from: simpleURL)
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                if statusCode == 200 {
                     try? FileManager.default.removeItem(at: simplePath)
                     try? simpleData.write(to: simplePath)
                 }
             }
             group.addTask(priority: .background) {
-                if let (blogData, _) = try? await URLSession.shared.data(from: blogURL), blogData.count > 1 {
+                let (blogData, response) = try await URLSession.shared.data(from: blogURL)
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                if statusCode == 200 {
                     try? FileManager.default.removeItem(at: blogPath)
                     try? blogData.write(to: blogPath)
                 }
@@ -409,19 +414,20 @@ class PlanetManager: NSObject {
                     let attachmentURL = articlePublicURL.appending(path: a)
                     let attachmentPath = articlePath.appending(path: a)
                     group.addTask(priority: .background) {
-                        let (attachmentData, _) = try await URLSession.shared.data(from: attachmentURL)
-                        debugPrint("download attachment: \(attachmentURL)")
-                        try? FileManager.default.removeItem(at: attachmentPath)
-                        try? attachmentData.write(to: attachmentPath)
+                        let (attachmentData, response) = try await URLSession.shared.data(from: attachmentURL)
+                        let statusCode = (response as! HTTPURLResponse).statusCode
+                        if statusCode == 200 {
+                            debugPrint("download attachment: \(attachmentURL)")
+                            try? FileManager.default.removeItem(at: attachmentPath)
+                            try? attachmentData.write(to: attachmentPath)
+                        }
                     }
                 }
             }
             debugPrint("downloaded all attachments.")
         }
-        if statusCode == 200 {
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
-            }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
         }
     }
 
