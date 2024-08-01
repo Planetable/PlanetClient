@@ -132,9 +132,9 @@ struct PlanetAvatarView: View {
         }
         let remoteAvatarURL =
             serverURL
-            .appending(path: "/v0/planets/my/")
+//            .appending(path: "/v0/planets/my/")
             .appending(path: planet.id)
-            .appending(path: "/public/avatar.png")
+            .appending(path: "avatar.png")
         let localAvatarURL = myPlanetPath.appending(path: "avatar.png")
         guard !FileManager.default.fileExists(atPath: localAvatarURL.path) else {
             return

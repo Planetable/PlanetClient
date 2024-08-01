@@ -72,7 +72,7 @@ struct PlanetArticleView: View {
                         try await PlanetManager.shared.deleteArticle(id: article.id, planetID: planet.id)
                         self.dismiss()
                     } catch {
-                        debugPrint("failed to delete article: \(article.title), error: \(error)")
+                        debugPrint("failed to delete article: \(error)")
                     }
                 }
             } label: {
@@ -105,13 +105,15 @@ struct PlanetArticleView: View {
         self.serverStatus = await PlanetStatus.shared.serverIsOnline()
         if !self.serverStatus {
             if let planetArticleURL = PlanetManager.shared.getPlanetArticleURL(forID: planet.id, articleID: article.id) {
+                debugPrint("got article: \(planetArticleURL)")
                 await MainActor.run {
                     self.articleURL = planetArticleURL
                 }
             }
         } else {
             let serverURL = PlanetAppViewModel.shared.currentServerURLString
-            let url = URL(string: serverURL)!.appending(path: "/v0/planets/my/\(planet.id)/public/\(article.id)/index.html")
+            let url = URL(string: serverURL)!.appending(path: "/\(planet.id)/\(article.id)/index.html")
+            debugPrint("loading article: \(url)")
             self.articleURL = url
         }
     }

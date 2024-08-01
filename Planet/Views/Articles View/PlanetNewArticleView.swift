@@ -166,7 +166,18 @@ struct PlanetNewArticleView: View {
                 if let draft = articleDraft {
                     self.restoreFromDraft(draft)
                 } else {
-                    self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
+                    if self.appViewModel.myPlanets.count > self.selectedPlanetIndex {
+                        self.selectedPlanet = self.appViewModel.myPlanets[self.selectedPlanetIndex]
+                    } else {
+                        dismiss()
+                        Task {
+                            try? await Task.sleep(nanoseconds: 1_000_000_000)
+                            Task { @MainActor in
+                                self.appViewModel.failedToCreateArticle = true
+                                self.appViewModel.failedMessage = "No planet found, please create a planet first or write in drafts."
+                            }
+                        }
+                    }
                 }
             }
             .sheet(isPresented: $choosePlanet) {

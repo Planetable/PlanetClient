@@ -20,7 +20,7 @@ class PlanetAppViewModel: ObservableObject {
     @Published var currentNodeID: String? = UserDefaults.standard.string(forKey: .settingsNodeIDKey) {
         willSet {
             if newValue != currentNodeID {
-                debugPrint("👌 New Node ID is: \(newValue)")
+                debugPrint("👌 New Node ID is: \(String(describing: newValue))")
                 Task(priority: .userInitiated) {
                     do {
                         if let newNodeID = newValue {
@@ -58,6 +58,7 @@ class PlanetAppViewModel: ObservableObject {
     @Published var resumeNewArticle = false
     @Published var resumedArticleDraft: PlanetArticle?
     @Published var failedToReload = false
+    @Published var failedToCreateArticle = false
     @Published var failedMessage = ""
 
     // MARK: -
@@ -66,7 +67,6 @@ class PlanetAppViewModel: ObservableObject {
     @Published private(set) var drafts: [PlanetArticle] = []
 
     init() {
-        debugPrint("Planet App View Model Init.")
         guard let currentNodeID else {
             debugPrint("No active node id found, notify users for connecting to a server.")
             Task { @MainActor in
@@ -75,8 +75,9 @@ class PlanetAppViewModel: ObservableObject {
             return
         }
         debugPrint("Try to load from last active node id: \(currentNodeID)")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        Task.detached(priority: .background) {
             do {
+                try await Task.sleep(nanoseconds: 500_000_000)
                 let (planets, articles) = try PlanetManager.shared.loadPlanetsAndArticlesFromNode(byID: currentNodeID)
                 Task { @MainActor in
                     self.updateMyPlanets(planets)
@@ -87,6 +88,7 @@ class PlanetAppViewModel: ObservableObject {
                 Task { @MainActor in
                     self.resetAndChooseServer()
                 }
+                return
             }
             do {
                 let drafts = try PlanetManager.shared.loadArticleDrafts()
@@ -95,6 +97,13 @@ class PlanetAppViewModel: ObservableObject {
                 }
             } catch {
                 debugPrint("failed to load drafts: \(error)")
+            }
+            Task { @MainActor in
+                do {
+                    try await PlanetAppViewModel.shared.reloadPlanetsAndArticles()
+                } catch {
+                    debugPrint("failed to reload planets and articles.")
+                }
             }
         }
     }
@@ -148,7 +157,7 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateMyPlanets(_ planets: [Planet]) {
-        debugPrint("updated my planets: \(planets.count)")
+        debugPrint("updating my planets: \(planets.count)")
         myPlanets = planets.sorted(by: { a, b in
             return a.created > b.created
         })
@@ -161,7 +170,7 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateMyArticles(_ articles: [PlanetArticle]) {
-        debugPrint("updated my articles: \(articles.count)")
+        debugPrint("updating my articles: \(articles.count)")
         myArticles = articles.sorted(by: { a, b in
             return a.created > b.created
         })
@@ -180,7 +189,7 @@ class PlanetAppViewModel: ObservableObject {
 
     @MainActor
     func updateDrafts(_ articles: [PlanetArticle]) {
-        debugPrint("updated drafts: \(articles.count)")
+        debugPrint("updating drafts: \(articles.count)")
         withAnimation {
             drafts = articles.sorted(by: { a, b in
                 return a.created > b.created

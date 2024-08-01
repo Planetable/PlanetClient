@@ -69,9 +69,9 @@ class PlanetManager: NSObject {
             return
         }
         let remoteAvatarURL = serverURL
-            .appending(path: "/v0/planets/my/")
+//            .appending(path: "/v0/planets/my/")
             .appending(path: planetID)
-            .appending(path: "/public/avatar.png")
+            .appending(path: "avatar.png")
         let localAvatarURL = planetPath.appending(path: "avatar.png")
         let (data, _) = try await URLSession.shared.data(from: remoteAvatarURL)
         var shouldReloadAvatar: Bool = false
@@ -144,13 +144,9 @@ class PlanetManager: NSObject {
             ])
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
+        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
     }
 
@@ -177,48 +173,38 @@ class PlanetManager: NSObject {
             ])
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            var shouldReloadAvatar: Bool = false
-            if avatarPath != "", let planetPath = getPlanetPath(forID: id) {
-                shouldReloadAvatar = true
-                let planetAvatarPath = planetPath.appending(path: "avatar.png")
-                if FileManager.default.fileExists(atPath: planetAvatarPath.path) {
-                    try? FileManager.default.removeItem(at: planetAvatarPath)
-                    try? FileManager.default.copyItem(at: URL(fileURLWithPath: avatarPath), to: planetAvatarPath)
-                }
+        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        var shouldReloadAvatar: Bool = false
+        if avatarPath != "", let planetPath = getPlanetPath(forID: id) {
+            shouldReloadAvatar = true
+            let planetAvatarPath = planetPath.appending(path: "avatar.png")
+            if FileManager.default.fileExists(atPath: planetAvatarPath.path) {
+                try? FileManager.default.removeItem(at: planetAvatarPath)
+                try? FileManager.default.copyItem(at: URL(fileURLWithPath: avatarPath), to: planetAvatarPath)
             }
-            try? await Task.sleep(for: .seconds(2))
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
-            if shouldReloadAvatar {
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: .reloadAvatar(byID: id), object: nil)
-                }
-            }
+        }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
+        }
+        guard shouldReloadAvatar else { return }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadAvatar(byID: id), object: nil)
         }
     }
 
     // MARK: - delete planet
     func deletePlanet(id: String) async throws {
         let request = try await createRequest(with: "/v0/planets/my/\(id)", method: "DELETE")
-        let (_, response) = try await URLSession.shared.data(for: request)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
-            try? await Task.sleep(for: .seconds(1))
-            guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
-            let planetPath = documentDirectory
-                .appending(path: nodeID)
-                .appending(path: "My")
-                .appending(path: id)
-            try? FileManager.default.removeItem(at: planetPath)
+        let _ = try await URLSession.shared.data(for: request)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID else { return }
+        let planetPath = documentDirectory
+            .appending(path: nodeID)
+            .appending(path: "My")
+            .appending(path: id)
+        try? FileManager.default.removeItem(at: planetPath)
     }
 
     // MARK: - list my articles
@@ -239,7 +225,10 @@ class PlanetManager: NSObject {
                     let request = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
                     let (data, _) = try await URLSession.shared.data(for: request)
                     let decoder = JSONDecoder()
-                    let planetArticles: [PlanetArticle] = try decoder.decode([PlanetArticle].self, from: data)
+                    // skip situations that articles not found
+                    guard let planetArticles: [PlanetArticle] = try? decoder.decode([PlanetArticle].self, from: data) else {
+                        return []
+                    }
                     let result = planetArticles.map { p in
                         var t = p
                         t.planetID = UUID(uuidString: planetID)
@@ -251,6 +240,7 @@ class PlanetManager: NSObject {
                         let encoder = JSONEncoder()
                         encoder.outputFormatting = .prettyPrinted
                         let data = try encoder.encode(result)
+                        try? FileManager.default.removeItem(at: articlesPath)
                         try data.write(to: articlesPath)
                     }
                     return result
@@ -271,23 +261,18 @@ class PlanetManager: NSObject {
             MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
             MultipartForm.Part(name: "content", value: content)
         ])
-        for attachment in attachments {
+        for i in 0..<attachments.count {
+            let attachment = attachments[i]
             let attachmentName = attachment.url.lastPathComponent
             let attachmentContentType = attachment.url.mimeType()
             let attachmentData = try Data(contentsOf: attachment.url)
-            let formData = MultipartForm.Part(name: "attachment", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
-            form.parts.append(formData)
-            debugPrint("Create Article: attachment: \(attachmentName), contentType: \(attachmentContentType)")
+            let data = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
+            form.parts.append(data)
         }
-        debugPrint("Create Article: title: \(title), content: \(content) with \(attachments.count) attachments.")
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                NotificationCenter.default.post(name: .reloadArticles, object: nil)
-            }
+        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadArticles, object: nil)
         }
     }
 
@@ -298,29 +283,25 @@ class PlanetManager: NSObject {
             UserDefaults.standard.setValue(1, forKey: editKey)
             NotificationCenter.default.post(name: .startEditingArticle(byID: id), object: nil)
         }
-        // POST /v0/planets/my/:uuid/articles/:uuid
+        // POST /v0/planets/my/:planet_uuid/articles/:article_uuid
         var request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "POST")
         var form: MultipartForm = MultipartForm(parts: [
             MultipartForm.Part(name: "title", value: title),
             MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
             MultipartForm.Part(name: "content", value: content)
         ])
-        for attachment in attachments {
+        for i in 0..<attachments.count {
+            let attachment = attachments[i]
             let attachmentName = attachment.url.lastPathComponent
             let attachmentContentType = attachment.url.mimeType()
             let attachmentData = try Data(contentsOf: attachment.url)
-            let formData = MultipartForm.Part(name: "attachment", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
+            let formData = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
             form.parts.append(formData)
-            debugPrint("Modify Article: attachment: \(attachmentName), contentType: \(attachmentContentType)")
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            try? await Task.sleep(for: .seconds(2))
-            try? await self.downloadArticle(id: id, planetID: planetID)
-        }
-        DispatchQueue.main.async {
+        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        try? await self.downloadArticle(id: id, planetID: planetID)
+        await MainActor.run {
             NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
             UserDefaults.standard.removeObject(forKey: editKey)
             NotificationCenter.default.post(name: .reloadArticles, object: nil)
@@ -330,27 +311,43 @@ class PlanetManager: NSObject {
 
     // MARK: - delete article
     func deleteArticle(id: String, planetID: String) async throws {
-        // DELETE /v0/planets/my/:uuid/articles/:uuid
-        let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "DELETE")
-        let (_, response) = try await URLSession.shared.data(for: request)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        if statusCode == 200 {
-            if let articlePath = getPlanetArticlePath(forID: planetID, articleID: id) {
-                try? FileManager.default.removeItem(at: articlePath)
+        // DELETE /v0/planets/my/:planet_uuid/articles/:article_uuid
+        let deleteRequest = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "DELETE")
+        let _ = try await URLSession.shared.data(for: deleteRequest)
+        if let articlePath = getPlanetArticlePath(forID: planetID, articleID: id) {
+            try? FileManager.default.removeItem(at: articlePath)
+        }
+        // Update articles.json
+        // /Documents/:node_id/My/:planet_id/articles.json
+        let listRequest = try await self.createRequest(with: "/v0/planets/my/\(planetID)/articles", method: "GET")
+        let (data, _) = try await URLSession.shared.data(for: listRequest)
+        let updatedArticles: [PlanetArticle] = {
+            let decoder = JSONDecoder()
+            guard let articles: [PlanetArticle] = try? decoder.decode([PlanetArticle].self, from: data) else {
+                return []
             }
-            try? await Task.sleep(for: .seconds(2))
-            Task { @MainActor in
-                NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            return articles.map { p in
+                var t = p
+                t.planetID = UUID(uuidString: planetID)
+                return t
             }
-            Task { @MainActor in
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
+        }()
+        if let articlesPath = self.getPlanetArticlesPath(forID: planetID) {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let data = try encoder.encode(updatedArticles)
+            try? FileManager.default.removeItem(at: articlesPath)
+            try data.write(to: articlesPath)
+        }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
     }
 
     // MARK: - download article
     func downloadArticle(id: String, planetID: String) async throws {
-        // GET /v0/planets/my/:uuid/articles/:uuid
+        // GET /v0/planets/my/:planet_uuid/articles/:article_uuid
         let request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
         let (data, response) = try await URLSession.shared.data(for: request)
         let statusCode = (response as! HTTPURLResponse).statusCode
@@ -372,9 +369,7 @@ class PlanetManager: NSObject {
         planetArticle.planetID = UUID(uuidString: planetID)
         // download html and attachments, replace if exists.
         let articlePublicURL = serverURL
-            .appending(path: "/v0/planets/my")
             .appending(path: planetID)
-            .appending(path: "/public")
             .appending(path: id)
         // index.html, abort download task if not exists or failed.
         let articleURL = articlePublicURL.appending(path: "index.html")
@@ -387,18 +382,25 @@ class PlanetManager: NSObject {
         let blogPath = articlePath.appending(path: "blog.html")
         await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask(priority: .background) {
-                let (articleData, _) = try await URLSession.shared.data(from: articleURL)
-                try? FileManager.default.removeItem(at: articleIndexPath)
-                try articleData.write(to: articleIndexPath)
+                let (articleData, response) = try await URLSession.shared.data(from: articleURL)
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                if statusCode == 200 {
+                    try? FileManager.default.removeItem(at: articleIndexPath)
+                    try articleData.write(to: articleIndexPath)
+                }
             }
             group.addTask(priority: .background) {
-                if let (simpleData, _) = try? await URLSession.shared.data(from: simpleURL), simpleData.count > 1 {
+                let (simpleData, response) = try await URLSession.shared.data(from: simpleURL)
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                if statusCode == 200 {
                     try? FileManager.default.removeItem(at: simplePath)
                     try? simpleData.write(to: simplePath)
                 }
             }
             group.addTask(priority: .background) {
-                if let (blogData, _) = try? await URLSession.shared.data(from: blogURL), blogData.count > 1 {
+                let (blogData, response) = try await URLSession.shared.data(from: blogURL)
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                if statusCode == 200 {
                     try? FileManager.default.removeItem(at: blogPath)
                     try? blogData.write(to: blogPath)
                 }
@@ -411,19 +413,20 @@ class PlanetManager: NSObject {
                     let attachmentURL = articlePublicURL.appending(path: a)
                     let attachmentPath = articlePath.appending(path: a)
                     group.addTask(priority: .background) {
-                        let (attachmentData, _) = try await URLSession.shared.data(from: attachmentURL)
-                        debugPrint("download attachment: \(attachmentURL)")
-                        try? FileManager.default.removeItem(at: attachmentPath)
-                        try? attachmentData.write(to: attachmentPath)
+                        let (attachmentData, response) = try await URLSession.shared.data(from: attachmentURL)
+                        let statusCode = (response as! HTTPURLResponse).statusCode
+                        if statusCode == 200 {
+                            debugPrint("download attachment: \(attachmentURL)")
+                            try? FileManager.default.removeItem(at: attachmentPath)
+                            try? attachmentData.write(to: attachmentPath)
+                        }
                     }
                 }
             }
             debugPrint("downloaded all attachments.")
         }
-        if statusCode == 200 {
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
-            }
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
         }
     }
 
