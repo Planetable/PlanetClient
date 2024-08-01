@@ -69,7 +69,6 @@ class PlanetManager: NSObject {
             return
         }
         let remoteAvatarURL = serverURL
-//            .appending(path: "/v0/planets/my/")
             .appending(path: planetID)
             .appending(path: "avatar.png")
         let localAvatarURL = planetPath.appending(path: "avatar.png")
@@ -87,10 +86,10 @@ class PlanetManager: NSObject {
             try data.write(to: localAvatarURL)
             shouldReloadAvatar = true
         }
-        if shouldReloadAvatar {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                NotificationCenter.default.post(name: .reloadAvatar(byID: planetID), object: nil)
-            }
+        guard shouldReloadAvatar else { return }
+        try? await Task.sleep(nanoseconds: 150_000_000)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .reloadAvatar(byID: planetID), object: nil)
         }
     }
 
@@ -147,6 +146,9 @@ class PlanetManager: NSObject {
         let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
         await MainActor.run {
             NotificationCenter.default.post(name: .updatePlanets, object: nil)
+            if let planet = PlanetAppViewModel.shared.myPlanets.first {
+                NotificationCenter.default.post(name: .reloadAvatar(byID: planet.id), object: nil)
+            }
         }
     }
 
