@@ -31,6 +31,9 @@
 		2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */; };
 		2AAF3E4E299E111300CA60AD /* PlanetAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */; };
 		2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */; };
+		2ABE0F2D2C8871D000EDD195 /* PlanetShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2ABE0F232C8871D000EDD195 /* PlanetShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2ABE0F342C88783E00EDD195 /* PlanetShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ABE0F332C88783E00EDD195 /* PlanetShareViewController.swift */; };
+		2ABE0F382C887D2A00EDD195 /* PlanetShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ABE0F362C887D2A00EDD195 /* PlanetShareView.swift */; };
 		2AC03E512B15AE7C0026144A /* PlanetSiteTemplates in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC03E502B15AE7C0026144A /* PlanetSiteTemplates */; };
 		2AC6A3A529A3F63A00636DC5 /* PlanetTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC6A3A429A3F63A00636DC5 /* PlanetTextView.swift */; };
 		2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */; };
@@ -51,6 +54,30 @@
 		6A5EA27E2AECF9BA006DEBC1 /* BonjourListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5EA27D2AECF9BA006DEBC1 /* BonjourListView.swift */; };
 		6A73C0B62AF5CCFB00EEF711 /* Planet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A73C0B52AF5CCFB00EEF711 /* Planet.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2ABE0F2B2C8871D000EDD195 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2AAF3E32299E07B600CA60AD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2ABE0F222C8871D000EDD195;
+			remoteInfo = PlanetShare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2ABE0F2E2C8871D000EDD195 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2ABE0F2D2C8871D000EDD195 /* PlanetShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2A1324BE2B9AAA5D002329F0 /* Planet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Planet.entitlements; sourceTree = "<group>"; };
@@ -75,6 +102,11 @@
 		2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAppViewModel.swift; sourceTree = "<group>"; };
 		2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetExtension.swift; sourceTree = "<group>"; };
+		2ABE0F232C8871D000EDD195 /* PlanetShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PlanetShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2ABE0F2A2C8871D000EDD195 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2ABE0F322C88783E00EDD195 /* PlanetShareBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlanetShareBridgingHeader.h; sourceTree = "<group>"; };
+		2ABE0F332C88783E00EDD195 /* PlanetShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetShareViewController.swift; sourceTree = "<group>"; };
+		2ABE0F362C887D2A00EDD195 /* PlanetShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetShareView.swift; sourceTree = "<group>"; };
 		2AC6A3A429A3F63A00636DC5 /* PlanetTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetTextView.swift; sourceTree = "<group>"; };
 		2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetSettingsView.swift; sourceTree = "<group>"; };
 		2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -112,6 +144,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2ABE0F202C8871D000EDD195 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -141,6 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				2AAF3E3C299E07B600CA60AD /* Planet */,
+				2ABE0F242C8871D000EDD195 /* PlanetShare */,
 				2AAF3E3B299E07B600CA60AD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -149,6 +189,7 @@
 			isa = PBXGroup;
 			children = (
 				2AAF3E3A299E07B600CA60AD /* Planet.app */,
+				2ABE0F232C8871D000EDD195 /* PlanetShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,6 +220,17 @@
 				2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		2ABE0F242C8871D000EDD195 /* PlanetShare */ = {
+			isa = PBXGroup;
+			children = (
+				2ABE0F2A2C8871D000EDD195 /* Info.plist */,
+				2ABE0F332C88783E00EDD195 /* PlanetShareViewController.swift */,
+				2ABE0F362C887D2A00EDD195 /* PlanetShareView.swift */,
+				2ABE0F322C88783E00EDD195 /* PlanetShareBridgingHeader.h */,
+			);
+			path = PlanetShare;
 			sourceTree = "<group>";
 		};
 		2AC7CC0029A0AC960089C58C /* Views */ = {
@@ -279,10 +331,12 @@
 				2AAF3E36299E07B600CA60AD /* Sources */,
 				2AAF3E37299E07B600CA60AD /* Frameworks */,
 				2AAF3E38299E07B600CA60AD /* Resources */,
+				2ABE0F2E2C8871D000EDD195 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				2ABE0F2C2C8871D000EDD195 /* PBXTargetDependency */,
 			);
 			name = Planet;
 			packageProductDependencies = (
@@ -296,6 +350,23 @@
 			productReference = 2AAF3E3A299E07B600CA60AD /* Planet.app */;
 			productType = "com.apple.product-type.application";
 		};
+		2ABE0F222C8871D000EDD195 /* PlanetShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2ABE0F312C8871D000EDD195 /* Build configuration list for PBXNativeTarget "PlanetShare" */;
+			buildPhases = (
+				2ABE0F1F2C8871D000EDD195 /* Sources */,
+				2ABE0F202C8871D000EDD195 /* Frameworks */,
+				2ABE0F212C8871D000EDD195 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PlanetShare;
+			productName = PlanetShare;
+			productReference = 2ABE0F232C8871D000EDD195 /* PlanetShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -303,11 +374,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
+				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					2AAF3E39299E07B600CA60AD = {
 						CreatedOnToolsVersion = 14.2;
+					};
+					2ABE0F222C8871D000EDD195 = {
+						CreatedOnToolsVersion = 15.4;
+						LastSwiftMigration = 1540;
 					};
 				};
 			};
@@ -332,6 +407,7 @@
 			projectRoot = "";
 			targets = (
 				2AAF3E39299E07B600CA60AD /* Planet */,
+				2ABE0F222C8871D000EDD195 /* PlanetShare */,
 			);
 		};
 /* End PBXProject section */
@@ -345,6 +421,13 @@
 				2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */,
 				2A25932B2BA9327800DE758C /* PrivacyInfo.xcprivacy in Resources */,
 				2AAF3E42299E07B700CA60AD /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2ABE0F212C8871D000EDD195 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,7 +475,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2ABE0F1F2C8871D000EDD195 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2ABE0F382C887D2A00EDD195 /* PlanetShareView.swift in Sources */,
+				2ABE0F342C88783E00EDD195 /* PlanetShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2ABE0F2C2C8871D000EDD195 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2ABE0F222C8871D000EDD195 /* PlanetShare */;
+			targetProxy = 2ABE0F2B2C8871D000EDD195 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		2AAF3E46299E07B700CA60AD /* Debug */ = {
@@ -515,6 +615,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Planet/Planet.entitlements;
@@ -550,6 +651,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Planet/Planet.entitlements;
@@ -581,6 +683,68 @@
 			};
 			name = Release;
 		};
+		2ABE0F2F2C8871D000EDD195 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PlanetShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PlanetShare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.planetable.Planet.PlanetShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = PlanetShare/PlanetShareBridgingHeader.h;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2ABE0F302C8871D000EDD195 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PlanetShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PlanetShare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.planetable.Planet.PlanetShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = PlanetShare/PlanetShareBridgingHeader.h;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -598,6 +762,15 @@
 			buildConfigurations = (
 				2AAF3E49299E07B700CA60AD /* Debug */,
 				2AAF3E4A299E07B700CA60AD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2ABE0F312C8871D000EDD195 /* Build configuration list for PBXNativeTarget "PlanetShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2ABE0F2F2C8871D000EDD195 /* Debug */,
+				2ABE0F302C8871D000EDD195 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
