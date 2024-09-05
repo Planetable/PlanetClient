@@ -43,6 +43,7 @@ class PlanetShareViewController: UIViewController {
     
     @MainActor
     func processItem(item: NSItemProvider) async throws {
+        // MARK: TODO: we should check for image attachment first, otherwise the process may crash if sharing a photo.
         let previewImage = try? await item.loadPreviewImage() as? UIImage
         let previewURL = try? await item.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL
         let previewText = try? await item.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String
