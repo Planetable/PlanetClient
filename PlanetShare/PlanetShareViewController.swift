@@ -58,7 +58,7 @@ class PlanetShareViewController: UIViewController {
                 return ""
             }
         }()
-        if previewImage == nil && content == "" {
+        if previewImage == nil && (content == "" || content.components(separatedBy: .whitespacesAndNewlines).joined() == "") {
             throw ShareError.noContent
         }
         showShareView(withContent: content, andImage: previewImage)
