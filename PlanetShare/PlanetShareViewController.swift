@@ -43,6 +43,8 @@ class PlanetShareViewController: UIViewController {
     
     @MainActor
     func processItem(item: NSItemProvider) async throws {
+        // MARK: TODO: handle shared photo (1 photo at a time) from Photos.app
+
         debugPrint("about to process item: \(item)")
         if item.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
             let previewText = try await item.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String
