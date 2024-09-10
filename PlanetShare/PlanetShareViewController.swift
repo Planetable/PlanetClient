@@ -43,25 +43,36 @@ class PlanetShareViewController: UIViewController {
     
     @MainActor
     func processItem(item: NSItemProvider) async throws {
-        // MARK: TODO: we should check for image attachment first, otherwise the process may crash if sharing a photo.
-        let previewImage = try? await item.loadPreviewImage() as? UIImage
-        let previewURL = try? await item.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL
-        let previewText = try? await item.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String
-        let content: String = {
-            if let previewText, let previewURL {
-                return previewText + "\n" + previewURL.absoluteString
-            } else if let previewURL {
-                return previewURL.absoluteString
-            } else if let previewText {
-                return previewText
+        // MARK: TODO: Improved on some image and text selection sharing, but still crash on link item.
+
+        debugPrint("process item: \(item)")
+        
+        if item.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+            let previewText = try await item.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String
+            if let previewText, !isContentEmpty(content: previewText) {
+                showShareView(withContent: previewText, andImage: nil)
             } else {
-                return ""
+                throw ShareError.noContent
             }
-        }()
-        if previewImage == nil && (content == "" || content.components(separatedBy: .whitespacesAndNewlines).joined() == "") {
-            throw ShareError.noContent
+        } else if item.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+            let imageURL = try await loadFileRepresentation(provider: item, typeIdentifier: UTType.image.identifier)
+            let imageName = imageURL.lastPathComponent
+            let image = UIImage(contentsOfFile: imageURL.path)
+            showShareView(withContent: imageName, andImage: image)
+        } else if item.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+            let itemURL = try await loadItem(provider: item, typeIdentifier: UTType.url.identifier)
+            if isImageByUTType(url: itemURL) {
+                let imageName = itemURL.lastPathComponent
+                let image = UIImage(contentsOfFile: itemURL.path)
+                showShareView(withContent: imageName, andImage: image)
+            } else {
+                let previewImage = try? await item.loadPreviewImage() as? UIImage
+                showShareView(withContent: itemURL.absoluteString, andImage: previewImage)
+            }
+        } else {
+            debugPrint("Unable to process item: \(item) for now, abort.")
+            throw ShareError.unknown
         }
-        showShareView(withContent: content, andImage: previewImage)
     }
     
     func showShareView(withContent content: String, andImage image: UIImage?) {
@@ -82,11 +93,51 @@ class PlanetShareViewController: UIViewController {
             self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
         }
     }
+    
+    private func loadFileRepresentation(provider: NSItemProvider, typeIdentifier: String) async throws -> URL {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.loadFileRepresentation(forTypeIdentifier: typeIdentifier) { url, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let url = url {
+                    continuation.resume(returning: url)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "InvalidURL", code: -1, userInfo: nil))
+                }
+            }
+        }
+    }
+    
+    private func loadItem(provider: NSItemProvider, typeIdentifier: String) async throws -> URL {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let url = item as? URL {
+                    continuation.resume(returning: url)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
+                }
+            }
+        }
+    }
+    
+    private func isImageByUTType(url: URL) -> Bool {
+        guard let fileUTType = UTType(filenameExtension: url.pathExtension) else {
+            return false
+        }
+        return fileUTType.conforms(to: .image)
+    }
+    
+    private func isContentEmpty(content: String) -> Bool {
+        return content == "" || content.components(separatedBy: .whitespacesAndNewlines).joined() == ""
+    }
 }
 
 
 enum ShareError: Error {
     case noContent
+    case noPreviewContent
     case unknown
 }
 
