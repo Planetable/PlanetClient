@@ -43,10 +43,7 @@ class PlanetShareViewController: UIViewController {
     
     @MainActor
     func processItem(item: NSItemProvider) async throws {
-        // MARK: TODO: Improved on some image and text selection sharing, but still crash on link item.
-
-        debugPrint("process item: \(item)")
-        
+        debugPrint("about to process item: \(item)")
         if item.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
             let previewText = try await item.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String
             if let previewText, !isContentEmpty(content: previewText) {
@@ -66,7 +63,7 @@ class PlanetShareViewController: UIViewController {
                 let image = UIImage(contentsOfFile: itemURL.path)
                 showShareView(withContent: imageName, andImage: image)
             } else {
-                let previewImage = try? await item.loadPreviewImage() as? UIImage
+                let previewImage = try? await loadItemPreview(provider: item)
                 showShareView(withContent: itemURL.absoluteString, andImage: previewImage)
             }
         } else {
@@ -93,13 +90,16 @@ class PlanetShareViewController: UIViewController {
             self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
         }
     }
-    
+}
+
+
+extension PlanetShareViewController {
     private func loadFileRepresentation(provider: NSItemProvider, typeIdentifier: String) async throws -> URL {
         return try await withCheckedThrowingContinuation { continuation in
             provider.loadFileRepresentation(forTypeIdentifier: typeIdentifier) { url, error in
-                if let error = error {
+                if let error {
                     continuation.resume(throwing: error)
-                } else if let url = url {
+                } else if let url {
                     continuation.resume(returning: url)
                 } else {
                     continuation.resume(throwing: NSError(domain: "InvalidURL", code: -1, userInfo: nil))
@@ -111,10 +111,24 @@ class PlanetShareViewController: UIViewController {
     private func loadItem(provider: NSItemProvider, typeIdentifier: String) async throws -> URL {
         return try await withCheckedThrowingContinuation { continuation in
             provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
-                if let error = error {
+                if let error {
                     continuation.resume(throwing: error)
                 } else if let url = item as? URL {
                     continuation.resume(returning: url)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
+                }
+            }
+        }
+    }
+    
+    private func loadItemPreview(provider: NSItemProvider) async throws -> UIImage {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.loadPreviewImage { item, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let image = item as? UIImage {
+                    continuation.resume(returning: image)
                 } else {
                     continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
                 }
