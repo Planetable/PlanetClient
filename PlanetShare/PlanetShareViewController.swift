@@ -44,7 +44,6 @@ class PlanetShareViewController: UIViewController {
     @MainActor
     func processItem(item: NSItemProvider) async throws {
         // MARK: TODO: handle shared photo (1 photo at a time) from Photos.app
-
         debugPrint("about to process item: \(item)")
         if item.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
             let previewText = try await item.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String
@@ -56,14 +55,24 @@ class PlanetShareViewController: UIViewController {
         } else if item.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
             let imageURL = try await loadFileRepresentation(provider: item, typeIdentifier: UTType.image.identifier)
             let imageName = imageURL.lastPathComponent
-            let image = UIImage(contentsOfFile: imageURL.path)
-            showShareView(withContent: imageName, andImage: image)
+            do {
+                let (data, _) = try await URLSession.shared.data(from: imageURL)
+                let image = UIImage(data: data)
+                showShareView(withContent: imageName, andImage: image)
+            } catch {
+                showShareView(withContent: imageURL.absoluteString, andImage: nil)
+            }
         } else if item.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             let itemURL = try await loadItem(provider: item, typeIdentifier: UTType.url.identifier)
             if isImageByUTType(url: itemURL) {
-                let imageName = itemURL.lastPathComponent
-                let image = UIImage(contentsOfFile: itemURL.path)
-                showShareView(withContent: imageName, andImage: image)
+                do {
+                    let (data, _) = try await URLSession.shared.data(from: itemURL)
+                    let image = UIImage(data: data)
+                    let imageName = itemURL.lastPathComponent
+                    showShareView(withContent: imageName, andImage: image)
+                } catch {
+                    showShareView(withContent: itemURL.absoluteString, andImage: nil)
+                }
             } else {
                 let previewImage = try? await loadItemPreview(provider: item)
                 showShareView(withContent: itemURL.absoluteString, andImage: previewImage)
@@ -88,7 +97,7 @@ class PlanetShareViewController: UIViewController {
     }
     
     func close() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
         }
     }
@@ -153,7 +162,6 @@ extension PlanetShareViewController {
 
 enum ShareError: Error {
     case noContent
-    case noPreviewContent
     case unknown
 }
 
