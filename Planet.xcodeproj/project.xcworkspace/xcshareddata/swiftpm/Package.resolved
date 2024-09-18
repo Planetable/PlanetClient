@@ -1,4 +1,5 @@
 {
+  "originHash" : "287da503bf508e5ff9ddc289f2a672c2f809cd4a3595e0e79414442b67ef940b",
   "pins" : [
     {
       "identity" : "libcmark_gfm",
@@ -59,10 +60,10 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup",
       "state" : {
-        "revision" : "8b6cf29eead8841a1fa7822481cb3af4ddaadba6",
-        "version" : "2.6.1"
+        "revision" : "3c2c7e1e72b8abd96eafbae80323c5c1e5317437",
+        "version" : "2.7.5"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

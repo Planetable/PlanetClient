@@ -26,6 +26,30 @@
 		2A85B07B2B286AFF00CF6823 /* WriterBasic.html in Resources */ = {isa = PBXBuildFile; fileRef = 2A85B07A2B286AFF00CF6823 /* WriterBasic.html */; };
 		2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */; };
 		2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B22B01FF26001303A7 /* PlanetError.swift */; };
+		2AAF30292C9B2AF0004EA463 /* PlanetQuickShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF30282C9B2AF0004EA463 /* PlanetQuickShareViewController.swift */; };
+		2AAF30302C9B2AF0004EA463 /* PlanetShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2AAF30262C9B2AF0004EA463 /* PlanetShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2AAF30382C9B4DB7004EA463 /* PlanetShareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF30372C9B4DB7004EA463 /* PlanetShareManager.swift */; };
+		2AAF30392C9B4DDA004EA463 /* PlanetShareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF30372C9B4DB7004EA463 /* PlanetShareManager.swift */; };
+		2AAF303B2C9B518A004EA463 /* Planet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A73C0B52AF5CCFB00EEF711 /* Planet.swift */; };
+		2AAF303C2C9B51C9004EA463 /* PlanetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */; };
+		2AAF303D2C9B51D7004EA463 /* PlanetArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2748352B200E7800725487 /* PlanetArticle.swift */; };
+		2AAF303E2C9B51FF004EA463 /* PlanetAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC8D6E82B03BE5400AA0E32 /* PlanetAvatarView.swift */; };
+		2AAF303F2C9B520C004EA463 /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4F524F2AF4128000323A81 /* ViewUtils.swift */; };
+		2AAF30402C9B5215004EA463 /* PlanetAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */; };
+		2AAF30412C9B5237004EA463 /* PlanetAppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2748332B200E5300725487 /* PlanetAppTab.swift */; };
+		2AAF30422C9B5245004EA463 /* PlanetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */; };
+		2AAF30452C9B5264004EA463 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 2AAF30442C9B5264004EA463 /* SwiftSoup */; };
+		2AAF30472C9B526E004EA463 /* Stencil in Frameworks */ = {isa = PBXBuildFile; productRef = 2AAF30462C9B526E004EA463 /* Stencil */; };
+		2AAF30482C9B528F004EA463 /* PlanetStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6386C02B14D21400451465 /* PlanetStatus.swift */; };
+		2AAF30492C9B52AA004EA463 /* PlanetSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */; };
+		2AAF304A2C9B52BC004EA463 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */; };
+		2AAF304B2C9B52DB004EA463 /* PlanetError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B22B01FF26001303A7 /* PlanetError.swift */; };
+		2AAF304C2C9B52E6004EA463 /* PlanetServerInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2748372B200EB200725487 /* PlanetServerInfo.swift */; };
+		2AAF304E2C9B534F004EA463 /* libcmark_gfm in Frameworks */ = {isa = PBXBuildFile; productRef = 2AAF304D2C9B534F004EA463 /* libcmark_gfm */; };
+		2AAF30502C9B5352004EA463 /* HTMLEntities in Frameworks */ = {isa = PBXBuildFile; productRef = 2AAF304F2C9B5352004EA463 /* HTMLEntities */; };
+		2AAF30512C9B537C004EA463 /* PlanetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC2029A240AE0089C58C /* PlanetHelper.swift */; };
+		2AAF30522C9B5384004EA463 /* MarkdownUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85B0752B28633400CF6823 /* MarkdownUtils.swift */; };
+		2AAF30542C9B5395004EA463 /* PlanetSiteTemplates in Frameworks */ = {isa = PBXBuildFile; productRef = 2AAF30532C9B5395004EA463 /* PlanetSiteTemplates */; };
 		2AAF3E3E299E07B600CA60AD /* PlanetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */; };
 		2AAF3E42299E07B700CA60AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AAF3E41299E07B700CA60AD /* Assets.xcassets */; };
 		2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */; };
@@ -52,6 +76,30 @@
 		6A73C0B62AF5CCFB00EEF711 /* Planet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A73C0B52AF5CCFB00EEF711 /* Planet.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		2AAF302E2C9B2AF0004EA463 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2AAF3E32299E07B600CA60AD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2AAF30252C9B2AF0004EA463;
+			remoteInfo = PlanetShare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2AAF30312C9B2AF0004EA463 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2AAF30302C9B2AF0004EA463 /* PlanetShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		2A1324BE2B9AAA5D002329F0 /* Planet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Planet.entitlements; sourceTree = "<group>"; };
 		2A25932A2BA9327800DE758C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -69,6 +117,10 @@
 		2A85B07A2B286AFF00CF6823 /* WriterBasic.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = WriterBasic.html; sourceTree = "<group>"; };
 		2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		2A9C28B22B01FF26001303A7 /* PlanetError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetError.swift; sourceTree = "<group>"; };
+		2AAF30262C9B2AF0004EA463 /* PlanetShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PlanetShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AAF30282C9B2AF0004EA463 /* PlanetQuickShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetQuickShareViewController.swift; sourceTree = "<group>"; };
+		2AAF302D2C9B2AF0004EA463 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2AAF30372C9B4DB7004EA463 /* PlanetShareManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetShareManager.swift; sourceTree = "<group>"; };
 		2AAF3E3A299E07B600CA60AD /* Planet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AAF3E3D299E07B600CA60AD /* PlanetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetApp.swift; sourceTree = "<group>"; };
 		2AAF3E41299E07B700CA60AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -100,6 +152,18 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2AAF30232C9B2AF0004EA463 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AAF304E2C9B534F004EA463 /* libcmark_gfm in Frameworks */,
+				2AAF30542C9B5395004EA463 /* PlanetSiteTemplates in Frameworks */,
+				2AAF30452C9B5264004EA463 /* SwiftSoup in Frameworks */,
+				2AAF30502C9B5352004EA463 /* HTMLEntities in Frameworks */,
+				2AAF30472C9B526E004EA463 /* Stencil in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2AAF3E37299E07B600CA60AD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -137,11 +201,30 @@
 			path = Templates;
 			sourceTree = "<group>";
 		};
+		2AAF30272C9B2AF0004EA463 /* PlanetShare */ = {
+			isa = PBXGroup;
+			children = (
+				2AAF30282C9B2AF0004EA463 /* PlanetQuickShareViewController.swift */,
+				2AAF30372C9B4DB7004EA463 /* PlanetShareManager.swift */,
+				2AAF302D2C9B2AF0004EA463 /* Info.plist */,
+			);
+			path = PlanetShare;
+			sourceTree = "<group>";
+		};
+		2AAF30432C9B5264004EA463 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2AAF3E31299E07B600CA60AD = {
 			isa = PBXGroup;
 			children = (
 				2AAF3E3C299E07B600CA60AD /* Planet */,
+				2AAF30272C9B2AF0004EA463 /* PlanetShare */,
 				2AAF3E3B299E07B600CA60AD /* Products */,
+				2AAF30432C9B5264004EA463 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -149,6 +232,7 @@
 			isa = PBXGroup;
 			children = (
 				2AAF3E3A299E07B600CA60AD /* Planet.app */,
+				2AAF30262C9B2AF0004EA463 /* PlanetShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -272,6 +356,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2AAF30252C9B2AF0004EA463 /* PlanetShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2AAF30342C9B2AF0004EA463 /* Build configuration list for PBXNativeTarget "PlanetShare" */;
+			buildPhases = (
+				2AAF30222C9B2AF0004EA463 /* Sources */,
+				2AAF30232C9B2AF0004EA463 /* Frameworks */,
+				2AAF30242C9B2AF0004EA463 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PlanetShare;
+			packageProductDependencies = (
+				2AAF30442C9B5264004EA463 /* SwiftSoup */,
+				2AAF30462C9B526E004EA463 /* Stencil */,
+				2AAF304D2C9B534F004EA463 /* libcmark_gfm */,
+				2AAF304F2C9B5352004EA463 /* HTMLEntities */,
+				2AAF30532C9B5395004EA463 /* PlanetSiteTemplates */,
+			);
+			productName = PlanetShare;
+			productReference = 2AAF30262C9B2AF0004EA463 /* PlanetShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		2AAF3E39299E07B600CA60AD /* Planet */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2AAF3E48299E07B700CA60AD /* Build configuration list for PBXNativeTarget "Planet" */;
@@ -279,10 +387,12 @@
 				2AAF3E36299E07B600CA60AD /* Sources */,
 				2AAF3E37299E07B600CA60AD /* Frameworks */,
 				2AAF3E38299E07B600CA60AD /* Resources */,
+				2AAF30312C9B2AF0004EA463 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				2AAF302F2C9B2AF0004EA463 /* PBXTargetDependency */,
 			);
 			name = Planet;
 			packageProductDependencies = (
@@ -303,9 +413,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1520;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
+					2AAF30252C9B2AF0004EA463 = {
+						CreatedOnToolsVersion = 15.4;
+					};
 					2AAF3E39299E07B600CA60AD = {
 						CreatedOnToolsVersion = 14.2;
 					};
@@ -332,11 +445,19 @@
 			projectRoot = "";
 			targets = (
 				2AAF3E39299E07B600CA60AD /* Planet */,
+				2AAF30252C9B2AF0004EA463 /* PlanetShare */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2AAF30242C9B2AF0004EA463 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2AAF3E38299E07B600CA60AD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -351,6 +472,30 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2AAF30222C9B2AF0004EA463 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AAF30522C9B5384004EA463 /* MarkdownUtils.swift in Sources */,
+				2AAF303F2C9B520C004EA463 /* ViewUtils.swift in Sources */,
+				2AAF30512C9B537C004EA463 /* PlanetHelper.swift in Sources */,
+				2AAF303B2C9B518A004EA463 /* Planet.swift in Sources */,
+				2AAF303D2C9B51D7004EA463 /* PlanetArticle.swift in Sources */,
+				2AAF303C2C9B51C9004EA463 /* PlanetManager.swift in Sources */,
+				2AAF30482C9B528F004EA463 /* PlanetStatus.swift in Sources */,
+				2AAF30402C9B5215004EA463 /* PlanetAppViewModel.swift in Sources */,
+				2AAF30292C9B2AF0004EA463 /* PlanetQuickShareViewController.swift in Sources */,
+				2AAF30382C9B4DB7004EA463 /* PlanetShareManager.swift in Sources */,
+				2AAF304B2C9B52DB004EA463 /* PlanetError.swift in Sources */,
+				2AAF304A2C9B52BC004EA463 /* KeychainHelper.swift in Sources */,
+				2AAF30422C9B5245004EA463 /* PlanetExtension.swift in Sources */,
+				2AAF304C2C9B52E6004EA463 /* PlanetServerInfo.swift in Sources */,
+				2AAF30492C9B52AA004EA463 /* PlanetSettingsViewModel.swift in Sources */,
+				2AAF30412C9B5237004EA463 /* PlanetAppTab.swift in Sources */,
+				2AAF303E2C9B51FF004EA463 /* PlanetAvatarView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2AAF3E36299E07B600CA60AD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -364,6 +509,7 @@
 				2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */,
 				2AC8D6E92B03BE5400AA0E32 /* PlanetAvatarView.swift in Sources */,
 				2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */,
+				2AAF30392C9B4DDA004EA463 /* PlanetShareManager.swift in Sources */,
 				2A2748342B200E5300725487 /* PlanetAppTab.swift in Sources */,
 				2A2748362B200E7800725487 /* PlanetArticle.swift in Sources */,
 				2A3385A12B33E97D0079A900 /* PlanetArticleAttachmentsView.swift in Sources */,
@@ -394,11 +540,78 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		2AAF302F2C9B2AF0004EA463 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2AAF30252C9B2AF0004EA463 /* PlanetShare */;
+			targetProxy = 2AAF302E2C9B2AF0004EA463 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		2AAF30322C9B2AF0004EA463 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3SCMMGZXY8;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PlanetShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PlanetShare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = space.kai.dev.m3.Planet.PlanetShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2AAF30332C9B2AF0004EA463 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PlanetShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PlanetShare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = space.airwolf.dev.m3.sonoma.Planet.PlanetShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		2AAF3E46299E07B700CA60AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -460,6 +673,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -515,6 +729,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Planet/Planet.entitlements;
@@ -550,6 +765,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6A30A4762AEFCE53007E763C /* Planet.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Planet/Planet.entitlements;
@@ -584,6 +800,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2AAF30342C9B2AF0004EA463 /* Build configuration list for PBXNativeTarget "PlanetShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2AAF30322C9B2AF0004EA463 /* Debug */,
+				2AAF30332C9B2AF0004EA463 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2AAF3E35299E07B600CA60AD /* Build configuration list for PBXProject "Planet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -667,6 +892,31 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2A85B0772B28636600CF6823 /* XCRemoteSwiftPackageReference "swift-html-entities" */;
 			productName = HTMLEntities;
+		};
+		2AAF30442C9B5264004EA463 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A85B0722B28630E00CF6823 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		2AAF30462C9B526E004EA463 /* Stencil */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A58329F2B281CF200A478CA /* XCRemoteSwiftPackageReference "Stencil" */;
+			productName = Stencil;
+		};
+		2AAF304D2C9B534F004EA463 /* libcmark_gfm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A85B06F2B2862E200CF6823 /* XCRemoteSwiftPackageReference "libcmark_gfm" */;
+			productName = libcmark_gfm;
+		};
+		2AAF304F2C9B5352004EA463 /* HTMLEntities */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A85B0772B28636600CF6823 /* XCRemoteSwiftPackageReference "swift-html-entities" */;
+			productName = HTMLEntities;
+		};
+		2AAF30532C9B5395004EA463 /* PlanetSiteTemplates */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2AC03E4F2B15AE7C0026144A /* XCRemoteSwiftPackageReference "PlanetSiteTemplates" */;
+			productName = PlanetSiteTemplates;
 		};
 		2AC03E502B15AE7C0026144A /* PlanetSiteTemplates */ = {
 			isa = XCSwiftPackageProductDependency;
