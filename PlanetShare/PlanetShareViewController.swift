@@ -48,34 +48,22 @@ class PlanetShareViewController: UIViewController {
         if item.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
             let previewText = try await item.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String
             if let previewText, !isContentEmpty(content: previewText) {
-                showShareView(withContent: previewText, andImage: nil)
+                showShareView(withContent: previewText, andImage: nil, orImageURL: nil)
             } else {
                 throw ShareError.noContent
             }
         } else if item.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
             let imageURL = try await loadFileRepresentation(provider: item, typeIdentifier: UTType.image.identifier)
             let imageName = imageURL.lastPathComponent
-            do {
-                let (data, _) = try await URLSession.shared.data(from: imageURL)
-                let image = UIImage(data: data)
-                showShareView(withContent: imageName, andImage: image)
-            } catch {
-                showShareView(withContent: imageURL.absoluteString, andImage: nil)
-            }
+            showShareView(withContent: imageName, andImage: nil, orImageURL: imageURL)
         } else if item.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             let itemURL = try await loadItem(provider: item, typeIdentifier: UTType.url.identifier)
             if isImageByUTType(url: itemURL) {
-                do {
-                    let (data, _) = try await URLSession.shared.data(from: itemURL)
-                    let image = UIImage(data: data)
-                    let imageName = itemURL.lastPathComponent
-                    showShareView(withContent: imageName, andImage: image)
-                } catch {
-                    showShareView(withContent: itemURL.absoluteString, andImage: nil)
-                }
+                let imageName = itemURL.lastPathComponent
+                showShareView(withContent: imageName, andImage: nil, orImageURL: itemURL)
             } else {
                 let previewImage = try? await loadItemPreview(provider: item)
-                showShareView(withContent: itemURL.absoluteString, andImage: previewImage)
+                showShareView(withContent: itemURL.absoluteString, andImage: previewImage, orImageURL: nil)
             }
         } else {
             debugPrint("Unable to process item: \(item) for now, abort.")
@@ -83,9 +71,9 @@ class PlanetShareViewController: UIViewController {
         }
     }
     
-    func showShareView(withContent content: String, andImage image: UIImage?) {
+    func showShareView(withContent content: String, andImage image: UIImage?, orImageURL imageURL: URL?) {
         DispatchQueue.main.async {
-            let contentView = UIHostingController(rootView: PlanetShareView(content: content, image: image))
+            let contentView = UIHostingController(rootView: PlanetShareView(content: content, image: image, imageURL: imageURL))
             self.addChild(contentView)
             self.view.addSubview(contentView.view)
             contentView.view.translatesAutoresizingMaskIntoConstraints = false

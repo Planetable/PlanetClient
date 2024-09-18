@@ -9,10 +9,12 @@ import SwiftUI
 struct PlanetShareView: View {
     @State private var content: String
     private var image: UIImage?
+    private var imageURL: URL?
 
-    init(content: String, image: UIImage?) {
+    init(content: String, image: UIImage?, imageURL: URL?) {
         self.content = content
         self.image = image
+        self.imageURL = imageURL
     }
 
     var body: some View {
@@ -24,6 +26,18 @@ struct PlanetShareView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(maxHeight: 200)
+                    }
+                } else if let imageURL {
+                    HStack {
+                        AsyncImage(url: imageURL) { img in
+                            img
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 200)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .frame(width: 200, height: 200)
                     }
                 }
                 
