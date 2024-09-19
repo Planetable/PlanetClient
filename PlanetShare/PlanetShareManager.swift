@@ -35,7 +35,7 @@ class PlanetShareManager: NSObject {
         try await interaction.donate()
     }
     
-    func removeDonatedPlanet(_ planet: Planet) throws {
-        // MARK: TODO: ?
+    func removeDonatedPlanet(_ planet: Planet) async throws {
+        try await INInteraction.delete(with: planet.id)
     }
 }

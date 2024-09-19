@@ -154,7 +154,6 @@ struct PlanetNewArticleView: View {
                                 }
                                 do {
                                     try await PlanetShareManager.shared.donatePost(forPlanet: selectedPlanet, content: self.title + " " + self.content)
-                                    debugPrint("post \(self.title) donated. avatar url: \(selectedPlanet.avatarURL)")
                                 } catch {
                                     debugPrint("failed to donate post: \(self.title), error: \(error)")
                                 }
