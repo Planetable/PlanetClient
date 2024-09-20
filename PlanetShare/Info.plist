@@ -13,7 +13,7 @@
 				<key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
 				<integer>1</integer>
 				<key>NSExtensionActivationSupportsImageWithMaxCount</key>
-				<integer>3</integer>
+				<integer>10</integer>
 			</dict>
 			<key>IntentsSupported</key>
 			<array>

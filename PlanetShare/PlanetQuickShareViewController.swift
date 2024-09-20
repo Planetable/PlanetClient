@@ -3,39 +3,38 @@
 //  PlanetShare
 //
 
-import UIKit
 import Social
 import Intents
 import UniformTypeIdentifiers
+import UIKit
 
 
 class PlanetQuickShareViewController: SLComposeServiceViewController {
-
-    private var targetItemProvider: NSItemProvider?
-
+    
+    private var itemProviders: [NSItemProvider]?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        let _ = PlanetAppViewModel.shared
+        let _ = PlanetManager.shared
         guard let context = self.extensionContext else {
             return
         }
         guard let item = context.inputItems.first as? NSExtensionItem else {
             return
         }
-        guard let itemProvider = item.attachments?.first as? NSItemProvider else {
-            return
-        }
-        self.targetItemProvider = itemProvider
+        self.itemProviders = item.attachments ?? []
     }
-
+    
     override func isContentValid() -> Bool {
         if PlanetAppViewModel.shared.currentNodeID == nil {
             return false
         }
         return true
     }
-
+    
     override func didSelectPost() {
-        Task(priority: .userInitiated) {
+        Task { @MainActor in
             do {
                 try await postToTargetPlanet()
             } catch {
@@ -44,37 +43,32 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
             super.didSelectPost()
         }
     }
-
+    
     override func configurationItems() -> [Any]! {
         return []
     }
-
+    
     // MARK: -
-
+    
+    @MainActor
     private func postToTargetPlanet() async throws {
-        guard let targetItemProvider = self.targetItemProvider else { return }
-
+        let targetItemProviders = self.itemProviders ?? []
+        
         // get current planet from context
         let intent = self.extensionContext?.intent as? INSendMessageIntent
         guard let intent, let planetID = intent.conversationIdentifier else { return }
         guard let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) else { return }
-
-        // process share content from item provider, plain text content, url, images, or all of them.
-        var content: String = ""
+        
+        // process share content from item provider, plain text content, url as text content or images.
+        var content: String = self.contentText
         var attachments: [PlanetArticleAttachment] = []
-
-        // Process plain text
-        if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-            if let text = try await targetItemProvider.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String {
-                content += text
-            }
-        }
-
-        // Process URLs
-        if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            if let url = try await targetItemProvider.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL {
+        
+        for targetItemProvider in targetItemProviders {
+            // Process URLs
+            if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                let url = try await loadURL(from: targetItemProvider)
                 // Check if the URL points to an image
-                if let image = try? await loadImage(from: url) {
+                if let image = try? await loadImageFromURL(url) {
                     let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
                     attachments.append(attachment)
                     // Append image name as text content
@@ -89,44 +83,85 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
                     content += url.absoluteString
                 }
             }
-        }
-
-        debugPrint("content: \(content), attachments: \(attachments)")
-
-        // MARK: TODO: where's user updated inputs?
-
-        // Share via planet manager
-        try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet)
-        debugPrint("successfully posted to target planet")
-    }
-
-    private func loadPreviewImage() async throws -> UIImage? {
-        guard let targetItemProvider = self.targetItemProvider else { return nil }
-
-        // Check for image type
-        if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-            if let image = try await targetItemProvider.loadItem(forTypeIdentifier: UTType.image.identifier) as? UIImage {
-                return image
-            }
-        }
-
-        // Check for URL type
-        if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            if let url = try await targetItemProvider.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL {
-                // Attempt to fetch image from URL
-                let (data, _) = try await URLSession.shared.data(from: url)
-                if let image = UIImage(data: data) {
-                    return image
+            // Process Images
+            else if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+                let (image, url) = try await loadImageFromItem(targetItemProvider)
+                if let image, let url {
+                    let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+                    attachments.append(attachment)
+                    if self.contentText == "" {
+                        content += url.lastPathComponent + "\n"
+                    }
                 }
             }
         }
-
-        return nil
+        
+        debugPrint("got content: \(content), attachments: \(attachments), from item providers: \(targetItemProviders)")
+        
+        // Share via planet manager
+        try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet)
+        
+        debugPrint("successfully posted to target planet")
     }
-
-    private func loadImage(from url: URL) async throws -> UIImage? {
+    
+    private func loadImageFromURL(_ url: URL) async throws -> UIImage? {
         let (data, _) = try await URLSession.shared.data(from: url)
         return UIImage(data: data)
     }
-
+    
+    private func loadImageFromItem(_ item: NSItemProvider) async throws -> (UIImage?, URL?) {
+        // Check for image type, try to get image directly
+        if item.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+            let image = try await loadImage(from: item)
+            let id = UUID()
+            let tmpPath = NSTemporaryDirectory().appending("\(id.uuidString).png")
+            let tmpURL = URL(fileURLWithPath: tmpPath)
+            do {
+                if let data = image.pngData() {
+                    try? FileManager.default.removeItem(at: tmpURL)
+                    try data.write(to: tmpURL)
+                    return (image, tmpURL)
+                }
+            } catch {
+                debugPrint("failed to load preview view image: \(error)")
+            }
+        }
+        // Check for URL type, try to fetch image from URL
+        if item.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+            let url = try await loadURL(from: item)
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let image = UIImage(data: data) {
+                return (image, url)
+            }
+        }
+        return (nil, nil)
+    }
+    
+    @Sendable private func loadURL(from it: NSItemProvider) async throws -> URL {
+        return try await withCheckedThrowingContinuation { continuation in
+            it.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { item, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let url = item as? URL {
+                    continuation.resume(returning: url)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
+                }
+            }
+        }
+    }
+    
+    @Sendable private func loadImage(from it: NSItemProvider) async throws -> UIImage {
+        return try await withCheckedThrowingContinuation { continuation in
+            it.loadPreviewImage { item, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let image = item as? UIImage {
+                    continuation.resume(returning: image)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
+                }
+            }
+        }
+    }
 }
