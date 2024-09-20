@@ -152,11 +152,6 @@ struct PlanetNewArticleView: View {
                                         self.appViewModel.removeDraft(articleDraft)
                                     }
                                 }
-                                do {
-                                    try await PlanetShareManager.shared.donatePost(forPlanet: selectedPlanet, content: self.title + " " + self.content)
-                                } catch {
-                                    debugPrint("failed to donate post: \(self.title), error: \(error)")
-                                }
                             } catch {
                                 debugPrint("failed to save article: \(error)")
                             }

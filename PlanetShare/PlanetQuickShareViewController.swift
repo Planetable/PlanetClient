@@ -5,52 +5,128 @@
 
 import UIKit
 import Social
+import Intents
+import UniformTypeIdentifiers
+
 
 class PlanetQuickShareViewController: SLComposeServiceViewController {
-    
+
+    private var targetItemProvider: NSItemProvider?
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         guard let context = self.extensionContext else {
             return
         }
-        debugPrint("context: \(context), input items count: \(context.inputItems.count)")
         guard let item = context.inputItems.first as? NSExtensionItem else {
             return
         }
-        debugPrint("first input item: \(item), attachments count: \(item.attachments?.count ?? 0)")
         guard let itemProvider = item.attachments?.first as? NSItemProvider else {
             return
         }
-        debugPrint("first provider attachment: \(itemProvider)")
+        self.targetItemProvider = itemProvider
     }
 
     override func isContentValid() -> Bool {
-        guard isTargetPlanetAvailable() else { return false }
+        if PlanetAppViewModel.shared.currentNodeID == nil {
+            return false
+        }
         return true
     }
 
     override func didSelectPost() {
-        debugPrint("did select post")
-        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
-    
-        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+        Task(priority: .userInitiated) {
+            do {
+                try await postToTargetPlanet()
+            } catch {
+                debugPrint("error posting to target planet: \(error)")
+            }
+            super.didSelectPost()
+        }
     }
 
     override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
         return []
     }
-    
-    // MARK: TODO: Handle active planet and posting content here.
+
     // MARK: -
-    
-    private func isTargetPlanetAvailable() -> Bool {
-        return false
+
+    private func postToTargetPlanet() async throws {
+        guard let targetItemProvider = self.targetItemProvider else { return }
+
+        // get current planet from context
+        let intent = self.extensionContext?.intent as? INSendMessageIntent
+        guard let intent, let planetID = intent.conversationIdentifier else { return }
+        guard let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) else { return }
+
+        // process share content from item provider, plain text content, url, images, or all of them.
+        var content: String = ""
+        var attachments: [PlanetArticleAttachment] = []
+
+        // Process plain text
+        if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+            if let text = try await targetItemProvider.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String {
+                content += text
+            }
+        }
+
+        // Process URLs
+        if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+            if let url = try await targetItemProvider.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL {
+                // Check if the URL points to an image
+                if let image = try? await loadImage(from: url) {
+                    let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+                    attachments.append(attachment)
+                    // Append image name as text content
+                    if content.isEmpty {
+                        content += url.lastPathComponent
+                    }
+                } else {
+                    // Append the URL as text content
+                    if !content.isEmpty {
+                        content += "\n"
+                    }
+                    content += url.absoluteString
+                }
+            }
+        }
+
+        debugPrint("content: \(content), attachments: \(attachments)")
+
+        // MARK: TODO: where's user updated inputs?
+
+        // Share via planet manager
+        try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet)
+        debugPrint("successfully posted to target planet")
     }
-    
-    private func postToTargetPlanet() {
-        
+
+    private func loadPreviewImage() async throws -> UIImage? {
+        guard let targetItemProvider = self.targetItemProvider else { return nil }
+
+        // Check for image type
+        if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+            if let image = try await targetItemProvider.loadItem(forTypeIdentifier: UTType.image.identifier) as? UIImage {
+                return image
+            }
+        }
+
+        // Check for URL type
+        if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+            if let url = try await targetItemProvider.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL {
+                // Attempt to fetch image from URL
+                let (data, _) = try await URLSession.shared.data(from: url)
+                if let image = UIImage(data: data) {
+                    return image
+                }
+            }
+        }
+
+        return nil
     }
+
+    private func loadImage(from url: URL) async throws -> UIImage? {
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return UIImage(data: data)
+    }
+
 }

@@ -92,11 +92,6 @@ struct PlanetMyPlanetInfoView: View {
                         Task(priority: .userInitiated) {
                             do {
                                 try await PlanetManager.shared.deletePlanet(id: self.planet.id)
-                                do {
-                                    try await PlanetShareManager.shared.removeDonatedPlanet(self.planet)
-                                } catch {
-                                    debugPrint("failed to remove donated planet: \(self.planet.name), error: \(error)")
-                                }
                             } catch {
                                 debugPrint("failed to update planet info: \(error)")
                             }

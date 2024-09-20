@@ -24,6 +24,7 @@
 		2A85B0762B28633400CF6823 /* MarkdownUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A85B0752B28633400CF6823 /* MarkdownUtils.swift */; };
 		2A85B0792B28636600CF6823 /* HTMLEntities in Frameworks */ = {isa = PBXBuildFile; productRef = 2A85B0782B28636600CF6823 /* HTMLEntities */; };
 		2A85B07B2B286AFF00CF6823 /* WriterBasic.html in Resources */ = {isa = PBXBuildFile; fileRef = 2A85B07A2B286AFF00CF6823 /* WriterBasic.html */; };
+		2A85FAAD2C9CB04B00637B91 /* WriterBasic.html in Resources */ = {isa = PBXBuildFile; fileRef = 2A85B07A2B286AFF00CF6823 /* WriterBasic.html */; };
 		2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */; };
 		2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9C28B22B01FF26001303A7 /* PlanetError.swift */; };
 		2AAF30292C9B2AF0004EA463 /* PlanetQuickShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF30282C9B2AF0004EA463 /* PlanetQuickShareViewController.swift */; };
@@ -115,6 +116,7 @@
 		2A7F09292B2B4A1B00E19B84 /* PlanetPreviewArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetPreviewArticleView.swift; sourceTree = "<group>"; };
 		2A85B0752B28633400CF6823 /* MarkdownUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownUtils.swift; sourceTree = "<group>"; };
 		2A85B07A2B286AFF00CF6823 /* WriterBasic.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = WriterBasic.html; sourceTree = "<group>"; };
+		2A85FAAC2C9CB00C00637B91 /* PlanetShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PlanetShare.entitlements; sourceTree = "<group>"; };
 		2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		2A9C28B22B01FF26001303A7 /* PlanetError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetError.swift; sourceTree = "<group>"; };
 		2AAF30262C9B2AF0004EA463 /* PlanetShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PlanetShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -204,6 +206,7 @@
 		2AAF30272C9B2AF0004EA463 /* PlanetShare */ = {
 			isa = PBXGroup;
 			children = (
+				2A85FAAC2C9CB00C00637B91 /* PlanetShare.entitlements */,
 				2AAF30282C9B2AF0004EA463 /* PlanetQuickShareViewController.swift */,
 				2AAF30372C9B4DB7004EA463 /* PlanetShareManager.swift */,
 				2AAF302D2C9B2AF0004EA463 /* Info.plist */,
@@ -455,6 +458,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A85FAAD2C9CB04B00637B91 /* WriterBasic.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -553,6 +557,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_ENTITLEMENTS = PlanetShare/PlanetShare.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3SCMMGZXY8;
@@ -569,7 +574,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = space.kai.dev.m3.Planet.PlanetShare;
+				PRODUCT_BUNDLE_IDENTIFIER = space.airwolf.dev.sphere.Planet.PlanetShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -583,8 +588,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_ENTITLEMENTS = PlanetShare/PlanetShare.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3SCMMGZXY8;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PlanetShare/Info.plist;
@@ -598,7 +605,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = space.airwolf.dev.m3.sonoma.Planet.PlanetShare;
+				PRODUCT_BUNDLE_IDENTIFIER = space.airwolf.dev.sphere.Planet.PlanetShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;

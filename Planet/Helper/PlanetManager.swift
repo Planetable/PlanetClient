@@ -20,6 +20,15 @@ class PlanetManager: NSObject {
     var previewTemplatePath: URL
     var previewRenderEnv: Environment
 
+    // Shared user defaults for share extension.
+    // Setup app group identifier first.
+    var userDefaults: UserDefaults {
+        if let defaults = UserDefaults(suiteName: .appGroupName) {
+            return defaults
+        }
+        return .standard
+    }
+
     private override init() {
         debugPrint("Planet Manager Init.")
         guard let documentPath: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
@@ -198,6 +207,14 @@ class PlanetManager: NSObject {
     func deletePlanet(id: String) async throws {
         let request = try await createRequest(with: "/v0/planets/my/\(id)", method: "DELETE")
         let _ = try await URLSession.shared.data(for: request)
+        // remove donation for share extension
+        Task.detached(priority: .utility) {
+            do {
+                try await PlanetShareManager.shared.removeDonatedPlanet(planetID: id)
+            } catch {
+                debugPrint("failed to remove donated planet: \(id), error: \(error)")
+            }
+        }
         await MainActor.run {
             NotificationCenter.default.post(name: .updatePlanets, object: nil)
         }
@@ -273,6 +290,14 @@ class PlanetManager: NSObject {
         }
         request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+        // donate article for share extension
+        Task.detached(priority: .utility) {
+            do {
+                try await PlanetShareManager.shared.donatePost(forPlanet: planet, content: title + " " + content)
+            } catch {
+                debugPrint("failed to donate post: \(title), error: \(error)")
+            }
+        }
         await MainActor.run {
             NotificationCenter.default.post(name: .reloadArticles, object: nil)
         }

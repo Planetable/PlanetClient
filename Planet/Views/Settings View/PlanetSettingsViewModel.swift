@@ -151,17 +151,17 @@ class PlanetSettingsViewModel: ObservableObject {
         guard let info = info else { return }
         guard let serverURLString = getServerURLString() else { return }
         debugPrint("saving new server: \(serverURLString)")
-        UserDefaults.standard.set(info.ipfsPeerID, forKey: .settingsNodeIDKey)
-        UserDefaults.standard.set(info.hostName, forKey: .settingsServerNameKey)
-        UserDefaults.standard.set(serverURLString, forKey: .settingsServerURLKey)
-        UserDefaults.standard.set(serverProtocol, forKey: .settingsServerProtocolKey)
-        UserDefaults.standard.set(serverHost, forKey: .settingsServerHostKey)
-        UserDefaults.standard.set(serverPort, forKey: .settingsServerPortKey)
-        UserDefaults.standard.set(
+        PlanetManager.shared.userDefaults.set(info.ipfsPeerID, forKey: .settingsNodeIDKey)
+        PlanetManager.shared.userDefaults.set(info.hostName, forKey: .settingsServerNameKey)
+        PlanetManager.shared.userDefaults.set(serverURLString, forKey: .settingsServerURLKey)
+        PlanetManager.shared.userDefaults.set(serverProtocol, forKey: .settingsServerProtocolKey)
+        PlanetManager.shared.userDefaults.set(serverHost, forKey: .settingsServerHostKey)
+        PlanetManager.shared.userDefaults.set(serverPort, forKey: .settingsServerPortKey)
+        PlanetManager.shared.userDefaults.set(
             serverAuthenticationEnabled,
             forKey: .settingsServerAuthenticationEnabledKey
         )
-        UserDefaults.standard.set(serverUsername, forKey: .settingsServerUsernameKey)
+        PlanetManager.shared.userDefaults.set(serverUsername, forKey: .settingsServerUsernameKey)
         do {
             try KeychainHelper.shared.saveValue(serverPassword, forKey: .settingsServerPasswordKey)
         } catch {

@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import UIKit
 import Intents
 
 
@@ -35,7 +36,8 @@ class PlanetShareManager: NSObject {
         try await interaction.donate()
     }
     
-    func removeDonatedPlanet(_ planet: Planet) async throws {
-        try await INInteraction.delete(with: planet.id)
+    func removeDonatedPlanet(planetID: String) async throws {
+        try await INInteraction.delete(with: planetID)
     }
+
 }
