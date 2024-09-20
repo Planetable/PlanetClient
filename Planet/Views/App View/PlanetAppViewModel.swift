@@ -90,6 +90,10 @@ class PlanetAppViewModel: ObservableObject {
                 }
                 return
             }
+            // Ignore the following code if it is loaded from app extension:
+            if !PlanetManager.shared.userDefaults.bool(forKey: .appGroupName) {
+                return
+            }
             do {
                 let drafts = try PlanetManager.shared.loadArticleDrafts()
                 Task { @MainActor in

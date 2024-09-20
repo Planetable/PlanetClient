@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 
 // MARK: - String -
 extension String {
-    // MARK: TODO: setup xcconfig
+    // MARK: TODO: setup in xcconfig
     static let appGroupName = "group.space.airwolf.dev.sphere"
 
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
