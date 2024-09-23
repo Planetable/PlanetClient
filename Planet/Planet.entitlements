@@ -8,7 +8,7 @@
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.$(ORGANIZATION_IDENTIFIER_PREFIX).shared</string>
+		<string>group.$(ORGANIZATION_IDENTIFIER_PREFIX)</string>
 	</array>
 </dict>
 </plist>

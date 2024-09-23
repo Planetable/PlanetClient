@@ -6,12 +6,12 @@ import UniformTypeIdentifiers
 
 // MARK: - String -
 extension String {
-    // group.$(ORGANIZATION_IDENTIFIER_PREFIX).shared
+    // group.$(ORGANIZATION_IDENTIFIER_PREFIX)
     static let appGroupName: String = {
         if let name = Bundle.main.object(forInfoDictionaryKey: "ORGANIZATION_IDENTIFIER_PREFIX") as? String {
-            return "group.\(name).shared"
+            return "group.\(name)"
         }
-        return "group.xyz.planetable.PlanetMobile.Shared"
+        return "group.xyz.planetable.PlanetMobile"
     }()
 
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
