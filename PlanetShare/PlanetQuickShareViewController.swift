@@ -80,8 +80,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
                     }
                     content += url.absoluteString
                 }
-            }
-            else if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+            } else if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
                 let (image, url) = try await loadImage(from: targetItemProvider)
                 let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
                 attachments.append(attachment)
@@ -91,7 +90,19 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
             }
         }
 
-        try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet)
+        // create article if server is active, otherwise save as draft for target planet.
+        do {
+            try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet)
+        } catch PlanetError.APIServerIsInactiveError {
+            let draftID = UUID()
+            _ = try PlanetManager.shared.renderArticlePreview(forTitle: "", content: content, andArticleID: draftID.uuidString)
+            let draftAttachments = attachments.map { a in
+                return a.url.lastPathComponent
+            }
+            try PlanetManager.shared.saveArticleDraft(byID: draftID, attachments: draftAttachments, title: "", content: content, planetID: UUID(uuidString: planetID))
+        } catch {
+            throw error
+        }
     }
 
     private func loadImageFromURL(_ url: URL) async throws -> UIImage? {
