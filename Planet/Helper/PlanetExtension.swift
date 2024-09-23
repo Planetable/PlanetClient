@@ -6,8 +6,13 @@ import UniformTypeIdentifiers
 
 // MARK: - String -
 extension String {
-    // MARK: TODO: setup in xcconfig
-    static let appGroupName = "group.space.airwolf.dev.sphere"
+    // group.$(ORGANIZATION_IDENTIFIER_PREFIX).shared
+    static let appGroupName: String = {
+        if let name = Bundle.main.object(forInfoDictionaryKey: "ORGANIZATION_IDENTIFIER_PREFIX") as? String {
+            return "group.\(name).shared"
+        }
+        return "group.xyz.planetable.PlanetMobile.Shared"
+    }()
 
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
     static let selectedPlanetTemplateName = "PlanetSelectedPlanetTemplateNameKey"

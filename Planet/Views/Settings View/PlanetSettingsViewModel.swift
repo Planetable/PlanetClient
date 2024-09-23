@@ -16,19 +16,12 @@ class PlanetSettingsViewModel: ObservableObject {
     @Published var showServerUnreachableAlert = false
     @Published var isConnecting: Bool = false
 
-    @Published var serverURLString: String =
-        UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? ""
-    @Published var serverProtocol: String =
-        UserDefaults.standard.string(forKey: .settingsServerProtocolKey) ?? "http"
-    @Published var serverHost: String =
-        UserDefaults.standard.string(forKey: .settingsServerHostKey) ?? ""
-    @Published var serverPort: String =
-        UserDefaults.standard.string(forKey: .settingsServerPortKey) ?? "8086"
-    @Published var serverAuthenticationEnabled: Bool = UserDefaults.standard.bool(
-        forKey: .settingsServerAuthenticationEnabledKey
-    )
-    @Published var serverUsername: String =
-        UserDefaults.standard.string(forKey: .settingsServerUsernameKey) ?? ""
+    @Published var serverURLString: String = PlanetManager.shared.userDefaults.string(forKey: .settingsServerURLKey) ?? ""
+    @Published var serverProtocol: String = PlanetManager.shared.userDefaults.string(forKey: .settingsServerProtocolKey) ?? "http"
+    @Published var serverHost: String = PlanetManager.shared.userDefaults.string(forKey: .settingsServerHostKey) ?? ""
+    @Published var serverPort: String = PlanetManager.shared.userDefaults.string(forKey: .settingsServerPortKey) ?? "8086"
+    @Published var serverAuthenticationEnabled: Bool = PlanetManager.shared.userDefaults.bool(forKey: .settingsServerAuthenticationEnabledKey)
+    @Published var serverUsername: String = PlanetManager.shared.userDefaults.string(forKey: .settingsServerUsernameKey) ?? ""
     @Published var serverPassword: String = ""
 
     init() {
