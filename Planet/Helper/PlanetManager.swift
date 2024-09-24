@@ -31,7 +31,10 @@ class PlanetManager: NSObject {
 
     private override init() {
         debugPrint("Planet Manager Init.")
-        guard let documentPath: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+//        guard let documentPath: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+//            fatalError("can't access to document directory, abort init.")
+//        }
+        guard let documentPath: URL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: .appGroupName) else {
             fatalError("can't access to document directory, abort init.")
         }
         documentDirectory = documentPath

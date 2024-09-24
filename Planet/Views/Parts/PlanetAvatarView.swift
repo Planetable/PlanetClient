@@ -114,12 +114,15 @@ struct PlanetAvatarView: View {
     }
 
     private func downloadAvatarFromRemote() async {
-        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
-            let documentsDirectory = FileManager.default.urls(
-                for: .documentDirectory,
-                in: .userDomainMask
-            ).first
-        else {
+//        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
+//            let documentsDirectory = FileManager.default.urls(
+//                for: .documentDirectory,
+//                in: .userDomainMask
+//            ).first
+//        else {
+//            return
+//        }
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID, let documentsDirectory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: .appGroupName) else {
             return
         }
         let myPlanetPath =
@@ -132,7 +135,6 @@ struct PlanetAvatarView: View {
         }
         let remoteAvatarURL =
             serverURL
-//            .appending(path: "/v0/planets/my/")
             .appending(path: planet.id)
             .appending(path: "avatar.png")
         let localAvatarURL = myPlanetPath.appending(path: "avatar.png")

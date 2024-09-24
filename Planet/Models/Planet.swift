@@ -173,12 +173,15 @@ struct Planet: Codable, Identifiable, Hashable {
 
     // MARK: -
     private func localAvatarURL() -> URL? {
-        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
-            let documentsDirectory = FileManager.default.urls(
-                for: .documentDirectory,
-                in: .userDomainMask
-            ).first
-        else {
+//        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
+//            let documentsDirectory = FileManager.default.urls(
+//                for: .documentDirectory,
+//                in: .userDomainMask
+//            ).first
+//        else {
+//            return nil
+//        }
+        guard let nodeID = PlanetAppViewModel.shared.currentNodeID, let documentsDirectory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: .appGroupName) else {
             return nil
         }
         let myPlanetPath = documentsDirectory
@@ -205,7 +208,6 @@ struct Planet: Codable, Identifiable, Hashable {
             return nil
         }
         return serverURL
-//            .appending(path: "/v0/planets/my/")
             .appending(path: self.id)
             .appending(path: "avatar.png")
     }
