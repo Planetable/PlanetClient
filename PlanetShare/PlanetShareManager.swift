@@ -33,6 +33,7 @@ class PlanetShareManager: NSObject {
         }()
         postIntent.setImage(planetAvatarImage, forParameterNamed: \.speakableGroupName)
         let interaction = INInteraction(intent: postIntent, response: nil)
+        interaction.groupIdentifier = planet.id
         try await interaction.donate()
     }
     
