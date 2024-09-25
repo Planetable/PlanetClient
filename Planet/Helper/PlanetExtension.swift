@@ -6,6 +6,14 @@ import UniformTypeIdentifiers
 
 // MARK: - String -
 extension String {
+    // group.$(ORGANIZATION_IDENTIFIER_PREFIX)
+    static let appGroupName: String = {
+        if let name = Bundle.main.object(forInfoDictionaryKey: "ORGANIZATION_IDENTIFIER_PREFIX") as? String {
+            return "group.\(name)"
+        }
+        return "group.xyz.planetable.PlanetMobile"
+    }()
+
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
     static let selectedPlanetTemplateName = "PlanetSelectedPlanetTemplateNameKey"
     static let settingsSelectedTabKey = "PlanetSettingsSelectedTabKey"
@@ -26,8 +34,6 @@ extension String {
 
 // MARK: - URL -
 extension URL {
-    static let myPlanetsList = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appending(path: "myplanets.json")
-
     func mimeType() -> String {
         if let mimeType = UTType(filenameExtension: self.pathExtension)?.preferredMIMEType {
             return mimeType

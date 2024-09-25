@@ -17,7 +17,7 @@ class PlanetAppViewModel: ObservableObject {
             UserDefaults.standard.set(selectedTab.rawValue, forKey: .settingsSelectedTabKey)
         }
     }
-    @Published var currentNodeID: String? = UserDefaults.standard.string(forKey: .settingsNodeIDKey) {
+    @Published var currentNodeID: String? = PlanetManager.shared.userDefaults.string(forKey: .settingsNodeIDKey) {
         willSet {
             if newValue != currentNodeID {
                 debugPrint("👌 New Node ID is: \(String(describing: newValue))")
@@ -41,8 +41,8 @@ class PlanetAppViewModel: ObservableObject {
             }
         }
     }
-    @Published var currentServerName: String = UserDefaults.standard.string(forKey: .settingsServerNameKey) ?? ""
-    @Published var currentServerURLString: String = UserDefaults.standard.string(forKey: .settingsServerURLKey) ?? "" {
+    @Published var currentServerName: String = PlanetManager.shared.userDefaults.string(forKey: .settingsServerNameKey) ?? ""
+    @Published var currentServerURLString: String = PlanetManager.shared.userDefaults.string(forKey: .settingsServerURLKey) ?? "" {
         willSet {
             if newValue != currentServerURLString {
                 debugPrint("👌 Current Server URL is: \(newValue)")
