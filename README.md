@@ -22,9 +22,10 @@ Basic Features:
 ```sh
 $ git clone https://github.com/Planetable/PlanetMobile app
 $ cd app
-# update developer settings, replacing with your Apple Developer Team ID
+# update developer settings, replacing with your Apple Developer Team ID and organization identifier prefix:
 $ printf "DEVELOPMENT_TEAM = <your team id> \
-         \nCODE_SIGN_STYLE = Automatic" > Planet/local.xcconfig
+	  \nCODE_SIGN_STYLE = Automatic \
+	  \nORGANIZATION_IDENTIFIER_PREFIX = com.sample.id" > Planet/local.xcconfig
 # open in Xcode
 $ open Planet.xcodeproj/
 ```
