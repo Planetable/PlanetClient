@@ -12,6 +12,9 @@ ORGANIZATION_IDENTIFIER_PREFIX = xyz.planetable
 
 DEVELOPMENT_TEAM = 66KP7KX9MX;
 
+// Using app group to share user defaults and keychain access between targets.
+APP_GROUP_NAME = xyz.planetable.share.PlanetClient
+
 #include "marketing_version.xcconfig"
 #include "versioning.xcconfig"
 #include? "local.xcconfig"

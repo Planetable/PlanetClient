@@ -5,10 +5,7 @@ class KeychainHelper: NSObject {
     static let shared = KeychainHelper()
 
     private var appServiceName: String {
-        if let name = Bundle.main.object(forInfoDictionaryKey: "ORGANIZATION_IDENTIFIER_PREFIX") as? String {
-            return name + ".PlanetMobile"
-        }
-        return "xyz.planetable.PlanetMobile"
+        return String.appGroupName
     }
 
     private var appICloudSync: Bool {

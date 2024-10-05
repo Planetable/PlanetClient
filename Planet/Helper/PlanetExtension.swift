@@ -6,12 +6,13 @@ import UniformTypeIdentifiers
 
 // MARK: - String -
 extension String {
-    // group.$(ORGANIZATION_IDENTIFIER_PREFIX)
     static let appGroupName: String = {
-        if let name = Bundle.main.object(forInfoDictionaryKey: "ORGANIZATION_IDENTIFIER_PREFIX") as? String {
-            return "group.\(name)"
+        if let name = Bundle.main.object(forInfoDictionaryKey: "APP_GROUP_NAME") as? String {
+            let groupName = "group.\(name)"
+            debugPrint("Using APP_GROUP_NAME for shared user defaults and keychain access: \(groupName)")
+            return groupName
         }
-        return "group.xyz.planetable.PlanetMobile"
+        fatalError("APP_GROUP_NAME not found in xcconfig")
     }()
 
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
