@@ -57,10 +57,10 @@ struct PlanetArticleAttachmentsView: View {
     private func generateImageFromLocation(_ location: CLLocation) async throws -> UIImage {
         let options = MKMapSnapshotter.Options()
         options.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000)
-        let size = await UIScreen.main.bounds.size
+        let size = UIScreen.main.bounds.size
         let minWidth = min(size.width, size.height)
         options.size = CGSize(width: minWidth, height: minWidth)
-        options.scale = await UIScreen.main.scale
+        options.scale = UIScreen.main.scale
         let mapSnapshotter = MKMapSnapshotter(options: options)
         return try await withCheckedThrowingContinuation { continuation in
             mapSnapshotter.start { snapshot, error in

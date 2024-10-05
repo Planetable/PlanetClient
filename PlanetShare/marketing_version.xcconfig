@@ -1,0 +1,11 @@
+//
+//  marketing_version.xcconfig
+//  Planet
+//
+//  Created by Xin Liu on 12/13/23.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+MARKETING_VERSION = 0.2;
