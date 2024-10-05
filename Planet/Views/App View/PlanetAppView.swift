@@ -4,8 +4,8 @@ struct PlanetAppView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
-    @State private var serverStatus: Bool = true
     @State private var isWaitingUpdate: Bool = false
+    @State private var isServerInactive: Bool = false
 
     var body: some View {
         NavigationStack(path: $appViewModel.path) {
@@ -68,19 +68,37 @@ struct PlanetAppView: View {
                     switch appViewModel.selectedTab {
                     case .latest:
                         Button {
-                            appViewModel.newArticle.toggle()
+                            Task {
+                                if await PlanetStatus.shared.serverIsOnline() {
+                                    await MainActor.run {
+                                        self.appViewModel.newArticle.toggle()
+                                    }
+                                } else {
+                                    await MainActor.run {
+                                        self.isServerInactive = true
+                                    }
+                                }
+                            }
                         } label: {
                             Image(systemName: "plus")
                         }
-                        .disabled(!serverStatus)
                         .help("New Article")
                     case .myPlanets:
                         Button {
-                            appViewModel.newPlanet.toggle()
+                            Task {
+                                if await PlanetStatus.shared.serverIsOnline() {
+                                    await MainActor.run {
+                                        self.appViewModel.newPlanet.toggle()
+                                    }
+                                } else {
+                                    await MainActor.run {
+                                        self.isServerInactive = true
+                                    }
+                                }
+                            }
                         } label: {
                             Image(systemName: "plus")
                         }
-                        .disabled(!serverStatus)
                         .help("New Planet")
                     case .drafts:
                         Button {
@@ -130,16 +148,12 @@ struct PlanetAppView: View {
         }
         .onReceive(settingsViewModel.timer) { _ in
             Task { @MainActor in
-                self.serverStatus = await PlanetStatus.shared.serverIsOnline()
                 let allKeys = UserDefaults.standard.dictionaryRepresentation().keys
                 let waitingStatus = allKeys.filter({ $0.hasPrefix("PlanetEditingArticleKey-") }).count > 0
                 withAnimation {
                     self.isWaitingUpdate = waitingStatus
                 }
             }
-        }
-        .task(priority: .utility) {
-            self.serverStatus = await PlanetStatus.shared.serverIsOnline()
         }
         .alert(isPresented: $appViewModel.failedToReload) {
             Alert(
@@ -153,6 +167,18 @@ struct PlanetAppView: View {
                 title: Text("Failed to Create Article"),
                 message: Text(appViewModel.failedMessage),
                 dismissButton: .default(Text("Dismiss"))
+            )
+        }
+        .alert(isPresented: $isServerInactive) {
+            Alert(
+                title: Text("Server Inactive"),
+                message: Text("Would you like to check server status in settings?"),
+                primaryButton: .default(Text("Open Settings")) {
+                    Task { @MainActor in
+                        self.appViewModel.showSettings.toggle()
+                    }
+                },
+                secondaryButton: .cancel(Text("Not Now"))
             )
         }
     }
