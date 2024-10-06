@@ -11,6 +11,7 @@ import UIKit
 
 class PlanetQuickShareViewController: SLComposeServiceViewController {
 
+    private static let lastSharedPlanetID: String = "PlanetLastSharedPlanetIDKey"
     private var itemProviders: [NSItemProvider]?
 
     override func viewDidLoad() {
@@ -24,6 +25,11 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
             return
         }
         self.itemProviders = item.attachments ?? []
+        let intent = context.intent as? INSendMessageIntent
+        if let intent, let planetID = intent.conversationIdentifier, let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
+            self.setTargetPlanet(planet)
+            self.reloadConfigurationItems()
+        }
     }
 
     override func isContentValid() -> Bool {
@@ -45,18 +51,63 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
     }
 
     override func configurationItems() -> [Any]! {
+        if let planetID = PlanetManager.shared.userDefaults.string(forKey: Self.lastSharedPlanetID), let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
+            let item = SLComposeSheetConfigurationItem()
+            item?.title = "Share to \(planet.name)"
+            item?.tapHandler = {
+                self.showPlanetPicker()
+            }
+            if let item {
+                return [item]
+            }
+        } else if let planet = PlanetAppViewModel.shared.myPlanets.first {
+            let item = SLComposeSheetConfigurationItem()
+            item?.title = "Share to \(planet.name)"
+            item?.tapHandler = {
+                self.setTargetPlanet(planet)
+                self.showPlanetPicker()
+            }
+            if let item {
+                return [item]
+            }
+        }
         return []
     }
 
     // MARK: -
 
-    private func postToTargetPlanet() async throws {
-        let targetItemProviders = self.itemProviders ?? []
+    private func showPlanetPicker() {
+        let controller = UIAlertController(title: "Select Planet", message: nil, preferredStyle: .actionSheet)
+        for planet in PlanetAppViewModel.shared.myPlanets {
+            let action = UIAlertAction(title: planet.name, style: .default) { _ in
+                self.setTargetPlanet(planet)
+                self.reloadConfigurationItems()
+            }
+            controller.addAction(action)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            self.reloadConfigurationItems()
+        }
+        controller.addAction(cancelAction)
+        self.present(controller, animated: true, completion: nil)
+    }
 
-        // get current planet from context
-        let intent = self.extensionContext?.intent as? INSendMessageIntent
-        guard let intent, let planetID = intent.conversationIdentifier else { return }
-        guard let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) else { return }
+    private func getTargetPlanet() -> Planet? {
+        if let planetID = PlanetManager.shared.userDefaults.string(forKey: Self.lastSharedPlanetID), let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
+            return planet
+        }
+        return nil
+    }
+
+    private func setTargetPlanet(_ planet: Planet) {
+        PlanetManager.shared.userDefaults.setValue(planet.id, forKey: Self.lastSharedPlanetID)
+        PlanetManager.shared.userDefaults.synchronize()
+    }
+
+    private func postToTargetPlanet() async throws {
+        guard let planet = self.getTargetPlanet() else { return }
+
+        let targetItemProviders = self.itemProviders ?? []
 
         // process share content from item provider, plain text content, url as text content or images.
         var content: String = self.contentText
@@ -99,7 +150,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
             let draftAttachments = attachments.map { a in
                 return a.url.lastPathComponent
             }
-            try PlanetManager.shared.saveArticleDraft(byID: draftID, attachments: draftAttachments, title: "", content: content, planetID: UUID(uuidString: planetID))
+            try PlanetManager.shared.saveArticleDraft(byID: draftID, attachments: draftAttachments, title: "", content: content, planetID: UUID(uuidString: planet.id))
         } catch {
             throw error
         }
