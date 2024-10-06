@@ -10,7 +10,8 @@ import Intents
 
 class PlanetShareManager: NSObject {
     static let shared = PlanetShareManager()
-    
+    static let lastSharedPlanetID: String = "PlanetLastSharedPlanetIDKey"
+
     func donatePost(forPlanet planet: Planet, content: String) async throws {
         let planetName = INSpeakableString(spokenPhrase: planet.name)
         let postIntent = INSendMessageIntent(

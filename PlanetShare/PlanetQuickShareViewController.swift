@@ -11,23 +11,24 @@ import UIKit
 
 class PlanetQuickShareViewController: SLComposeServiceViewController {
 
-    private static let lastSharedPlanetID: String = "PlanetLastSharedPlanetIDKey"
     private var itemProviders: [NSItemProvider]?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         let _ = PlanetAppViewModel.shared
         let _ = PlanetManager.shared
-        guard let context = self.extensionContext else {
-            return
-        }
-        guard let item = context.inputItems.first as? NSExtensionItem else {
-            return
-        }
-        self.itemProviders = item.attachments ?? []
-        let intent = context.intent as? INSendMessageIntent
-        if let intent, let planetID = intent.conversationIdentifier, let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
-            self.setTargetPlanet(planet)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            let intent = self.extensionContext?.intent as? INSendMessageIntent
+            if let intent, let planetID = intent.conversationIdentifier, let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
+                self.setTargetPlanet(planet)
+            }
+            if let item = self.extensionContext?.inputItems.first as? NSExtensionItem, let itemProviders = item.attachments {
+                self.itemProviders = itemProviders
+            } else {
+                self.itemProviders = []
+            }
             self.reloadConfigurationItems()
         }
     }
@@ -51,16 +52,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
     }
 
     override func configurationItems() -> [Any]! {
-        if let planetID = PlanetManager.shared.userDefaults.string(forKey: Self.lastSharedPlanetID), let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
-            let item = SLComposeSheetConfigurationItem()
-            item?.title = "Share to \(planet.name)"
-            item?.tapHandler = {
-                self.showPlanetPicker()
-            }
-            if let item {
-                return [item]
-            }
-        } else if let planet = PlanetAppViewModel.shared.myPlanets.first {
+        if let planet = self.getTargetPlanet() ?? PlanetAppViewModel.shared.myPlanets.first {
             let item = SLComposeSheetConfigurationItem()
             item?.title = "Share to \(planet.name)"
             item?.tapHandler = {
@@ -93,14 +85,14 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
     }
 
     private func getTargetPlanet() -> Planet? {
-        if let planetID = PlanetManager.shared.userDefaults.string(forKey: Self.lastSharedPlanetID), let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
+        if let planetID = PlanetManager.shared.userDefaults.string(forKey: PlanetShareManager.lastSharedPlanetID), let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
             return planet
         }
         return nil
     }
 
     private func setTargetPlanet(_ planet: Planet) {
-        PlanetManager.shared.userDefaults.setValue(planet.id, forKey: Self.lastSharedPlanetID)
+        PlanetManager.shared.userDefaults.setValue(planet.id, forKey: PlanetShareManager.lastSharedPlanetID)
         PlanetManager.shared.userDefaults.synchronize()
     }
 
