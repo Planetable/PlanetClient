@@ -93,6 +93,17 @@ extension BonjourViewModel: NetServiceBrowserDelegate {
             self.services.removeAll(where: { $0 == service })
         }
     }
+
+    // MARK: TODO: Handle authentication in bonjour service scanning process.
+    func checkIfServiceRequiresAuthentication(_ service: NetService) -> Bool {
+        guard let txtRecordData = service.txtRecordData() else { return false }
+        let txtRecordDict = NetService.dictionary(fromTXTRecord: txtRecordData)
+        if let requiresAuthData = txtRecordDict["requiresAuth"],
+           let requiresAuthString = String(data: requiresAuthData, encoding: .utf8) {
+            return requiresAuthString == "true"
+        }
+        return false
+    }
 }
 
 extension BonjourViewModel: NetServiceDelegate {
