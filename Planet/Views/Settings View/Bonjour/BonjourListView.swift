@@ -151,6 +151,7 @@ extension BonjourViewModel: NetServiceDelegate {
                     serverURL = "http://\(ip):\(sender.port)"
                 }
                 debugPrint("Service IP: \(ip), Port: \(sender.port), URL: \(serverURL)")
+                PlanetSettingsViewModel.shared.serverProtocol = "http"
                 PlanetSettingsViewModel.shared.serverHost = ip
                 PlanetSettingsViewModel.shared.serverPort = "\(sender.port)"
                 PlanetAppViewModel.shared.showBonjourList = false

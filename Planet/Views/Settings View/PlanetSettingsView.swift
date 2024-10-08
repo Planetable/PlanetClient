@@ -142,13 +142,21 @@ struct PlanetSettingsView: View {
                 }
             }
             .onAppear {
-                Task { @MainActor in
-                    await syncServerInformation()
-                }
                 Task(priority: .userInitiated) {
                     let status = await PlanetStatus.shared.serverIsOnline()
                     await MainActor.run {
                         self.serverOnlineStatus = status
+                    }
+                    guard status else { return }
+                    guard
+                        self.serverProtocol == "",
+                        self.serverHost == "",
+                        self.serverPort == "",
+                        self.serverUsername == "",
+                        self.serverPassword == ""
+                    else { return }
+                    Task { @MainActor in
+                        await self.syncServerInformation()
                     }
                 }
             }
@@ -235,6 +243,14 @@ struct PlanetSettingsView: View {
                         .frame(width: 14, height: 14)
                         .foregroundColor(.clear)
                     Text("\(serverName)")
+                        .font(.system(.callout, design: .monospaced))
+                }
+                let serverURL = appViewModel.currentServerURLString
+                HStack(spacing: 10) {
+                    Circle()
+                        .frame(width: 14, height: 14)
+                        .foregroundColor(.clear)
+                    Text("\(serverURL)")
                         .font(.system(.callout, design: .monospaced))
                 }
             }
