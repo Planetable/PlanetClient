@@ -82,6 +82,13 @@ class PlanetSettingsViewModel: ObservableObject {
             timeoutInterval: 5
         )
         request.httpMethod = "GET"
+        if serverAuthenticationEnabled {
+            let loginValue = try? PlanetManager.shared.basicAuthenticationValue(
+                username: serverUsername,
+                password: serverPassword
+            )
+            request.setValue(loginValue, forHTTPHeaderField: "Authorization")
+        }
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
             let info = try JSONDecoder().decode(PlanetServerInfo.self, from: data)
