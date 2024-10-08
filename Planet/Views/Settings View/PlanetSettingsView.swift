@@ -206,8 +206,13 @@ struct PlanetSettingsView: View {
         self.serverHost = self.settingsViewModel.serverHost
         self.serverPort = self.settingsViewModel.serverPort
         self.serverAuthenticationEnabled = self.settingsViewModel.serverAuthenticationEnabled
-        self.serverUsername = self.settingsViewModel.serverUsername
-        self.serverPassword = self.settingsViewModel.serverPassword
+        if self.serverAuthenticationEnabled && self.settingsViewModel.serverUsername != "" {
+            self.serverUsername = self.settingsViewModel.serverUsername
+            self.serverPassword = self.settingsViewModel.serverPassword
+        } else {
+            self.serverUsername = ""
+            self.serverPassword = ""
+        }
     }
 
     @MainActor
