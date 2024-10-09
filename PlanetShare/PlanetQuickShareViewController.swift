@@ -133,17 +133,18 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
             }
         }
 
-        // create article if server is active, otherwise save as draft for target planet.
+        // create article, save as draft if failed.
+        debugPrint("about to create article")
         do {
             try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet)
-        } catch PlanetError.APIServerIsInactiveError {
+        } catch {
+            debugPrint("failed to create article: \(error), saving as draft.")
             let draftID = UUID()
             _ = try PlanetManager.shared.renderArticlePreview(forTitle: "", content: content, andArticleID: draftID.uuidString)
             let draftAttachments = attachments.map { a in
                 return a.url.lastPathComponent
             }
-            try PlanetManager.shared.saveArticleDraft(byID: draftID, attachments: draftAttachments, title: "", content: content, planetID: UUID(uuidString: planet.id))
-        } catch {
+            try? PlanetManager.shared.saveArticleDraft(byID: draftID, attachments: draftAttachments, title: "", content: content, planetID: UUID(uuidString: planet.id))
             throw error
         }
     }
