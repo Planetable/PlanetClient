@@ -5,11 +5,8 @@ struct PlanetNewArticleView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
 
-    @State private var selectedPlanetIndex: Int = PlanetManager.shared.userDefaults.integer(forKey: .selectedPlanetIndex) {
-        didSet {
-            PlanetManager.shared.userDefaults.setValue(selectedPlanetIndex, forKey: .selectedPlanetIndex)
-        }
-    }
+    @AppStorage(.selectedPlanetIndex) private var selectedPlanetIndex: Int = PlanetManager.shared.userDefaults.integer(forKey: .selectedPlanetIndex)
+
     @State private var selectedPlanet: Planet?
     @State private var title: String = ""
     @State private var content: String = ""
