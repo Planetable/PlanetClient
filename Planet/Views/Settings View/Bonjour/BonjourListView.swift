@@ -93,17 +93,6 @@ extension BonjourViewModel: NetServiceBrowserDelegate {
             self.services.removeAll(where: { $0 == service })
         }
     }
-
-    // MARK: TODO: Handle authentication in bonjour service scanning process.
-    func checkIfServiceRequiresAuthentication(_ service: NetService) -> Bool {
-        guard let txtRecordData = service.txtRecordData() else { return false }
-        let txtRecordDict = NetService.dictionary(fromTXTRecord: txtRecordData)
-        if let requiresAuthData = txtRecordDict["requiresAuth"],
-           let requiresAuthString = String(data: requiresAuthData, encoding: .utf8) {
-            return requiresAuthString == "true"
-        }
-        return false
-    }
 }
 
 extension BonjourViewModel: NetServiceDelegate {
@@ -161,12 +150,21 @@ extension BonjourViewModel: NetServiceDelegate {
                 } else {
                     serverURL = "http://\(ip):\(sender.port)"
                 }
-                debugPrint("Service IP: \(ip), Port: \(sender.port), URL: \(serverURL)")
-                PlanetSettingsViewModel.shared.serverProtocol = "http"
-                PlanetSettingsViewModel.shared.serverHost = ip
-                PlanetSettingsViewModel.shared.serverPort = "\(sender.port)"
-                PlanetAppViewModel.shared.showBonjourList = false
+                let serverPort = sender.port
+                debugPrint("Service IP: \(ip), Port: \(serverPort), URL: \(serverURL)")
                 Task(priority: .userInitiated) {
+                    var request = URLRequest(url: URL(string: serverURL)!.appendingPathComponent("/v0/ping"))
+                    request.httpMethod = "GET"
+                    let (_, response) = try await URLSession.shared.data(for: request)
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
+                        debugPrint("401 Unauthorized, need authentication.")
+                    }
+                    await MainActor.run {
+                        PlanetSettingsViewModel.shared.serverProtocol = "http"
+                        PlanetSettingsViewModel.shared.serverHost = ip
+                        PlanetSettingsViewModel.shared.serverPort = "\(serverPort)"
+                        PlanetAppViewModel.shared.showBonjourList = false
+                    }
                     try? await Task.sleep(for: .seconds(1))
                     await PlanetSettingsViewModel.shared.saveAndConnect()
                 }
