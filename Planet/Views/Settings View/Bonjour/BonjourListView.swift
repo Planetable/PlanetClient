@@ -47,6 +47,35 @@ struct BonjourListView: View {
                     }
                 }
             }
+            .alert("Authtication", isPresented: $viewModel.isShowingAuth, actions: {
+                TextField("Username", text: $viewModel.username)
+                SecureField("Password", text: $viewModel.password)
+                Button {
+                    Task {
+                        await MainActor.run {
+                            PlanetAppViewModel.shared.showBonjourList = false
+                            PlanetSettingsViewModel.shared.serverAuthenticationEnabled = true
+                            PlanetSettingsViewModel.shared.serverUsername = self.viewModel.username
+                            PlanetSettingsViewModel.shared.serverPassword = self.viewModel.password
+                        }
+                        try? await Task.sleep(for: .seconds(1))
+                        await PlanetSettingsViewModel.shared.saveAndConnect()
+                    }
+                } label: {
+                    Text("Login")
+                }
+                Button {
+                    Task { @MainActor in
+                        PlanetAppViewModel.shared.showBonjourList = false
+                        self.viewModel.username = ""
+                        self.viewModel.password = ""
+                    }
+                } label: {
+                    Text("Cancel")
+                }
+            }, message: {
+                Text("Please enter username and password for the server.")
+            })
         }
     }
 }
@@ -54,6 +83,10 @@ struct BonjourListView: View {
 class BonjourViewModel: NSObject, ObservableObject {
     var browser: NetServiceBrowser?
     @Published var services: [NetService] = []
+
+    @Published var isShowingAuth: Bool = false
+    @Published var username: String = ""
+    @Published var password: String = ""
 
     func startScanning() {
         browser = NetServiceBrowser()
@@ -153,16 +186,21 @@ extension BonjourViewModel: NetServiceDelegate {
                 let serverPort = sender.port
                 debugPrint("Service IP: \(ip), Port: \(serverPort), URL: \(serverURL)")
                 Task(priority: .userInitiated) {
-                    var request = URLRequest(url: URL(string: serverURL)!.appendingPathComponent("/v0/ping"))
-                    request.httpMethod = "GET"
-                    let (_, response) = try await URLSession.shared.data(for: request)
-                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
-                        debugPrint("401 Unauthorized, need authentication.")
-                    }
                     await MainActor.run {
                         PlanetSettingsViewModel.shared.serverProtocol = "http"
                         PlanetSettingsViewModel.shared.serverHost = ip
                         PlanetSettingsViewModel.shared.serverPort = "\(serverPort)"
+                    }
+                    var request = URLRequest(url: URL(string: serverURL)!.appendingPathComponent("/v0/ping"))
+                    request.httpMethod = "GET"
+                    let (_, response) = try await URLSession.shared.data(for: request)
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
+                        await MainActor.run {
+                            self.isShowingAuth = true
+                        }
+                        return
+                    }
+                    await MainActor.run {
                         PlanetAppViewModel.shared.showBonjourList = false
                     }
                     try? await Task.sleep(for: .seconds(1))
