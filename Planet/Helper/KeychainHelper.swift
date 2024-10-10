@@ -5,7 +5,12 @@ class KeychainHelper: NSObject {
     static let shared = KeychainHelper()
 
     private var appServiceName: String {
-        return String.appGroupName
+        if let prefix = Bundle.main.object(forInfoDictionaryKey: "ORGANIZATION_IDENTIFIER_PREFIX") as? String {
+            let groupName = "\(prefix).keychain"
+            debugPrint("Using keychain access group: \(groupName)")
+            return groupName
+        }
+        fatalError("ORGANIZATION_IDENTIFIER_PREFIX not setup in Info.plist")
     }
 
     private var appICloudSync: Bool {

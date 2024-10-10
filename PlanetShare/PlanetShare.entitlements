@@ -7,6 +7,8 @@
 		<string>group.$(APP_GROUP_NAME)</string>
 	</array>
 	<key>keychain-access-groups</key>
-	<array/>
+	<array>
+		<string>$(AppIdentifierPrefix)$(ORGANIZATION_IDENTIFIER_PREFIX).keychain</string>
+	</array>
 </dict>
 </plist>
