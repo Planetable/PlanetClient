@@ -6,6 +6,7 @@
 import UIKit
 import SwiftUI
 import PhotosUI
+import CryptoKit
 #if !targetEnvironment(simulator)
 import JournalingSuggestions
 import MapKit
@@ -16,26 +17,55 @@ struct PlanetArticleAttachmentsView: View {
     @Binding var title: String
     @Binding var attachments: [PlanetArticleAttachment]
 
+    @State private var isProcessing: Bool = false
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
     @State private var selectedItems: [PhotosPickerItem] = []
 
+    @State private var processedImageNames: [String] = []
+
     private func processAndInsertImages(_ images: [UIImage]) throws {
+        debugPrint("processing images: \(images)")
         for image in images {
+            guard let rawImageName = generateShortImageName(for: image) else { continue }
+            if self.processedImageNames.contains(rawImageName) { continue }
+            self.processedImageNames.append(rawImageName)
             if let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
-                let imageName = String(UUID().uuidString.prefix(4)) + ".png"
+                let imageName = rawImageName + ".png"
                 let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
                 let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
                 if FileManager.default.fileExists(atPath: url.path) {
-                    try? FileManager.default.removeItem(at: url)
+                    // ignore duplicated image
+                    debugPrint("ignore duplicated image: \(image)")
+                    continue
                 }
                 try imageData.write(to: url)
+                if FileManager.default.fileExists(atPath: url.path) {
+                    try? FileManager.default.removeItem(at: url)
+                }
                 Task { @MainActor in
                     self.attachments.insert(attachment, at: 0)
                     NotificationCenter.default.post(name: .insertAttachment, object: attachment)
                 }
             } else {
                 throw PlanetError.InternalError
+            }
+        }
+    }
+
+    private func generateShortImageName(for image: UIImage) -> String? {
+        guard let imageData = image.pngData() else { return nil }
+        let hash = SHA256.hash(data: imageData)
+        let fullHash = hash.compactMap { String(format: "%02x", $0) }.joined()
+        let shortHash = String(fullHash.prefix(8))
+        return shortHash
+    }
+
+    private func cleanupProcessedImages() {
+        Task.detached(priority: .background) {
+            for imageName in await self.processedImageNames {
+                let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
+                try? FileManager.default.removeItem(at: url)
             }
         }
     }
@@ -125,28 +155,42 @@ struct PlanetArticleAttachmentsView: View {
                         .frame(width: 12)
                 }
 
-                PhotosPicker(selection: $selectedItems, maxSelectionCount: 10, matching: .any(of: [.images, .not(.livePhotos)])) {
-                    Image(systemName: "plus.circle")
-                        .resizable()
+                if isProcessing {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .controlSize(.regular)
                         .frame(width: 20, height: 20)
-                }
-                .buttonStyle(.plain)
-                .padding(.trailing, 8)
-                .onChange(of: selectedItems) { newValues in
-                    Task(priority: .userInitiated) {
-                        var images: [UIImage] = []
-                        for value in newValues {
-                            if let data = try? await value.loadTransferable(type: Data.self), let image = UIImage(data: data) {
-                                images.append(image)
-                            }
+                } else {
+                    PhotosPicker(selection: $selectedItems, maxSelectionCount: 10, matching: .any(of: [.images, .not(.livePhotos)])) {
+                        Image(systemName: "plus.circle")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.trailing, 8)
+                    .onChange(of: selectedItems) { newValues in
+                        Task { @MainActor in
+                            self.isProcessing = true
                         }
-                        do {
-                            try self.processAndInsertImages(images)
-                        } catch {
-                            Task { @MainActor in
-                                self.selectedItems.removeAll()
+                        Task(priority: .userInitiated) {
+                            var images: [UIImage] = []
+                            for value in newValues {
+                                if let data = try? await value.loadTransferable(type: Data.self), let image = UIImage(data: data) {
+                                    images.append(image)
+                                }
                             }
-                            debugPrint("failed to process and insert images: \(error)")
+                            do {
+                                try self.processAndInsertImages(images)
+                            } catch {
+                                Task { @MainActor in
+                                    self.selectedItems.removeAll()
+                                }
+                                self.cleanupProcessedImages()
+                                debugPrint("failed to process and insert images: \(error)")
+                            }
+                            Task { @MainActor in
+                                self.isProcessing = false
+                            }
                         }
                     }
                 }
@@ -203,6 +247,9 @@ struct PlanetArticleAttachmentsView: View {
             } label: {
                 Text("Remove Attachment")
             }
+        }
+        .onDisappear {
+            self.cleanupProcessedImages()
         }
     }
 }
