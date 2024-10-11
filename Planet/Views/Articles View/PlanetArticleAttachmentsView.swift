@@ -18,38 +18,25 @@ struct PlanetArticleAttachmentsView: View {
 
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
-    @State private var selectedItem: PhotosPickerItem?
-    @State private var selectedPhotoData: Data? {
-        didSet {
-            Task(priority: .utility) {
-                if let selectedPhotoData, let image = UIImage(data: selectedPhotoData) {
-                    do {
-                        try self.processAndInsertImage(image)
-                    } catch {
-                        debugPrint("failed to process and insert image: \(error)")
-                    }
-                } else {
-                    debugPrint("failed to save photo data.")
-                }
-            }
-        }
-    }
+    @State private var selectedItems: [PhotosPickerItem] = []
 
-    private func processAndInsertImage(_ image: UIImage) throws {
-        if let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
-            let imageName = String(UUID().uuidString.prefix(4)) + ".png"
-            let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
-            let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
-            if FileManager.default.fileExists(atPath: url.path) {
-                try? FileManager.default.removeItem(at: url)
+    private func processAndInsertImages(_ images: [UIImage]) throws {
+        for image in images {
+            if let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
+                let imageName = String(UUID().uuidString.prefix(4)) + ".png"
+                let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
+                let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+                if FileManager.default.fileExists(atPath: url.path) {
+                    try? FileManager.default.removeItem(at: url)
+                }
+                try imageData.write(to: url)
+                Task { @MainActor in
+                    self.attachments.insert(attachment, at: 0)
+                    NotificationCenter.default.post(name: .insertAttachment, object: attachment)
+                }
+            } else {
+                throw PlanetError.InternalError
             }
-            try imageData.write(to: url)
-            Task { @MainActor in
-                self.attachments.insert(attachment, at: 0)
-                NotificationCenter.default.post(name: .insertAttachment, object: attachment)
-            }
-        } else {
-            throw PlanetError.InternalError
         }
     }
 
@@ -137,28 +124,33 @@ struct PlanetArticleAttachmentsView: View {
                     Text("")
                         .frame(width: 12)
                 }
-                PhotosPicker(selection: $selectedItem, matching: .any(of: [.images, .not(.livePhotos)])) {
+
+                PhotosPicker(selection: $selectedItems, maxSelectionCount: 10, matching: .any(of: [.images, .not(.livePhotos)])) {
                     Image(systemName: "plus.circle")
                         .resizable()
                         .frame(width: 20, height: 20)
                 }
                 .buttonStyle(.plain)
                 .padding(.trailing, 8)
-                .onChange(of: selectedItem) { newValue in
-                    Task(priority: .utility) {
-                        do {
-                            if let newValue, let data = try await newValue.loadTransferable(type: Data.self) {
-                                selectedPhotoData = data
-                            } else {
-                                selectedItem = nil
-                                selectedPhotoData = nil
+                .onChange(of: selectedItems) { newValues in
+                    Task(priority: .userInitiated) {
+                        var images: [UIImage] = []
+                        for value in newValues {
+                            if let data = try? await value.loadTransferable(type: Data.self), let image = UIImage(data: data) {
+                                images.append(image)
                             }
+                        }
+                        do {
+                            try self.processAndInsertImages(images)
                         } catch {
-                            selectedItem = nil
-                            selectedPhotoData = nil
+                            Task { @MainActor in
+                                self.selectedItems.removeAll()
+                            }
+                            debugPrint("failed to process and insert images: \(error)")
                         }
                     }
                 }
+
                 ForEach(0..<attachments.count, id: \.self) { index in
                     Button {
                         isTapped.toggle()
