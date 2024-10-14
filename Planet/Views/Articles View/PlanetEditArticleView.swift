@@ -187,7 +187,7 @@ struct PlanetEditArticleView: View {
 
     private func updateAttachments() {
         guard let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) else { return }
-        let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tmp = URL.cachesDirectory
         let editPath = articlePath.appending(path: Self.editAttachment)
         let tmpAttachments: [PlanetArticleAttachment] = uploadedImages.filter { a in
             if a.url.deletingLastPathComponent() == tmp {

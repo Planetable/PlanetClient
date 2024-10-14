@@ -38,7 +38,7 @@ struct PlanetArticleAttachmentsView: View {
     private func processAndInsertImage(_ image: UIImage) throws {
         if let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
             let imageName = String(UUID().uuidString.prefix(4)) + ".png"
-            let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
+            let url = URL.cachesDirectory.appending(path: imageName)
             let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
             if FileManager.default.fileExists(atPath: url.path) {
                 try? FileManager.default.removeItem(at: url)

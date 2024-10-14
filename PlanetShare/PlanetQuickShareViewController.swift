@@ -184,8 +184,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
                     }
                 } else if let imageData = item as? Data, let image = UIImage(data: imageData) {
                     let id = UUID()
-                    let tmpPath = NSTemporaryDirectory().appending("\(id.uuidString).png")
-                    let tmpURL = URL(fileURLWithPath: tmpPath)
+                    let tmpURL = URL.cachesDirectory.appending(path: "\(id.uuidString).png")
                     do {
                         try? FileManager.default.removeItem(at: tmpURL)
                         try imageData.write(to: tmpURL)

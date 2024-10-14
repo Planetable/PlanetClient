@@ -235,7 +235,7 @@ struct PlanetNewArticleView: View {
         if let attachments = draft.attachments {
             for attachment in attachments {
                 let attachmentPath = articleDraftPath.appending(path: attachment)
-                let tempPath = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: attachment)
+                let tempPath = URL.cachesDirectory.appending(path: attachment)
                 try? FileManager.default.copyItem(at: attachmentPath, to: tempPath)
                 if let image = UIImage(contentsOfFile: tempPath.path) {
                     let articleAttachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: tempPath)

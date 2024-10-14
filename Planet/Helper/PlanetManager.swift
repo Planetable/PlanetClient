@@ -523,7 +523,7 @@ class PlanetManager: NSObject {
     }
 
     func renderArticlePreview(forTitle title: String, content: String, andArticleID articleID: String) throws -> URL {
-        let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tmp = URL.cachesDirectory
         let articlePath = tmp.appending(path: articleID).appendingPathExtension("html")
         try? FileManager.default.removeItem(at: articlePath)
         let titleAndContent = "# " + title + "\n" + content
@@ -587,7 +587,7 @@ class PlanetManager: NSObject {
                 - draft.html
                 - attachments
          */
-        let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempDirectory = URL.cachesDirectory
         let tempArticlePath = tempDirectory.appending(path: "\(id.uuidString).html")
         guard FileManager.default.fileExists(atPath: tempArticlePath.path) else {
             throw PlanetError.PlanetDraftError
