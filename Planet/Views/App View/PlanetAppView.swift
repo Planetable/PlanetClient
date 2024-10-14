@@ -4,23 +4,11 @@ struct PlanetAppView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
-    @State private var isWaitingUpdate: Bool = false
     @State private var isServerInactive: Bool = false
 
     var body: some View {
         NavigationStack(path: $appViewModel.path) {
             VStack {
-                if isWaitingUpdate {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                            .controlSize(.small)
-                        Text("Updating post in background")
-                            .font(.footnote)
-                    }
-                    .foregroundStyle(Color.secondary)
-                    .ignoresSafeArea(edges: .horizontal)
-                    .padding(.bottom, -6)
-                }
                 switch appViewModel.selectedTab {
                 case .latest:
                     PlanetLatestView()
@@ -145,15 +133,6 @@ struct PlanetAppView: View {
         }
         .sheet(isPresented: $appViewModel.newPlanet) {
             PlanetNewPlanetView()
-        }
-        .onReceive(settingsViewModel.timer) { _ in
-            Task { @MainActor in
-                let allKeys = UserDefaults.standard.dictionaryRepresentation().keys
-                let waitingStatus = allKeys.filter({ $0.hasPrefix("PlanetEditingArticleKey-") }).count > 0
-                withAnimation {
-                    self.isWaitingUpdate = waitingStatus
-                }
-            }
         }
         .alert(isPresented: $appViewModel.failedToReload) {
             Alert(
