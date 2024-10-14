@@ -32,11 +32,10 @@ struct PlanetArticleAttachmentsView: View {
             self.processedImageNames.append(rawImageName)
             if let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
                 let imageName = rawImageName + ".png"
-                let url = URL(fileURLWithPath: NSTemporaryDirectory()).appending(path: imageName)
+                let url = URL.cachesDirectory.appending(path: imageName)
                 let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
                 if FileManager.default.fileExists(atPath: url.path) {
                     // ignore duplicated image
-                    debugPrint("ignore duplicated image: \(image)")
                     continue
                 }
                 try imageData.write(to: url)
@@ -123,12 +122,10 @@ struct PlanetArticleAttachmentsView: View {
                     } onCompletion: { suggestion in
                         self.title = suggestion.title
                         let images: [UIImage] = await suggestion.content(forType: UIImage.self)
-                        for image in images {
-                            do {
-                                try processAndInsertImage(image)
-                            } catch {
-                                debugPrint("failed to process and insert image: \(error)")
-                            }
+                        do {
+                            try self.processAndInsertImages(images)
+                        } catch {
+                            debugPrint("failed to process and insert images: \(error)")
                         }
                         for suggestedLocation in suggestion.items.filter({ item in
                             return item.hasContent(ofType: JournalingSuggestion.Location.self)
@@ -136,7 +133,11 @@ struct PlanetArticleAttachmentsView: View {
                             do {
                                 if let location: CLLocation = try await suggestedLocation.content(forType: JournalingSuggestion.Location.self)?.location {
                                     let locationSnapshot = try await self.generateImageFromLocation(location)
-                                    try processAndInsertImage(locationSnapshot)
+                                    do {
+                                        try self.processAndInsertImages([locationSnapshot])
+                                    } catch {
+                                        debugPrint("failed to process and insert images: \(error)")
+                                    }
                                 }
                             } catch {
                                 debugPrint("failed to parse location: \(error)")
