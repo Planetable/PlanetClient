@@ -56,6 +56,8 @@
 		2AAF3E45299E07B700CA60AD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */; };
 		2AAF3E4E299E111300CA60AD /* PlanetAppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */; };
 		2AAF3E54299E16C800CA60AD /* PlanetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */; };
+		2ABD4A812CBE1165008A4E8E /* PlanetArticleDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ABD4A802CBE115C008A4E8E /* PlanetArticleDownloader.swift */; };
+		2ABD4A822CBE1165008A4E8E /* PlanetArticleDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ABD4A802CBE115C008A4E8E /* PlanetArticleDownloader.swift */; };
 		2AC03E512B15AE7C0026144A /* PlanetSiteTemplates in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC03E502B15AE7C0026144A /* PlanetSiteTemplates */; };
 		2AC6A3A529A3F63A00636DC5 /* PlanetTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC6A3A429A3F63A00636DC5 /* PlanetTextView.swift */; };
 		2AC7CC0229A0ACAA0089C58C /* PlanetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */; };
@@ -129,6 +131,7 @@
 		2AAF3E44299E07B700CA60AD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2AAF3E4D299E111300CA60AD /* PlanetAppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAppViewModel.swift; sourceTree = "<group>"; };
 		2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetExtension.swift; sourceTree = "<group>"; };
+		2ABD4A802CBE115C008A4E8E /* PlanetArticleDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetArticleDownloader.swift; sourceTree = "<group>"; };
 		2AC6A3A429A3F63A00636DC5 /* PlanetTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetTextView.swift; sourceTree = "<group>"; };
 		2AC7CC0129A0ACAA0089C58C /* PlanetSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetSettingsView.swift; sourceTree = "<group>"; };
 		2AC7CC0529A0B4E50089C58C /* PlanetSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -187,6 +190,7 @@
 				2AC7CC0A29A141EF0089C58C /* PlanetManager.swift */,
 				2A6386C02B14D21400451465 /* PlanetStatus.swift */,
 				2AC7CC2029A240AE0089C58C /* PlanetHelper.swift */,
+				2ABD4A802CBE115C008A4E8E /* PlanetArticleDownloader.swift */,
 				2A9C28B02B01FECB001303A7 /* KeychainHelper.swift */,
 				2AAF3E53299E16C800CA60AD /* PlanetExtension.swift */,
 				2A85B0752B28633400CF6823 /* MarkdownUtils.swift */,
@@ -489,6 +493,7 @@
 				2AAF30482C9B528F004EA463 /* PlanetStatus.swift in Sources */,
 				2AAF30402C9B5215004EA463 /* PlanetAppViewModel.swift in Sources */,
 				2AAF30292C9B2AF0004EA463 /* PlanetQuickShareViewController.swift in Sources */,
+				2ABD4A822CBE1165008A4E8E /* PlanetArticleDownloader.swift in Sources */,
 				2AAF30382C9B4DB7004EA463 /* PlanetShareManager.swift in Sources */,
 				2AAF304B2C9B52DB004EA463 /* PlanetError.swift in Sources */,
 				2AAF304A2C9B52BC004EA463 /* KeychainHelper.swift in Sources */,
@@ -531,6 +536,7 @@
 				2AC7CC2329A2AD510089C58C /* PlanetLatestView.swift in Sources */,
 				2A85B0762B28633400CF6823 /* MarkdownUtils.swift in Sources */,
 				2AC7CC0B29A141EF0089C58C /* PlanetManager.swift in Sources */,
+				2ABD4A812CBE1165008A4E8E /* PlanetArticleDownloader.swift in Sources */,
 				2A9C28B12B01FECB001303A7 /* KeychainHelper.swift in Sources */,
 				2A72D05E2B2968380022C376 /* PlanetDraftsView.swift in Sources */,
 				2A9C28B32B01FF26001303A7 /* PlanetError.swift in Sources */,

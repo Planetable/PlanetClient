@@ -60,7 +60,10 @@ struct PlanetLatestItemView: View {
         .contentShape(Rectangle())
         .task(id: article.id, priority: .background) {
             guard let planet else { return }
-            try? await PlanetManager.shared.downloadArticle(id: article.id, planetID: planet.id)
+            let downloader = PlanetArticleDownloader()
+            let articleID: String = article.id
+            let planetID: String = planet.id
+            try? await downloader.download(byArticleID: articleID, andPlanetID: planetID)
         }
     }
 
