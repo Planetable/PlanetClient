@@ -42,6 +42,17 @@ extension URL {
             return "application/octet-stream"
         }
     }
+
+    func withTimestamp() -> URL? {
+        let timestamp = Int(Date().timeIntervalSince1970)
+        guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
+            return nil
+        }
+        var queryItems = components.queryItems ?? []
+        queryItems.append(URLQueryItem(name: "t", value: "\(timestamp)"))
+        components.queryItems = queryItems
+        return components.url
+    }
 }
 
 // MARK: - Notification -

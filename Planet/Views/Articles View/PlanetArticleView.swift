@@ -112,7 +112,13 @@ struct PlanetArticleView: View {
             }
         } else {
             let serverURL = PlanetAppViewModel.shared.currentServerURLString
-            let url = URL(string: serverURL)!.appending(path: "/\(planet.id)/\(article.id)/index.html")
+            let url: URL = {
+                let u = URL(string: serverURL)!.appending(path: "/\(planet.id)/\(article.id)/index.html")
+                if let nowURL = u.withTimestamp() {
+                    return nowURL
+                }
+                return u
+            }()
             debugPrint("loading article: \(url)")
             self.articleURL = url
         }
