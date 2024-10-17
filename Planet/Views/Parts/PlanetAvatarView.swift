@@ -53,7 +53,8 @@ struct PlanetAvatarView: View {
         Group {
             if let avatarURL = planet.avatarURL,
                 FileManager.default.fileExists(atPath: avatarURL.path),
-                let data = try? Data(contentsOf: avatarURL), data.count > 1 {
+                let data = try? Data(contentsOf: avatarURL),
+                data.count > 1 {
                 if let img {
                     Image(uiImage: img)
                         .resizable()
@@ -66,8 +67,7 @@ struct PlanetAvatarView: View {
                         )
                         .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
                 } else {
-                    ProgressView()
-                        .progressViewStyle(.circular)
+                    planet.planetAvatarPlaceholder(size: size)
                         .task(priority: .utility) {
                             if let cachedImage = PlanetAvatarCacheManager.shared.getAvatar(
                                 byPlanetID: self.planet.id,
@@ -114,14 +114,6 @@ struct PlanetAvatarView: View {
     }
 
     private func downloadAvatarFromRemote() async {
-//        guard let nodeID = PlanetAppViewModel.shared.currentNodeID,
-//            let documentsDirectory = FileManager.default.urls(
-//                for: .documentDirectory,
-//                in: .userDomainMask
-//            ).first
-//        else {
-//            return
-//        }
         guard let nodeID = PlanetAppViewModel.shared.currentNodeID, let documentsDirectory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: .appGroupName) else {
             return
         }
