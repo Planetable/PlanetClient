@@ -46,6 +46,8 @@ struct PlanetAvatarView: View {
             andSize: size
         ) {
             self.img = image
+        } else if let avatarURL = planet.avatarURL, FileManager.default.fileExists(atPath: avatarURL.path), let image = UIImage(contentsOfFile: avatarURL.path) {
+            self.img = image
         }
     }
 
