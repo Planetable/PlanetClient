@@ -222,20 +222,19 @@ struct PlanetSettingsView: View {
 
     @ViewBuilder
     private func currentSavedServerSection() -> some View {
+        let serverName = appViewModel.currentServerName.count > 0 ? appViewModel.currentServerName : ""
+        let serverURL = appViewModel.currentServerURLString
         Section(header: Text("Current Saved Server")) {
-            HStack {
-                HStack(spacing: 10) {
-                    Circle()
-                        .frame(width: 14, height: 14)
-                        .foregroundColor(serverOnlineStatus ? .green : .gray)
-                    if serverOnlineStatus {
-                        Text("Server is connected.")
-                    } else {
-                        Text("Server is not connected.")
-                    }
+            HStack(spacing: 10) {
+                Circle()
+                    .frame(width: 14, height: 14)
+                    .foregroundColor(serverOnlineStatus ? .green : .gray)
+                if serverOnlineStatus {
+                    Text("Server is connected.")
+                } else {
+                    Text("Server is not connected.")
                 }
             }
-            let serverName = appViewModel.currentServerName.count > 0 ? appViewModel.currentServerName : ""
             if serverName != "" {
                 HStack(spacing: 10) {
                     Circle()
@@ -245,7 +244,6 @@ struct PlanetSettingsView: View {
                         .font(.system(.callout, design: .monospaced))
                 }
             }
-            let serverURL = appViewModel.currentServerURLString
             if serverURL != "" {
                 HStack(spacing: 10) {
                     Circle()
