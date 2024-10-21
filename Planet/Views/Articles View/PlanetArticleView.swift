@@ -111,16 +111,12 @@ struct PlanetArticleView: View {
                 }
             }
         } else {
-            let serverURL = PlanetAppViewModel.shared.currentServerURLString
-            let url: URL = {
-                let u = URL(string: serverURL)!.appending(path: "/\(planet.id)/\(article.id)/index.html")
-                if let nowURL = u.withTimestamp() {
-                    return nowURL
+            if let url = URL(string: PlanetAppViewModel.shared.currentServerURLString)?.appending(path: "/\(planet.id)/\(article.id)/index.html"), let nowURL = url.withTimestamp() {
+                debugPrint("loading article: \(nowURL)")
+                await MainActor.run {
+                    self.articleURL = nowURL
                 }
-                return u
-            }()
-            debugPrint("loading article: \(url)")
-            self.articleURL = url
+            }
         }
     }
 
