@@ -135,12 +135,6 @@ struct PlanetSettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .onReceive(settingsViewModel.timer) { _ in
-                Task { @MainActor in
-                    let status = await PlanetStatus.shared.serverIsOnline()
-                    self.serverOnlineStatus = status
-                }
-            }
             .onAppear {
                 Task(priority: .userInitiated) {
                     let status = await PlanetStatus.shared.serverIsOnline()
@@ -241,8 +235,8 @@ struct PlanetSettingsView: View {
                     }
                 }
             }
-            if appViewModel.currentServerName.count > 0 {
-                let serverName = appViewModel.currentServerName
+            let serverName = appViewModel.currentServerName.count > 0 ? appViewModel.currentServerName : ""
+            if serverName != "" {
                 HStack(spacing: 10) {
                     Circle()
                         .frame(width: 14, height: 14)
@@ -250,7 +244,9 @@ struct PlanetSettingsView: View {
                     Text("\(serverName)")
                         .font(.system(.callout, design: .monospaced))
                 }
-                let serverURL = appViewModel.currentServerURLString
+            }
+            let serverURL = appViewModel.currentServerURLString
+            if serverURL != "" {
                 HStack(spacing: 10) {
                     Circle()
                         .frame(width: 14, height: 14)
@@ -269,6 +265,35 @@ struct PlanetSettingsView: View {
                         .onTapGesture {
                             UIPasteboard.general.string = nodeID
                         }
+                }
+            }
+            if serverName != "" {
+                HStack {
+                    if settingsViewModel.isConnecting {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .frame(width: 14, height: 14)
+                            .controlSize(.small)
+                    }
+                    Button {
+                        if serverOnlineStatus {
+                            Task { @MainActor in
+                                PlanetAppViewModel.shared.currentServerURLString = ""
+                                self.serverOnlineStatus = false
+                            }
+                        } else {
+                            Task(priority: .userInitiated) {
+                                await settingsViewModel.saveAndConnect()
+                            }
+                        }
+                    } label: {
+                        if serverOnlineStatus {
+                            Text("Disconnect from \(serverName)")
+                        } else {
+                            Text("Reconnect to \(serverName)")
+                        }
+                    }
+                    Spacer()
                 }
             }
         }

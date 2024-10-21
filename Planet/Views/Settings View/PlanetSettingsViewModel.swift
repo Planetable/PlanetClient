@@ -11,8 +11,6 @@ import SwiftUI
 class PlanetSettingsViewModel: ObservableObject {
     static let shared = PlanetSettingsViewModel()
 
-    let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
-
     @Published var showServerUnreachableAlert = false
     @Published var isConnecting: Bool = false
 
