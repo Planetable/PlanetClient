@@ -127,6 +127,12 @@ struct PlanetArticleView: View {
     @ViewBuilder
     private func optionsMenu() -> some View {
         VStack {
+            if !serverStatus {
+                Text("Offline Mode")
+                    .foregroundStyle(.secondary)
+                Divider()
+            }
+
             Button {
                 Task { @MainActor in
                     await self.reloadAction()
