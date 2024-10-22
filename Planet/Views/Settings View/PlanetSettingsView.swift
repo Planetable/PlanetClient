@@ -229,11 +229,9 @@ struct PlanetSettingsView: View {
     @ViewBuilder
     private func connectingView() -> some View {
         HStack(spacing: 10) {
-            ProgressView()
-                .progressViewStyle(.circular)
-                .frame(width: 14, height: 14)
             Text("Connecting...")
                 .foregroundColor(.secondary)
+            Spacer(minLength: 1)
         }
     }
 
@@ -293,7 +291,7 @@ struct PlanetSettingsView: View {
                                     PlanetAppViewModel.shared.currentServerURLString = ""
                                     self.serverOnlineStatus = false
                                 } else {
-                                    await settingsViewModel.saveAndConnect()
+                                    await self.settingsViewModel.reconnectToSavedServer()
                                 }
                             }
                         } label: {
