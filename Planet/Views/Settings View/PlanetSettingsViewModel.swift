@@ -82,7 +82,7 @@ class PlanetSettingsViewModel: ObservableObject {
         var request = URLRequest(
             url: url.appending(path: "/v0/info"),
             cachePolicy: .reloadIgnoringCacheData,
-            timeoutInterval: 5
+            timeoutInterval: .requestTimeout
         )
         request.httpMethod = "GET"
         if PlanetManager.shared.userDefaults.bool(forKey: .settingsServerAuthenticationEnabledKey) {
@@ -128,7 +128,7 @@ class PlanetSettingsViewModel: ObservableObject {
         var request = URLRequest(
             url: url.appending(path: "/v0/info"),
             cachePolicy: .reloadIgnoringCacheData,
-            timeoutInterval: 5
+            timeoutInterval: .requestTimeout
         )
         request.httpMethod = "GET"
         if serverAuthenticationEnabled {
@@ -158,7 +158,7 @@ class PlanetSettingsViewModel: ObservableObject {
         var request = URLRequest(
             url: url.appending(path: "/v0/ping"),
             cachePolicy: .reloadIgnoringCacheData,
-            timeoutInterval: 5
+            timeoutInterval: .pingTimeout
         )
         request.httpMethod = "GET"
         if serverAuthenticationEnabled {

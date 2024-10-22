@@ -16,7 +16,7 @@ actor PlanetStatus {
             var request = URLRequest(
                 url: url.appending(path: "/v0/ping"),
                 cachePolicy: .reloadIgnoringCacheData,
-                timeoutInterval: 5
+                timeoutInterval: .pingTimeout
             )
             request.httpMethod = "GET"
             if serverAuthenticationEnabled {
