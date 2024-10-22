@@ -11,8 +11,6 @@ import SwiftUI
 class PlanetSettingsViewModel: ObservableObject {
     static let shared = PlanetSettingsViewModel()
 
-    let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
-
     @Published var showServerUnreachableAlert = false
     @Published var isConnecting: Bool = false
 
@@ -68,6 +66,55 @@ class PlanetSettingsViewModel: ObservableObject {
                     self.showServerUnreachableAlert = true
                 }
             }
+        }
+    }
+
+    func reconnectToSavedServer() async {
+        guard let serverURLString = PlanetManager.shared.userDefaults.string(forKey: .settingsServerURLKey) else { return }
+        guard let url = URL(string: serverURLString) else {
+            debugPrint("invalid server url: \(serverURLString)")
+            return
+        }
+        debugPrint("connecting to saved server: \(url)")
+        Task { @MainActor in
+            self.isConnecting = true
+        }
+        var request = URLRequest(
+            url: url.appending(path: "/v0/info"),
+            cachePolicy: .reloadIgnoringCacheData,
+            timeoutInterval: 5
+        )
+        request.httpMethod = "GET"
+        if PlanetManager.shared.userDefaults.bool(forKey: .settingsServerAuthenticationEnabledKey) {
+            do {
+                let username = PlanetManager.shared.userDefaults.string(forKey: .settingsServerUsernameKey) ?? ""
+                let password = try KeychainHelper.shared.loadValue(forKey: .settingsServerPasswordKey)
+                let loginValue = try PlanetManager.shared.basicAuthenticationValue(username: username, password: password)
+                request.setValue(loginValue, forHTTPHeaderField: "Authorization")
+            } catch {
+                Task { @MainActor in
+                    self.isConnecting = false
+                    self.showServerUnreachableAlert = true
+                }
+                return
+            }
+        }
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let info = try JSONDecoder().decode(PlanetServerInfo.self, from: data)
+            Task { @MainActor in
+                PlanetAppViewModel.shared.currentNodeID = info.ipfsPeerID
+                PlanetAppViewModel.shared.currentServerName = info.hostName
+                PlanetAppViewModel.shared.currentServerURLString = serverURLString
+                PlanetAppViewModel.shared.showSettings = false
+            }
+        } catch {
+            Task { @MainActor in
+                self.showServerUnreachableAlert = true
+            }
+        }
+        Task { @MainActor in
+            self.isConnecting = false
         }
     }
 

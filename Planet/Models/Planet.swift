@@ -70,12 +70,14 @@ struct Planet: Codable, Identifiable, Hashable {
         guard let planetPath = PlanetManager.shared.getPlanetPath(forID: self.id) else { return }
         let templateInfoPath = planetPath.appending(path: "template.json")
         let templateAssetsPath = planetPath.appending(path: "assets")
-        if FileManager.default.fileExists(atPath: templateInfoPath.path) {
+        if FileManager.default.fileExists(atPath: templateInfoPath.path) && FileManager.default.fileExists(atPath: templateAssetsPath.path) {
             let decoder = JSONDecoder()
             if let data = try? Data(contentsOf: templateInfoPath) {
                 let t = try? decoder.decode(BuiltInTemplate.self, from: data)
-                if let existingTemplateBuildNumber = template.buildNumber, let buildNumber = t?.buildNumber, buildNumber <= existingTemplateBuildNumber {
-                    return
+                if let localBuildNumber = t?.buildNumber, let latestBuildNumber = template.buildNumber {
+                    if latestBuildNumber <= localBuildNumber {
+                        return
+                    }
                 }
             }
         }

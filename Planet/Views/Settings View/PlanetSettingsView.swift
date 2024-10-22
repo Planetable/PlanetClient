@@ -92,16 +92,19 @@ struct PlanetSettingsView: View {
                     .disabled(!serverAuthenticationEnabled)
 
                     if settingsViewModel.isConnecting {
-                        HStack(spacing: 10) {
-                            ProgressView()
-                            Text("Connecting...")
-                                .foregroundColor(.secondary)
-                        }
+                        connectingView()
                     } else {
                         Button {
                             Task(priority: .userInitiated) {
-                                await applyServerInformation()
-                                await settingsViewModel.saveAndConnect()
+                                do {
+                                    try await applyServerInformation()
+                                    await settingsViewModel.saveAndConnect()
+                                } catch {
+                                    debugPrint("failed to save and connect to server: \(error)")
+                                    Task { @MainActor in
+                                        self.settingsViewModel.showServerUnreachableAlert = true
+                                    }
+                                }
                             }
                         } label: {
                             Text("Save and Connect")
@@ -135,12 +138,6 @@ struct PlanetSettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .onReceive(settingsViewModel.timer) { _ in
-                Task { @MainActor in
-                    let status = await PlanetStatus.shared.serverIsOnline()
-                    self.serverOnlineStatus = status
-                }
-            }
             .onAppear {
                 Task(priority: .userInitiated) {
                     let status = await PlanetStatus.shared.serverIsOnline()
@@ -159,6 +156,9 @@ struct PlanetSettingsView: View {
                         await self.syncServerInformation()
                     }
                 }
+            }
+            .onDisappear {
+                NotificationCenter.default.post(name: .updateServerStatus, object: nil)
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
@@ -216,7 +216,10 @@ struct PlanetSettingsView: View {
     }
 
     @MainActor
-    private func applyServerInformation() async {
+    private func applyServerInformation() async throws {
+        guard !self.serverProtocol.isEmpty, !self.serverHost.isEmpty, !self.serverPort.isEmpty else {
+            throw PlanetError.APIServerError
+        }
         self.settingsViewModel.serverURLString = self.serverURLString
         self.settingsViewModel.serverProtocol = self.serverProtocol
         self.settingsViewModel.serverHost = self.serverHost
@@ -227,22 +230,30 @@ struct PlanetSettingsView: View {
     }
 
     @ViewBuilder
+    private func connectingView() -> some View {
+        HStack(spacing: 10) {
+            Text("Connecting...")
+                .foregroundColor(.secondary)
+            Spacer(minLength: 1)
+        }
+    }
+
+    @ViewBuilder
     private func currentSavedServerSection() -> some View {
+        let serverName = appViewModel.currentServerName.count > 0 ? appViewModel.currentServerName : ""
+        let serverURL = appViewModel.currentServerURLString
         Section(header: Text("Current Saved Server")) {
-            HStack {
-                HStack(spacing: 10) {
-                    Circle()
-                        .frame(width: 14, height: 14)
-                        .foregroundColor(serverOnlineStatus ? .green : .gray)
-                    if serverOnlineStatus {
-                        Text("Server is connected.")
-                    } else {
-                        Text("Server is not connected.")
-                    }
+            HStack(spacing: 10) {
+                Circle()
+                    .frame(width: 14, height: 14)
+                    .foregroundColor(serverOnlineStatus ? .green : .gray)
+                if serverOnlineStatus {
+                    Text("Server is connected.")
+                } else {
+                    Text("Server is not connected.")
                 }
             }
-            if appViewModel.currentServerName.count > 0 {
-                let serverName = appViewModel.currentServerName
+            if serverName != "" {
                 HStack(spacing: 10) {
                     Circle()
                         .frame(width: 14, height: 14)
@@ -250,7 +261,8 @@ struct PlanetSettingsView: View {
                     Text("\(serverName)")
                         .font(.system(.callout, design: .monospaced))
                 }
-                let serverURL = appViewModel.currentServerURLString
+            }
+            if serverURL != "" {
                 HStack(spacing: 10) {
                     Circle()
                         .frame(width: 14, height: 14)
@@ -269,6 +281,31 @@ struct PlanetSettingsView: View {
                         .onTapGesture {
                             UIPasteboard.general.string = nodeID
                         }
+                }
+            }
+            if serverName != "" {
+                HStack {
+                    if settingsViewModel.isConnecting {
+                        connectingView()
+                    } else {
+                        Button {
+                            Task { @MainActor in
+                                if self.serverOnlineStatus {
+                                    PlanetAppViewModel.shared.currentServerURLString = ""
+                                    self.serverOnlineStatus = false
+                                } else {
+                                    await self.settingsViewModel.reconnectToSavedServer()
+                                }
+                            }
+                        } label: {
+                            if serverOnlineStatus {
+                                Text("Disconnect from \(serverName)")
+                            } else {
+                                Text("Reconnect to \(serverName)")
+                            }
+                        }
+                    }
+                    Spacer(minLength: 1)
                 }
             }
         }
