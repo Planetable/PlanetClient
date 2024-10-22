@@ -5,7 +5,8 @@ struct PlanetAppView: View {
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
     @State private var isServerInactive: Bool = false
-
+    @State private var serverStatus: Bool = true
+    
     var body: some View {
         NavigationStack(path: $appViewModel.path) {
             VStack {
@@ -20,6 +21,15 @@ struct PlanetAppView: View {
                     PlanetMyPlanetsView()
                         .environmentObject(appViewModel)
                 }
+            }
+            .onAppear {
+                self.checkServerStatus()
+            }
+            .onChange(of: appViewModel.selectedTab) { _ in
+                self.checkServerStatus()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .updateServerStatus)) { _ in
+                self.checkServerStatus()
             }
             .navigationTitle(navigationTitle())
             .navigationBarTitleDisplayMode(.inline)
@@ -45,11 +55,21 @@ struct PlanetAppView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItemGroup(placement: .topBarLeading) {
                     Button {
                         appViewModel.showSettings.toggle()
                     } label: {
                         Image(systemName: "gear")
+                    }
+                    
+                    if !self.serverStatus {
+                        if appViewModel.selectedTab != .drafts {
+                            Button {
+                                isServerInactive = true
+                            } label: {
+                                Image(systemName: "bolt.slash")
+                            }
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -151,7 +171,7 @@ struct PlanetAppView: View {
         .alert(isPresented: $isServerInactive) {
             Alert(
                 title: Text("Server Inactive"),
-                message: Text("Would you like to check server status in settings?"),
+                message: Text("Would you like to check for server status in settings?"),
                 primaryButton: .default(Text("Open Settings")) {
                     Task { @MainActor in
                         self.appViewModel.showSettings.toggle()
@@ -169,5 +189,13 @@ struct PlanetAppView: View {
             name += " · \(serverName)"
         }
         return name
+    }
+    
+    private func checkServerStatus() {
+        Task.detached(priority: .background) {
+            Task { @MainActor in
+                self.serverStatus = await PlanetStatus.shared.serverIsOnline()
+            }
+        }
     }
 }

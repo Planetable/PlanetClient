@@ -60,6 +60,7 @@ extension Notification.Name {
     static let updatePlanets = Notification.Name("PlanetUpdatePlanetsNotification")
     static let reloadArticles = Notification.Name("PlanetReloadArticlesNotification")
     static let insertAttachment = Notification.Name("PlanetArticleInsertAttachmentNotification")
+    static let updateServerStatus = Notification.Name("PlanetUpdateServerStatusNotification")
 
     static func startEditingArticle(byID id: String) -> Notification.Name {
         return Notification.Name("PlanetStartEditingArticleNotification-\(id)")

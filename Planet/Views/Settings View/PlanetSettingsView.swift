@@ -157,6 +157,9 @@ struct PlanetSettingsView: View {
                     }
                 }
             }
+            .onDisappear {
+                NotificationCenter.default.post(name: .updateServerStatus, object: nil)
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
