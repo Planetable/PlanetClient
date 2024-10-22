@@ -92,16 +92,19 @@ struct PlanetSettingsView: View {
                     .disabled(!serverAuthenticationEnabled)
 
                     if settingsViewModel.isConnecting {
-                        HStack(spacing: 10) {
-                            ProgressView()
-                            Text("Connecting...")
-                                .foregroundColor(.secondary)
-                        }
+                        connectingView()
                     } else {
                         Button {
                             Task(priority: .userInitiated) {
-                                await applyServerInformation()
-                                await settingsViewModel.saveAndConnect()
+                                do {
+                                    try await applyServerInformation()
+                                    await settingsViewModel.saveAndConnect()
+                                } catch {
+                                    debugPrint("failed to save and connect to server: \(error)")
+                                    Task { @MainActor in
+                                        self.settingsViewModel.showServerUnreachableAlert = true
+                                    }
+                                }
                             }
                         } label: {
                             Text("Save and Connect")
@@ -210,7 +213,10 @@ struct PlanetSettingsView: View {
     }
 
     @MainActor
-    private func applyServerInformation() async {
+    private func applyServerInformation() async throws {
+        guard !self.serverProtocol.isEmpty, !self.serverHost.isEmpty, !self.serverPort.isEmpty else {
+            throw PlanetError.APIServerError
+        }
         self.settingsViewModel.serverURLString = self.serverURLString
         self.settingsViewModel.serverProtocol = self.serverProtocol
         self.settingsViewModel.serverHost = self.serverHost
@@ -218,6 +224,17 @@ struct PlanetSettingsView: View {
         self.settingsViewModel.serverAuthenticationEnabled = self.serverAuthenticationEnabled
         self.settingsViewModel.serverUsername = self.serverUsername
         self.settingsViewModel.serverPassword = self.serverPassword
+    }
+
+    @ViewBuilder
+    private func connectingView() -> some View {
+        HStack(spacing: 10) {
+            ProgressView()
+                .progressViewStyle(.circular)
+                .frame(width: 14, height: 14)
+            Text("Connecting...")
+                .foregroundColor(.secondary)
+        }
     }
 
     @ViewBuilder
@@ -268,30 +285,26 @@ struct PlanetSettingsView: View {
             if serverName != "" {
                 HStack {
                     if settingsViewModel.isConnecting {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .frame(width: 14, height: 14)
-                            .controlSize(.small)
-                    }
-                    Button {
-                        if serverOnlineStatus {
+                        connectingView()
+                    } else {
+                        Button {
                             Task { @MainActor in
-                                PlanetAppViewModel.shared.currentServerURLString = ""
-                                self.serverOnlineStatus = false
+                                if self.serverOnlineStatus {
+                                    PlanetAppViewModel.shared.currentServerURLString = ""
+                                    self.serverOnlineStatus = false
+                                } else {
+                                    await settingsViewModel.saveAndConnect()
+                                }
                             }
-                        } else {
-                            Task(priority: .userInitiated) {
-                                await settingsViewModel.saveAndConnect()
+                        } label: {
+                            if serverOnlineStatus {
+                                Text("Disconnect from \(serverName)")
+                            } else {
+                                Text("Reconnect to \(serverName)")
                             }
-                        }
-                    } label: {
-                        if serverOnlineStatus {
-                            Text("Disconnect from \(serverName)")
-                        } else {
-                            Text("Reconnect to \(serverName)")
                         }
                     }
-                    Spacer()
+                    Spacer(minLength: 1)
                 }
             }
         }
