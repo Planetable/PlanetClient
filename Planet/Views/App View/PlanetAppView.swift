@@ -5,8 +5,21 @@ struct PlanetAppView: View {
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
 
     @State private var isServerInactive: Bool = false
-    @State private var serverStatus: Bool = true
-    
+    @State private var serverStatus: Bool = true {
+        didSet {
+            guard serverStatus else { return }
+            if appViewModel.selectedTab == .myPlanets {
+                Task.detached(priority: .utility) {
+                    try? await self.appViewModel.reloadPlanets()
+                }
+            } else if appViewModel.selectedTab == .latest {
+                Task.detached(priority: .utility) {
+                    try? await self.appViewModel.reloadArticles()
+                }
+            }
+        }
+    }
+
     var body: some View {
         NavigationStack(path: $appViewModel.path) {
             VStack {
@@ -21,9 +34,6 @@ struct PlanetAppView: View {
                     PlanetMyPlanetsView()
                         .environmentObject(appViewModel)
                 }
-            }
-            .onAppear {
-                self.checkServerStatus()
             }
             .onChange(of: appViewModel.selectedTab) { _ in
                 self.checkServerStatus()

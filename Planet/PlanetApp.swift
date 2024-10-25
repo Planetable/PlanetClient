@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct PlanetApp: App {
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var appViewModel: PlanetAppViewModel
     @StateObject private var settingsViewModel: PlanetSettingsViewModel
 
@@ -22,6 +23,11 @@ struct PlanetApp: App {
             PlanetAppView()
                 .environmentObject(appViewModel)
                 .environmentObject(settingsViewModel)
+                .onChange(of: scenePhase) { scenePhase in
+                    if scenePhase == .active {
+                        NotificationCenter.default.post(name: .updateServerStatus, object: nil)
+                    }
+                }
         }
     }
 }
