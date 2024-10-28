@@ -334,7 +334,12 @@ class PlanetManager: NSObject {
         let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
         let downloader = PlanetArticleDownloader()
         Task(priority: .userInitiated) {
-            try? await downloader.download(byArticleID: id, andPlanetID: planetID)
+            try? await downloader
+                .download(
+                    byArticleID: id,
+                    andPlanetID: planetID,
+                    forceDownloadAttachments: true
+                )
             await MainActor.run {
                 NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
                 UserDefaults.standard.removeObject(forKey: editKey)

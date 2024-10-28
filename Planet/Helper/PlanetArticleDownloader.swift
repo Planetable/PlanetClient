@@ -9,7 +9,7 @@ import Foundation
 
 
 actor PlanetArticleDownloader {
-    func download(byArticleID id: String, andPlanetID planetID: String) async throws {
+    func download(byArticleID id: String, andPlanetID planetID: String, forceDownloadAttachments: Bool = false) async throws {
         let manager = PlanetManager.shared
         // GET /v0/planets/my/:planet_uuid/articles/:article_uuid
         let request = try await manager.createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
@@ -72,10 +72,15 @@ actor PlanetArticleDownloader {
         }
         // attachments
         if let attachments = planetArticle.attachments, attachments.count > 0 {
+            debugPrint("downloading attachments (count = \(attachments.count)) ...")
             await withThrowingTaskGroup(of: Void.self) { group in
                 for a in attachments {
                     let attachmentURL = articlePublicURL.appending(path: a)
                     let attachmentPath = articlePath.appending(path: a)
+                    if !forceDownloadAttachments && FileManager.default.fileExists(atPath: attachmentPath.path) {
+                        debugPrint("skipping attachment: \(attachmentURL)")
+                        continue
+                    }
                     group.addTask(priority: .background) {
                         let (attachmentData, response) = try await URLSession.shared.data(from: attachmentURL)
                         let statusCode = (response as! HTTPURLResponse).statusCode

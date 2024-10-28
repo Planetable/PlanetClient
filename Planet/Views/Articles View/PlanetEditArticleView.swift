@@ -16,6 +16,7 @@ struct PlanetEditArticleView: View {
     @State private var shouldDiscardChanges: Bool = false
     @State private var isPreview: Bool = false
     @State private var previewPath: URL?
+    @State private var isDownloading: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -70,6 +71,15 @@ struct PlanetEditArticleView: View {
                     }
                 )
             }
+            .alert(isPresented: $isDownloading) {
+                Alert(
+                    title: Text("Article Not Fully Downloaded"),
+                    message: Text("Please wait for the article and attachments to download and try editing again later."),
+                    dismissButton: .default(Text("Dismiss")) {
+                        dismissAction()
+                    }
+                )
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
                     if !isPreview {
@@ -117,9 +127,9 @@ struct PlanetEditArticleView: View {
                 }
             }
             .task(priority: .utility) {
-                title = article.title ?? "untitled"
-                content = article.content ?? ""
-                if let attachments = article.attachments, let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: planet.id, articleID: article.id) {
+                title = self.article.title ?? ""
+                content = self.article.content ?? ""
+                if let attachments = self.article.attachments, let articlePath = PlanetManager.shared.getPlanetArticlePath(forID: self.planet.id, articleID: self.article.id) {
                     var localAttachments: [PlanetArticleAttachment] = []
                     for a in attachments {
                         let attachmentPath = articlePath.appending(path: a)
@@ -128,16 +138,32 @@ struct PlanetEditArticleView: View {
                         localAttachments.append(attachment)
                     }
                     let finalLocalAttachments = localAttachments
-                    Task { @MainActor in
-                        self.uploadedImages = finalLocalAttachments
-                        self.initAttachments = finalLocalAttachments
-                        Task(priority: .background) {
-                            let initPath = articlePath.appending(path: Self.editAttachment)
-                            try? FileManager.default.createDirectory(at: initPath, withIntermediateDirectories: true)
-                            for a in finalLocalAttachments {
-                                let filename = a.url.lastPathComponent
-                                let initAttachmentPath = initPath.appending(path: filename)
-                                try? FileManager.default.copyItem(at: a.url, to: initAttachmentPath)
+                    if finalLocalAttachments.count != attachments.count {
+                        debugPrint("article attachments not fully downloaded!")
+                        Task { @MainActor in
+                            self.isDownloading = true
+                            Task.detached(priority: .userInitiated) {
+                                let downloader = PlanetArticleDownloader()
+                                try? await downloader
+                                    .download(
+                                        byArticleID: self.article.id,
+                                        andPlanetID: self.planet.id,
+                                        forceDownloadAttachments: true
+                                    )
+                            }
+                        }
+                    } else {
+                        Task { @MainActor in
+                            self.uploadedImages = finalLocalAttachments
+                            self.initAttachments = finalLocalAttachments
+                            Task(priority: .background) {
+                                let initPath = articlePath.appending(path: Self.editAttachment)
+                                try? FileManager.default.createDirectory(at: initPath, withIntermediateDirectories: true)
+                                for a in finalLocalAttachments {
+                                    let filename = a.url.lastPathComponent
+                                    let initAttachmentPath = initPath.appending(path: filename)
+                                    try? FileManager.default.copyItem(at: a.url, to: initAttachmentPath)
+                                }
                             }
                         }
                     }
