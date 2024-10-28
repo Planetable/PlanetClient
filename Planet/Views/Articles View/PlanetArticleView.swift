@@ -133,6 +133,17 @@ struct PlanetArticleView: View {
                 Task { @MainActor in
                     await self.reloadAction()
                 }
+                Task.detached(priority: .background) {
+                    if await PlanetStatus.shared.serverIsOnline() {
+                        let downloader = PlanetArticleDownloader()
+                        try? await downloader
+                            .download(
+                                byArticleID: self.article.id,
+                                andPlanetID: self.planet.id,
+                                forceDownloadAttachments: true
+                            )
+                    }
+                }
             } label: {
                 Label("Reload", systemImage: "arrow.clockwise")
             }
