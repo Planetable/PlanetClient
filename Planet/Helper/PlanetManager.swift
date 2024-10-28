@@ -315,6 +315,12 @@ class PlanetManager: NSObject {
             UserDefaults.standard.setValue(1, forKey: editKey)
             NotificationCenter.default.post(name: .startEditingArticle(byID: id), object: nil)
         }
+        defer {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                UserDefaults.standard.removeObject(forKey: editKey)
+                NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
+            }
+        }
         // POST /v0/planets/my/:planet_uuid/articles/:article_uuid
         var request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "POST")
         var form: MultipartForm = MultipartForm(parts: [
@@ -341,8 +347,6 @@ class PlanetManager: NSObject {
                     forceDownloadAttachments: true
                 )
             await MainActor.run {
-                NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
-                UserDefaults.standard.removeObject(forKey: editKey)
                 NotificationCenter.default.post(name: .reloadArticles, object: nil)
                 NotificationCenter.default.post(name: .updatePlanets, object: nil)
             }
