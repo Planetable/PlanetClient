@@ -226,7 +226,7 @@ struct PlanetArticleAttachmentsView: View {
                             for: nil
                         )
                     } label: {
-                        Image(systemName: "xmark.circle")
+                        Image(systemName: "keyboard.chevron.compact.down")
                             .resizable()
                             .frame(width: 20, height: 20)
                     }
@@ -236,14 +236,18 @@ struct PlanetArticleAttachmentsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { notification in
             Task { @MainActor in
-                self.isKeyboardVisible = true
+                withAnimation {
+                    self.isKeyboardVisible = true
+                }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
             Task { @MainActor in
-                self.isKeyboardVisible = false
+                withAnimation {
+                    self.isKeyboardVisible = false
+                }
             }
         }
     }
