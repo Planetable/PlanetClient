@@ -15,6 +15,8 @@ import MapKit
 struct PlanetArticleAttachmentsView: View {
     @Binding var title: String
     @Binding var attachments: [PlanetArticleAttachment]
+    
+    @State private var isKeyboardVisible: Bool = false
 
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
@@ -97,119 +99,151 @@ struct PlanetArticleAttachmentsView: View {
     #endif
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: true) {
-            LazyHStack {
-                if #available(iOS 17.2, *) {
-                    #if !targetEnvironment(simulator)
-                    JournalingSuggestionsPicker {
-                        Image(systemName: "wand.and.stars")
-                    } onCompletion: { suggestion in
-                        self.title = suggestion.title
-                        let images: [UIImage] = await suggestion.content(forType: UIImage.self)
-                        for image in images {
-                            do {
-                                try processAndInsertImage(image)
-                            } catch {
-                                debugPrint("failed to process and insert image: \(error)")
-                            }
-                        }
-                        for suggestedLocation in suggestion.items.filter({ item in
-                            return item.hasContent(ofType: JournalingSuggestion.Location.self)
-                        }) {
-                            do {
-                                if let location: CLLocation = try await suggestedLocation.content(forType: JournalingSuggestion.Location.self)?.location {
-                                    let locationSnapshot = try await self.generateImageFromLocation(location)
-                                    try processAndInsertImage(locationSnapshot)
+        ZStack {
+            ScrollView(.horizontal, showsIndicators: true) {
+                LazyHStack {
+                    if #available(iOS 17.2, *) {
+#if !targetEnvironment(simulator)
+                        JournalingSuggestionsPicker {
+                            Image(systemName: "wand.and.stars")
+                        } onCompletion: { suggestion in
+                            self.title = suggestion.title
+                            let images: [UIImage] = await suggestion.content(forType: UIImage.self)
+                            for image in images {
+                                do {
+                                    try processAndInsertImage(image)
+                                } catch {
+                                    debugPrint("failed to process and insert image: \(error)")
                                 }
-                            } catch {
-                                debugPrint("failed to parse location: \(error)")
+                            }
+                            for suggestedLocation in suggestion.items.filter({ item in
+                                return item.hasContent(ofType: JournalingSuggestion.Location.self)
+                            }) {
+                                do {
+                                    if let location: CLLocation = try await suggestedLocation.content(forType: JournalingSuggestion.Location.self)?.location {
+                                        let locationSnapshot = try await self.generateImageFromLocation(location)
+                                        try processAndInsertImage(locationSnapshot)
+                                    }
+                                } catch {
+                                    debugPrint("failed to parse location: \(error)")
+                                }
                             }
                         }
+                        .buttonStyle(.plain)
+                        .padding(.leading, 22)
+                        .padding(.trailing, 10)
+#else
+                        Text("")
+                            .frame(width: 12)
+#endif
+                    } else {
+                        Text("")
+                            .frame(width: 12)
+                    }
+                    PhotosPicker(selection: $selectedItem, matching: .any(of: [.images, .not(.livePhotos)])) {
+                        Image(systemName: "plus.circle")
+                            .resizable()
+                            .frame(width: 20, height: 20)
                     }
                     .buttonStyle(.plain)
-                    .padding(.leading, 22)
-                    .padding(.trailing, 10)
-                    #else
-                    Text("")
-                        .frame(width: 12)
-                    #endif
-                } else {
-                    Text("")
-                        .frame(width: 12)
-                }
-                PhotosPicker(selection: $selectedItem, matching: .any(of: [.images, .not(.livePhotos)])) {
-                    Image(systemName: "plus.circle")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                }
-                .buttonStyle(.plain)
-                .padding(.trailing, 8)
-                .onChange(of: selectedItem) { newValue in
-                    Task(priority: .utility) {
-                        do {
-                            if let newValue, let data = try await newValue.loadTransferable(type: Data.self) {
-                                selectedPhotoData = data
-                            } else {
+                    .padding(.trailing, 8)
+                    .onChange(of: selectedItem) { newValue in
+                        Task(priority: .utility) {
+                            do {
+                                if let newValue, let data = try await newValue.loadTransferable(type: Data.self) {
+                                    selectedPhotoData = data
+                                } else {
+                                    selectedItem = nil
+                                    selectedPhotoData = nil
+                                }
+                            } catch {
                                 selectedItem = nil
                                 selectedPhotoData = nil
                             }
-                        } catch {
-                            selectedItem = nil
-                            selectedPhotoData = nil
                         }
                     }
-                }
-                ForEach(0..<attachments.count, id: \.self) { index in
-                    Button {
-                        isTapped.toggle()
-                        tappedIndex = index
-                    } label: {
-                        Image(uiImage: attachments[index].image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 48, height: 48)
+                    ForEach(0..<attachments.count, id: \.self) { index in
+                        Button {
+                            isTapped.toggle()
+                            tappedIndex = index
+                        } label: {
+                            Image(uiImage: attachments[index].image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 48, height: 48)
+                        }
+                        .buttonStyle(.plain)
+                        .frame(width: 48, height: 48)
+                        .padding(.horizontal, 8)
                     }
-                    .buttonStyle(.plain)
-                    .frame(width: 48, height: 48)
-                    .padding(.horizontal, 8)
                 }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background {
+                Color.secondary.opacity(0.15)
+            }
+            .confirmationDialog("", isPresented: $isTapped) {
+                Button(role: .cancel) {
+                    isTapped = false
+                    tappedIndex = nil
+                } label: {
+                    Text("Cancel")
+                }
+                Button {
+                    if let tappedIndex {
+                        let attachment = attachments[tappedIndex]
+                        Task {
+                            await MainActor.run {
+                                NotificationCenter.default.post(name: .insertAttachment, object: attachment)
+                            }
+                        }
+                    }
+                } label: {
+                    Text("Insert Attachment")
+                }
+                Button(role: .destructive) {
+                    if let tappedIndex {
+                        let removed = attachments.remove(at: tappedIndex)
+                        do {
+                            try FileManager.default.removeItem(at: removed.url)
+                        } catch {
+                            debugPrint("failed to remove attachment at: \(removed.url)")
+                        }
+                    }
+                } label: {
+                    Text("Remove Attachment")
+                }
+            }
+            if isKeyboardVisible {
+                HStack {
+                    Spacer()
+                    Button {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil,
+                            from: nil,
+                            for: nil
+                        )
+                    } label: {
+                        Image(systemName: "xmark.circle")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                    }
+                    .tint(.primary)
+                }
+                .padding(.trailing, 16)
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 48)
-        .background {
-            Color.secondary.opacity(0.15)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+            Task { @MainActor in
+                self.isKeyboardVisible = true
+            }
         }
-        .confirmationDialog("", isPresented: $isTapped) {
-            Button(role: .cancel) {
-                isTapped = false
-                tappedIndex = nil
-            } label: {
-                Text("Cancel")
-            }
-            Button {
-                if let tappedIndex {
-                    let attachment = attachments[tappedIndex]
-                    Task {
-                        await MainActor.run {
-                            NotificationCenter.default.post(name: .insertAttachment, object: attachment)
-                        }
-                    }
-                }
-            } label: {
-                Text("Insert Attachment")
-            }
-            Button(role: .destructive) {
-                if let tappedIndex {
-                    let removed = attachments.remove(at: tappedIndex)
-                    do {
-                        try FileManager.default.removeItem(at: removed.url)
-                    } catch {
-                        debugPrint("failed to remove attachment at: \(removed.url)")
-                    }
-                }
-            } label: {
-                Text("Remove Attachment")
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
+            Task { @MainActor in
+                self.isKeyboardVisible = false
             }
         }
     }

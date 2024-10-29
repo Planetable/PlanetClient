@@ -4,9 +4,9 @@ import PhotosUI
 struct PlanetNewArticleView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
-
+    
     @AppStorage(.selectedPlanetIndex) private var selectedPlanetIndex: Int = PlanetManager.shared.userDefaults.integer(forKey: .selectedPlanetIndex)
-
+    
     @State private var selectedPlanet: Planet?
     @State private var title: String = ""
     @State private var content: String = ""
@@ -14,14 +14,14 @@ struct PlanetNewArticleView: View {
     @State private var isPreview: Bool = false
     @State private var previewPath: URL?
     @State private var shouldSaveAsDraft: Bool = false
-
+    
     @State private var uploadedImages: [PlanetArticleAttachment] = []
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedPhotoData: Data?
-
+    
     private let articleID: UUID
     var articleDraft: PlanetArticle?
-
+    
     init(withDraft draft: PlanetArticle?) {
         if let draft {
             articleID = UUID(uuidString: draft.id)!
@@ -30,7 +30,7 @@ struct PlanetNewArticleView: View {
             articleID = UUID()
         }
     }
-
+    
     var body: some View {
         NavigationStack {
             GeometryReader { g in
@@ -43,21 +43,21 @@ struct PlanetNewArticleView: View {
                                 planet.avatarView(.medium)
                             }
                         }
-
+                        
                         TextField("Title", text: $title)
                             .textFieldStyle(.plain)
                     }
                     .padding(.horizontal, 12)
                     .padding(.bottom, 12)
-
+                    
                     Divider()
                         .padding(.vertical, 0)
-
+                    
                     PlanetTextView(text: $content)
                         .padding(.horizontal, 12)
-
+                    
                     PlanetArticleAttachmentsView(title: $title, attachments: $uploadedImages)
-
+                    
                     Text(" ")
                         .frame(height: g.safeAreaInsets.bottom)
                         .frame(maxWidth: .infinity)
@@ -188,7 +188,7 @@ struct PlanetNewArticleView: View {
             }
         }
     }
-
+    
     private func saveAsDraftAction() {
         do {
             _ = try PlanetManager.shared.renderArticlePreview(forTitle: title, content: content, andArticleID: articleID.uuidString)
@@ -204,20 +204,20 @@ struct PlanetNewArticleView: View {
             debugPrint("failed to save draft: \(error)")
         }
     }
-
+    
     private func dismissAction() {
         dismiss()
         if articleDraft == nil {
             removeAttachments()
         }
     }
-
+    
     private func removeAttachments() {
         for attachment in uploadedImages {
             try? FileManager.default.removeItem(at: attachment.url)
         }
     }
-
+    
     private func restoreFromDraft(_ draft: PlanetArticle) {
         title = draft.title ?? ""
         content = draft.content ?? ""
