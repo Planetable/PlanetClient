@@ -100,8 +100,8 @@ struct PlanetTextView: UIViewRepresentable {
         view.isEditable = true
         view.isUserInteractionEnabled = true
         view.font = UIFont.preferredFont(forTextStyle: .body)
-        view.autocorrectionType = .no
-        view.autocapitalizationType = .none
+        view.autocorrectionType = .yes
+        view.autocapitalizationType = .sentences
         view.delegate = context.coordinator
         NotificationCenter.default.addObserver(forName: .insertAttachment, object: nil, queue: .main) { n in
             guard let attachment = n.object as? PlanetArticleAttachment else { return }
