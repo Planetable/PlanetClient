@@ -59,18 +59,6 @@ struct PlanetEditArticleView: View {
             }
             .navigationTitle(isPreview ? "Preview" : "Edit Post")
             .navigationBarTitleDisplayMode(.inline)
-            .alert(isPresented: $shouldDiscardChanges) {
-                Alert(
-                    title: Text("Unsaved Changes"),
-                    message: Text("Would you like to save before closing?"),
-                    primaryButton: .default(Text("Save")) {
-                        saveAction()
-                    },
-                    secondaryButton: .cancel(Text("Discard")) {
-                        dismissAction()
-                    }
-                )
-            }
             .alert(isPresented: $isDownloading) {
                 Alert(
                     title: Text("Article Not Fully Downloaded"),
@@ -82,19 +70,27 @@ struct PlanetEditArticleView: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
-                    if !isPreview {
-                        Button {
-                            let initAttachmentNames: [String] = initAttachments.map { a in
-                                return a.url.lastPathComponent
-                            }
-                            if article.title != title || article.content != content || initAttachmentNames != article.attachments {
-                                shouldDiscardChanges.toggle()
-                            } else {
+                    Button {
+                        if article.title != title || article.content != content || uploadedImages != initAttachments {
+                            self.shouldDiscardChanges.toggle()
+                        } else {
+                            dismissAction()
+                        }
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .disabled(isPreview)
+                    .alert(isPresented: $shouldDiscardChanges) {
+                        Alert(
+                            title: Text("Unsaved Changes"),
+                            message: Text("Would you like to save before closing?"),
+                            primaryButton: .default(Text("Save")) {
+                                saveAction()
+                            },
+                            secondaryButton: .cancel(Text("Discard")) {
                                 dismissAction()
                             }
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
+                        )
                     }
                 }
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
