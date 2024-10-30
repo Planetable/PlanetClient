@@ -176,6 +176,11 @@ struct PlanetArticleAttachmentsView: View {
                         .frame(width: 48, height: 48)
                         .padding(.horizontal, 8)
                     }
+                    // extra trailing padding for keyboard dismiss button
+                    if attachments.count > 0 {
+                        Text("")
+                            .frame(width: 48, height: 48)
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
@@ -231,6 +236,7 @@ struct PlanetArticleAttachmentsView: View {
                             .frame(width: 20, height: 20)
                     }
                     .tint(.primary)
+                    .buttonBorderShape(.roundedRectangle)
                 }
                 .padding(.trailing, 16)
             }
