@@ -17,6 +17,7 @@ struct PlanetArticleAttachmentsView: View {
     @Binding var attachments: [PlanetArticleAttachment]
     
     @State private var isKeyboardVisible: Bool = false
+    @State private var isReorderingAttachments: Bool = false
 
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
@@ -188,6 +189,12 @@ struct PlanetArticleAttachmentsView: View {
             .background {
                 Color.secondary.opacity(0.15)
             }
+            .sheet(
+                isPresented: $isReorderingAttachments,
+                content: {
+                    PlanetAttachmentsReorderView(attachments: $attachments)
+                }
+            )
             .confirmationDialog("", isPresented: $isTapped) {
                 Button(role: .cancel) {
                     isTapped = false
@@ -206,6 +213,13 @@ struct PlanetArticleAttachmentsView: View {
                     }
                 } label: {
                     Text("Insert Attachment")
+                }
+                if attachments.count > 0 {
+                    Button {
+                        isReorderingAttachments = true
+                    } label: {
+                        Text("Reorder Attachments")
+                    }
                 }
                 Button(role: .destructive) {
                     if let tappedIndex {
