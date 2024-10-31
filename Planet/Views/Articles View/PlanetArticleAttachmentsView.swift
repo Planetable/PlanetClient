@@ -18,6 +18,7 @@ struct PlanetArticleAttachmentsView: View {
     
     @State private var isKeyboardVisible: Bool = false
     @State private var isReorderingAttachments: Bool = false
+    @State private var isPreviewingAttachments: Bool = false
 
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
@@ -195,12 +196,26 @@ struct PlanetArticleAttachmentsView: View {
                     PlanetAttachmentsReorderView(attachments: $attachments)
                 }
             )
+            .sheet(
+                isPresented: $isPreviewingAttachments,
+                content: {
+                    PlanetAttachmentsPreviewView(
+                        attachments: attachments,
+                        selectedAttachmentIndex: tappedIndex ?? 0
+                    )
+                }
+            )
             .confirmationDialog("", isPresented: $isTapped) {
                 Button(role: .cancel) {
                     isTapped = false
                     tappedIndex = nil
                 } label: {
                     Text("Cancel")
+                }
+                Button {
+                    isPreviewingAttachments = true
+                } label: {
+                    Text("Preview")
                 }
                 Button {
                     if let tappedIndex {
@@ -212,13 +227,13 @@ struct PlanetArticleAttachmentsView: View {
                         }
                     }
                 } label: {
-                    Text("Insert Attachment")
+                    Text("Insert")
                 }
                 if attachments.count > 0 {
                     Button {
                         isReorderingAttachments = true
                     } label: {
-                        Text("Reorder Attachments")
+                        Text("Reorder")
                     }
                 }
                 Button(role: .destructive) {
@@ -231,7 +246,7 @@ struct PlanetArticleAttachmentsView: View {
                         }
                     }
                 } label: {
-                    Text("Remove Attachment")
+                    Text("Remove")
                 }
             }
             if isKeyboardVisible {

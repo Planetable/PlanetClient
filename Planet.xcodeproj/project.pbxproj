@@ -18,6 +18,7 @@
 		2A6A01602B062E6C007D3DD0 /* PlanetEditArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */; };
 		2A6A01622B0BB1E6007D3DD0 /* PlanetAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6A01612B0BB1E6007D3DD0 /* PlanetAppView.swift */; };
 		2A72ACF82CD1ECDF00EE7DB9 /* PlanetAttachmentsReorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A72ACF72CD1ECDF00EE7DB9 /* PlanetAttachmentsReorderView.swift */; };
+		2A72ACFA2CD381A100EE7DB9 /* PlanetAttachmentsPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A72ACF92CD381A100EE7DB9 /* PlanetAttachmentsPreviewView.swift */; };
 		2A72D05E2B2968380022C376 /* PlanetDraftsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A72D05D2B2968380022C376 /* PlanetDraftsView.swift */; };
 		2A7F092A2B2B4A1B00E19B84 /* PlanetPreviewArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A7F09292B2B4A1B00E19B84 /* PlanetPreviewArticleView.swift */; };
 		2A85B0712B2862E200CF6823 /* libcmark_gfm in Frameworks */ = {isa = PBXBuildFile; productRef = 2A85B0702B2862E200CF6823 /* libcmark_gfm */; };
@@ -116,6 +117,7 @@
 		2A6A015F2B062E6C007D3DD0 /* PlanetEditArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetEditArticleView.swift; sourceTree = "<group>"; };
 		2A6A01612B0BB1E6007D3DD0 /* PlanetAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAppView.swift; sourceTree = "<group>"; };
 		2A72ACF72CD1ECDF00EE7DB9 /* PlanetAttachmentsReorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAttachmentsReorderView.swift; sourceTree = "<group>"; };
+		2A72ACF92CD381A100EE7DB9 /* PlanetAttachmentsPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetAttachmentsPreviewView.swift; sourceTree = "<group>"; };
 		2A72D05D2B2968380022C376 /* PlanetDraftsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetDraftsView.swift; sourceTree = "<group>"; };
 		2A7F09292B2B4A1B00E19B84 /* PlanetPreviewArticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanetPreviewArticleView.swift; sourceTree = "<group>"; };
 		2A85B0752B28633400CF6823 /* MarkdownUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownUtils.swift; sourceTree = "<group>"; };
@@ -339,6 +341,7 @@
 				2A7F09292B2B4A1B00E19B84 /* PlanetPreviewArticleView.swift */,
 				2A3385A02B33E97D0079A900 /* PlanetArticleAttachmentsView.swift */,
 				2A72ACF72CD1ECDF00EE7DB9 /* PlanetAttachmentsReorderView.swift */,
+				2A72ACF92CD381A100EE7DB9 /* PlanetAttachmentsPreviewView.swift */,
 			);
 			path = "Articles View";
 			sourceTree = "<group>";
@@ -514,6 +517,7 @@
 			files = (
 				2AAF3E4E299E111300CA60AD /* PlanetAppViewModel.swift in Sources */,
 				2AC7CC0629A0B4E50089C58C /* PlanetSettingsViewModel.swift in Sources */,
+				2A72ACFA2CD381A100EE7DB9 /* PlanetAttachmentsPreviewView.swift in Sources */,
 				2AC7CC2629A2AE6B0089C58C /* PlanetNewArticleView.swift in Sources */,
 				2AC7CC2129A240AE0089C58C /* PlanetHelper.swift in Sources */,
 				2AC7CC0829A13E360089C58C /* PlanetMyPlanetsView.swift in Sources */,
