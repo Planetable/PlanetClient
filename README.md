@@ -4,6 +4,7 @@ Please follow the [API.md](https://raw.githubusercontent.com/Planetable/Planet/r
 
 Before running locally, setup local.xcconfig
 ```
+PRODUCT_NAME = Planet
 DEVELOPMENT_TEAM = <your team id>
 CODE_SIGN_STYLE = Automatic
 APP_GROUP_NAME = com.sample.id.ShareData
