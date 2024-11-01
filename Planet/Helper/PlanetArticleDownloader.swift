@@ -23,7 +23,10 @@ private class PlanetBackgroundArticleDownloader: NSObject {
         config.isDiscretionary = true
         config.sessionSendsLaunchEvents = true
         
-        backgroundUrlSession = URLSession(configuration: config, delegate: self, delegateQueue: .main)
+        let delegateQueue = OperationQueue()
+        delegateQueue.name = "com.planet.attachmentdownloader.queue"
+        delegateQueue.maxConcurrentOperationCount = 2
+        backgroundUrlSession = URLSession(configuration: config, delegate: self, delegateQueue: delegateQueue)
         
         // Resume pending downloads
         backgroundUrlSession.getAllTasks { tasks in
