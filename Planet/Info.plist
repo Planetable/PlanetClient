@@ -35,5 +35,10 @@
 	</array>
 	<key>ORGANIZATION_IDENTIFIER_PREFIX</key>
 	<string>$(ORGANIZATION_IDENTIFIER_PREFIX)</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+		<string>fetch</string>
+	</array>
 </dict>
 </plist>
