@@ -272,9 +272,5 @@ actor PlanetArticleDownloader {
             
             debugPrint("initiated all attachment downloads.")
         }
-        
-        await MainActor.run {
-            NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
-        }
     }
 }

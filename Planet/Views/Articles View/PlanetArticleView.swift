@@ -82,7 +82,6 @@ struct PlanetArticleView: View {
             Text("Are you sure you want to delete \(article.title ?? "untitled")? This action cannot to undone.")
         }
         .onReceive(NotificationCenter.default.publisher(for: .reloadArticle(byID: article.id))) { _ in
-            guard !self.serverStatus else { return }
             Task { @MainActor in
                 await self.reloadAction()
             }
