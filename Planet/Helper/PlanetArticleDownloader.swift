@@ -10,7 +10,10 @@ import Foundation
 // MARK: - Background Downloader
 private class PlanetBackgroundArticleDownloader: NSObject {
     static let shared = PlanetBackgroundArticleDownloader()
-    
+
+    static let sessionIdentifier: String = "com.planet.attachmentdownloader"
+    static let delegateQueue: String = "com.planet.attachmentdownloader.queue"
+
     private var backgroundUrlSession: URLSession!
     private var downloadTasks: [URL: URLSessionDownloadTask] = [:]
     private var completionHandlers: [URL: (Result<URL, Error>) -> Void] = [:]
@@ -19,12 +22,12 @@ private class PlanetBackgroundArticleDownloader: NSObject {
     override init() {
         super.init()
         
-        let config = URLSessionConfiguration.background(withIdentifier: "com.planet.attachmentdownloader")
+        let config = URLSessionConfiguration.background(withIdentifier: Self.sessionIdentifier)
         config.isDiscretionary = true
         config.sessionSendsLaunchEvents = true
         
         let delegateQueue = OperationQueue()
-        delegateQueue.name = "com.planet.attachmentdownloader.queue"
+        delegateQueue.name = Self.delegateQueue
         delegateQueue.maxConcurrentOperationCount = 2
         backgroundUrlSession = URLSession(configuration: config, delegate: self, delegateQueue: delegateQueue)
         

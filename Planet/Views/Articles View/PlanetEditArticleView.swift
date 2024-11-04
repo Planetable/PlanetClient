@@ -135,6 +135,9 @@ struct PlanetEditArticleView: View {
                     var localAttachments: [PlanetArticleAttachment] = []
                     for a in attachments {
                         let attachmentPath = articlePath.appending(path: a)
+                        guard FileManager.default.fileExists(atPath: attachmentPath.path) else {
+                            continue
+                        }
                         guard let image = UIImage(contentsOfFile: attachmentPath.path) else {
                             hasUnsupportedAttachments = true
                             continue
