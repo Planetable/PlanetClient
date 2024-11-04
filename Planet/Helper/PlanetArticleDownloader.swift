@@ -8,148 +8,105 @@ import SwiftUI
 import Foundation
 
 // MARK: - Background Downloader
-private class PlanetBackgroundArticleDownloader: NSObject {
+actor PlanetBackgroundArticleDownloader: NSObject {
     static let shared = PlanetBackgroundArticleDownloader()
-    
+    static let identifier: String = "com.planet.attachment.downloader"
+
     private var backgroundUrlSession: URLSession!
-    private let queue = DispatchQueue(label: "com.planet.downloader.queue")
     private var downloadTasks: [URL: URLSessionDownloadTask] = [:]
     private var completionHandlers: [URL: (Result<URL, Error>) -> Void] = [:]
     private var destinationPaths: [URL: URL] = [:]
     
-    override init() {
+    override private init() {
         super.init()
         
-        let config = URLSessionConfiguration.background(withIdentifier: "com.planet.attachmentdownloader")
+        let config = URLSessionConfiguration.background(
+            withIdentifier: Self.identifier
+        )
         config.isDiscretionary = true
         config.sessionSendsLaunchEvents = true
         
-        let delegateQueue = OperationQueue()
-        delegateQueue.name = "com.planet.downloader.delegate.queue"
-        delegateQueue.maxConcurrentOperationCount = 2
-        backgroundUrlSession = URLSession(configuration: config, delegate: self, delegateQueue: delegateQueue)
-        
-        // Resume pending downloads
-        backgroundUrlSession.getAllTasks { tasks in
-            tasks.forEach { task in
-                if let originalURL = task.originalRequest?.url {
-                    debugPrint("📥 Found pending task: \(task.taskIdentifier) - \(originalURL.lastPathComponent)")
-                    self.downloadTasks[originalURL] = task as? URLSessionDownloadTask
-                    if self.completionHandlers[originalURL] == nil {
-                        debugPrint("⚠️ No handler found, cancelling task: \(task.taskIdentifier)")
-                        task.cancel()
-                        self.downloadTasks.removeValue(forKey: originalURL)
-                    }
-                } else {
-                    debugPrint("⚠️ Invalid task, cancelling: \(task.taskIdentifier)")
-                    task.cancel()
-                }
-            }
-        }
+        backgroundUrlSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
     }
     
-    func download(url: URL, destinationPath: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        queue.async {
-            if let existingTask = self.downloadTasks[url] {
-                debugPrint("📥 Reusing task: \(existingTask.taskIdentifier) - \(url.lastPathComponent)")
-                if self.completionHandlers[url] != nil {
-                    completion(.failure(NSError(domain: "PlanetDownloader", code: -1, 
-                        userInfo: [NSLocalizedDescriptionKey: "Download already in progress"])))
-                    return
-                }
-                self.completionHandlers[url] = completion
-                self.destinationPaths[url] = destinationPath
-                PlanetArticleDownloadStatusManager.shared.taskStarted(taskId: "\(existingTask.taskIdentifier)", 
-                    filename: url.lastPathComponent)
-            } else {
-                let task = self.backgroundUrlSession.downloadTask(with: url)
-                debugPrint("📥 Starting task: \(task.taskIdentifier) - \(url.lastPathComponent)")
-                self.downloadTasks[url] = task
-                self.completionHandlers[url] = completion
-                self.destinationPaths[url] = destinationPath
-                PlanetArticleDownloadStatusManager.shared.taskStarted(taskId: "\(task.taskIdentifier)", 
-                    filename: url.lastPathComponent)
-                task.resume()
+    func download(url: URL, destinationPath: URL) async throws -> URL {
+        if downloadTasks[url] != nil {
+            throw PlanetError.InternalError
+        }
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let task = backgroundUrlSession.downloadTask(with: url)
+            downloadTasks[url] = task
+            completionHandlers[url] = { result in
+                continuation.resume(with: result)
             }
+            destinationPaths[url] = destinationPath
+            task.resume()
         }
     }
     
     private func cleanupTask(for url: URL) {
-        queue.async {
-            self.downloadTasks.removeValue(forKey: url)
-            self.completionHandlers.removeValue(forKey: url)
-            self.destinationPaths.removeValue(forKey: url)
-        }
+        downloadTasks.removeValue(forKey: url)
+        completionHandlers.removeValue(forKey: url)
+        destinationPaths.removeValue(forKey: url)
     }
 }
 
-// MARK: - URLSessionDownloadDelegate
 extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
-    func urlSession(_ session: URLSession,
-                   downloadTask: URLSessionDownloadTask,
-                   didFinishDownloadingTo location: URL) {
-        guard let sourceURL = downloadTask.originalRequest?.url else {
-            debugPrint("⚠️ Missing URL for task: \(downloadTask.taskIdentifier)")
-            return
-        }
+    nonisolated func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
+        guard let sourceURL = downloadTask.originalRequest?.url else { return }
         
+        Task {
+            await handleDownloadCompletion(sourceURL: sourceURL, location: location)
+        }
+    }
+    
+    private func handleDownloadCompletion(sourceURL: URL, location: URL) async {
         guard let completion = completionHandlers[sourceURL],
               let destinationPath = destinationPaths[sourceURL] else {
-            debugPrint("⚠️ Missing handlers for task: \(downloadTask.taskIdentifier)")
             cleanupTask(for: sourceURL)
             return
         }
         
         do {
-            try FileManager.default.createDirectory(at: destinationPath.deletingLastPathComponent(), 
-                                                 withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(
+                at: destinationPath.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
             try? FileManager.default.removeItem(at: destinationPath)
             try FileManager.default.moveItem(at: location, to: destinationPath)
             
-            // Mark task as completed in the status manager
-            PlanetArticleDownloadStatusManager.shared.taskCompleted(taskId: "\(downloadTask.taskIdentifier)")
-            DispatchQueue.main.async { completion(.success(destinationPath)) }
-            cleanupTask(for: sourceURL)
+            completion(.success(destinationPath))
         } catch {
-            debugPrint("❌ Failed task: \(downloadTask.taskIdentifier) - \(error.localizedDescription)")
-            DispatchQueue.main.async { completion(.failure(error)) }
-            // Let didCompleteWithError handle cleanup and status update for failures
+            completion(.failure(error))
         }
+        
+        cleanupTask(for: sourceURL)
     }
     
-    func urlSession(_ session: URLSession,
-                   task: URLSessionTask,
-                   didCompleteWithError error: Error?) {
+    nonisolated func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
         guard let sourceURL = task.originalRequest?.url else { return }
         
-        // Only handle error cases here
         if let error = error {
-            if let completion = completionHandlers[sourceURL] {
-                debugPrint("❌ Failed task: \(task.taskIdentifier) - \(error.localizedDescription)")
-                DispatchQueue.main.async { completion(.failure(error)) }
+            Task {
+                await handleError(error, for: sourceURL)
             }
-            PlanetArticleDownloadStatusManager.shared.taskCompleted(taskId: "\(task.taskIdentifier)")
-            cleanupTask(for: sourceURL)
         }
     }
     
-    func urlSession(_ session: URLSession,
-                   downloadTask: URLSessionDownloadTask,
-                   didWriteData bytesWritten: Int64,
-                   totalBytesWritten: Int64,
-                   totalBytesExpectedToWrite: Int64) {
-        guard let sourceURL = downloadTask.originalRequest?.url else { return }
-        let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite) * 100
-        PlanetArticleDownloadStatusManager.shared.updateProgress(taskId: "\(downloadTask.taskIdentifier)", progress: progress)
-        debugPrint("📥 Progress task: \(downloadTask.taskIdentifier) - \(sourceURL.lastPathComponent) (\(Int(progress))%)")
-    }
-    
-    func urlSession(_ session: URLSession,
-                   downloadTask: URLSessionDownloadTask,
-                   didResumeAtOffset fileOffset: Int64,
-                   expectedTotalBytes: Int64) {
-        guard let sourceURL = downloadTask.originalRequest?.url else { return }
-        debugPrint("📥 Resumed task: \(downloadTask.taskIdentifier) - \(sourceURL.lastPathComponent)")
+    private func handleError(_ error: Error, for sourceURL: URL) async {
+        guard let completion = completionHandlers[sourceURL] else { return }
+        
+        completion(.failure(error))
+        cleanupTask(for: sourceURL)
     }
 }
 
@@ -284,128 +241,22 @@ actor PlanetArticleDownloader {
                 
                 try await withThrowingTaskGroup(of: Void.self) { group in
                     for attachment in attachments {
-                        group.addTask {
+                        group.addTask { [articlePublicURL, articlePath] in  // Capture values explicitly
                             let attachmentURL = articlePublicURL.appending(path: attachment)
                             let attachmentPath = articlePath.appending(path: attachment)
                             
-                            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                                PlanetBackgroundArticleDownloader.shared.download(
-                                    url: attachmentURL,
-                                    destinationPath: attachmentPath
-                                ) { result in
-                                    switch result {
-                                    case .success:
-                                        continuation.resume()
-                                    case .failure(let error):
-                                        continuation.resume(throwing: error)
-                                    }
-                                }
-                            }
+                            let _ = try await PlanetBackgroundArticleDownloader.shared.download(
+                                url: attachmentURL,
+                                destinationPath: attachmentPath
+                            )
                         }
                     }
                     
-                    // Ensure all downloads complete or fail
                     try await group.waitForAll()
                 }
+                
+                debugPrint("✅ Article download completed: \(id)")
             }
         }
-        
-        debugPrint("✅ Article download completed: \(id)")
-    }
-}
-
-class PlanetArticleDownloadStatusManager: ObservableObject {
-    static let shared = PlanetArticleDownloadStatusManager()
-    
-    @Published private(set) var activeTasks: Int = 0 {
-        didSet {
-            debugPrint("active download tasks: \(activeTasks)")
-        }
-    }
-    @Published private(set) var currentTask: String = ""
-    @Published private(set) var overallProgress: Double = 0 {
-        didSet {
-            debugPrint("overall download tasks progress: \(overallProgress)")
-        }
-    }
-
-    private var taskProgresses: [String: Double] = [:] // taskId: progress
-    
-    func taskStarted(taskId: String, filename: String) {
-        DispatchQueue.main.async {
-            self.activeTasks += 1
-            self.currentTask = filename
-            self.taskProgresses[taskId] = 0
-            self.updateOverallProgress()
-        }
-    }
-    
-    func updateProgress(taskId: String, progress: Double) {
-        DispatchQueue.main.async {
-            self.taskProgresses[taskId] = progress
-            self.updateOverallProgress()
-        }
-    }
-    
-    func taskCompleted(taskId: String) {
-        DispatchQueue.main.async {
-            self.activeTasks = max(0, self.activeTasks - 1)
-            self.taskProgresses.removeValue(forKey: taskId)
-            self.updateOverallProgress()
-        }
-    }
-    
-    private func updateOverallProgress() {
-        guard !taskProgresses.isEmpty else {
-            overallProgress = 0
-            return
-        }
-        let total = taskProgresses.values.reduce(0, +)
-        overallProgress = min(max(total / Double(taskProgresses.count), 0), 100)
-    }
-}
-
-struct PlanetArticleDownloadStatusView: View {
-    @EnvironmentObject private var manager: PlanetArticleDownloadStatusManager
-    
-    private var progress: Double {
-        min(max(manager.overallProgress, 0), 100)
-    }
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            if manager.activeTasks > 0 {
-                ProgressView(value: progress, total: 100)
-                    .progressViewStyle(.linear)
-                    .frame(width: 100)
-                Text("\(Int(progress))% • \(manager.activeTasks) downloading")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding(.horizontal)
-        .frame(height: 30)
-    }
-}
-
-struct CircularProgressView: View {
-    let progress: Double
-    
-    private var clampedProgress: Double {
-        min(max(progress, 0), 100) / 100
-    }
-    
-    var body: some View {
-        Circle()
-            .trim(from: 0, to: clampedProgress)
-            .stroke(Color.accentColor, style: StrokeStyle(
-                lineWidth: 2,
-                lineCap: .round
-            ))
-            .rotationEffect(.degrees(-90))
-            .overlay(
-                Circle()
-                    .stroke(Color.secondary.opacity(0.3), lineWidth: 2)
-            )
     }
 }
