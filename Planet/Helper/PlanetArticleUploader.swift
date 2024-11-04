@@ -56,7 +56,6 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
     }
     
     func upload(request: URLRequest, form: MultipartForm, articleID: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        // Save form data to temporary file
         let tempFileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         do {
             try form.bodyData.write(to: tempFileURL)
@@ -71,8 +70,7 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
         if let existingTask = self.uploadTasks[articleID] {
             debugPrint("📤 Reusing task: \(existingTask.taskIdentifier) - Article: \(articleID)")
             if self.completionHandlers[articleID] != nil {
-                completion(.failure(NSError(domain: "PlanetUploader", code: -1, 
-                    userInfo: [NSLocalizedDescriptionKey: "Upload already in progress"])))
+                completion(.failure(PlanetError.APIArticleUploadingTaskExistsError))
                 return
             }
         } else {
@@ -128,17 +126,39 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
             debugPrint("📤 Response data: \(responseString)")
         }
     }
+    
+    func urlSession(_ session: URLSession,
+                   task: URLSessionTask,
+                   didCompleteWithError error: Error?) {
+        guard let articleID = extractArticleID(from: task.originalRequest?.url?.path ?? "") else { return }
+        
+        if let error = error {
+            completionHandlers[articleID]?(.failure(error))
+        } else {
+            completionHandlers[articleID]?(.success(()))
+        }
+        
+        cleanupTask(for: articleID)
+    }
 }
 
 // MARK: - Article Uploader
 actor PlanetArticleUploader {
     static let shared = PlanetArticleUploader()
+    private var isCreating = false
     
     private init() {
         debugPrint("📤 PlanetArticleUploader initialized")
     }
     
     func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet) async throws {
+        guard !isCreating else {
+            throw PlanetError.APIArticleCreationInProgressError
+        }
+        
+        isCreating = true
+        defer { isCreating = false }
+        
         debugPrint("📤 Starting createArticle")
         
         let request = try await PlanetManager.shared.createRequest(
@@ -154,7 +174,7 @@ actor PlanetArticleUploader {
             PlanetBackgroundArticleUploader.shared.upload(
                 request: request,
                 form: form,
-                articleID: "articles"  // Using a fixed ID for create
+                articleID: "articles"
             ) { result in
                 debugPrint("📤 Upload completion received")
                 
@@ -250,5 +270,9 @@ actor PlanetArticleUploader {
         }
         
         return form
+    }
+    
+    var isArticleCreating: Bool {
+        isCreating
     }
 }
