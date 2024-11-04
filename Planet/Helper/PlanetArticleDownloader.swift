@@ -99,12 +99,11 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
             try FileManager.default.moveItem(at: location, to: destinationPath)
             
             DispatchQueue.main.async { completion(.success(destinationPath)) }
-            cleanupTask(for: sourceURL)
         } catch {
             debugPrint("❌ Failed task: \(downloadTask.taskIdentifier) - \(error.localizedDescription)")
             DispatchQueue.main.async { completion(.failure(error)) }
-            cleanupTask(for: sourceURL)
         }
+        // Don't cleanup here - let didCompleteWithError handle it
     }
     
     func urlSession(_ session: URLSession,
@@ -112,13 +111,10 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
                    didCompleteWithError error: Error?) {
         guard let sourceURL = task.originalRequest?.url else { return }
         
-        if let completion = completionHandlers[sourceURL] {
-            if let error = error {
-                debugPrint("❌ Failed task: \(task.taskIdentifier) - \(error.localizedDescription)")
-                DispatchQueue.main.async { completion(.failure(error)) }
-            }
-        } else {
-            debugPrint("⚠️ Missing handlers for failed task: \(task.taskIdentifier)")
+        // Only call completion for error case
+        if let error = error, let completion = completionHandlers[sourceURL] {
+            debugPrint("❌ Failed task: \(task.taskIdentifier) - \(error.localizedDescription)")
+            DispatchQueue.main.async { completion(.failure(error)) }
         }
         
         // Always clean up, even if handlers are missing
