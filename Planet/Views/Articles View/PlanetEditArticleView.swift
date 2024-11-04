@@ -17,6 +17,7 @@ struct PlanetEditArticleView: View {
     @State private var isPreview: Bool = false
     @State private var previewPath: URL?
     @State private var isDownloading: Bool = false
+    @State private var hasUnsupportedAttachments: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -61,8 +62,13 @@ struct PlanetEditArticleView: View {
             .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $isDownloading) {
                 Alert(
-                    title: Text("Article Not Fully Downloaded"),
-                    message: Text("Please wait for the article and attachments to download and try editing again later."),
+                    title: Text(
+                        hasUnsupportedAttachments ? "Failed to Edit Article" : "Article Not Fully Downloaded"
+                    ),
+                    message: Text(
+                        hasUnsupportedAttachments ? "Article has unsupported attachments, please edit on the Mac." :
+                            "Please wait for the article and attachments to download and try editing again later."
+                    ),
                     dismissButton: .default(Text("Dismiss")) {
                         dismissAction()
                     }
@@ -129,7 +135,10 @@ struct PlanetEditArticleView: View {
                     var localAttachments: [PlanetArticleAttachment] = []
                     for a in attachments {
                         let attachmentPath = articlePath.appending(path: a)
-                        guard let image = UIImage(contentsOfFile: attachmentPath.path) else { continue }
+                        guard let image = UIImage(contentsOfFile: attachmentPath.path) else {
+                            hasUnsupportedAttachments = true
+                            continue
+                        }
                         let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: attachmentPath)
                         localAttachments.append(attachment)
                     }
@@ -138,6 +147,9 @@ struct PlanetEditArticleView: View {
                         debugPrint("article attachments not fully downloaded!")
                         Task { @MainActor in
                             self.isDownloading = true
+                            if self.hasUnsupportedAttachments {
+                                return
+                            }
                             Task.detached(priority: .userInitiated) {
                                 let downloader = PlanetArticleDownloader()
                                 try? await downloader
