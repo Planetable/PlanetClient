@@ -32,19 +32,15 @@ private class PlanetBackgroundArticleDownloader: NSObject {
         backgroundUrlSession.getAllTasks { tasks in
             tasks.forEach { task in
                 if let originalURL = task.originalRequest?.url {
-                    debugPrint("📥 Found pending download for: \(originalURL.lastPathComponent)")
-                    debugPrint("   Task identifier: \(task.taskIdentifier)")
-                    DispatchQueue.main.async { [weak self] in
-                        self?.downloadTasks[originalURL] = task as? URLSessionDownloadTask
-                        // Cancel tasks that don't have handlers
-                        if self?.completionHandlers[originalURL] == nil {
-                            debugPrint("⚠️ No handler found for pending task, cancelling: \(originalURL.lastPathComponent)")
-                            task.cancel()
-                            self?.downloadTasks.removeValue(forKey: originalURL)
-                        }
+                    debugPrint("📥 Found pending task: \(task.taskIdentifier) - \(originalURL.lastPathComponent)")
+                    self.downloadTasks[originalURL] = task as? URLSessionDownloadTask
+                    if self.completionHandlers[originalURL] == nil {
+                        debugPrint("⚠️ No handler found, cancelling task: \(task.taskIdentifier)")
+                        task.cancel()
+                        self.downloadTasks.removeValue(forKey: originalURL)
                     }
                 } else {
-                    debugPrint("⚠️ Found task without URL, cancelling: \(task.taskIdentifier)")
+                    debugPrint("⚠️ Invalid task, cancelling: \(task.taskIdentifier)")
                     task.cancel()
                 }
             }
@@ -52,35 +48,29 @@ private class PlanetBackgroundArticleDownloader: NSObject {
     }
     
     func download(url: URL, destinationPath: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        debugPrint("🚀 Initiating background download for: \(url.lastPathComponent)")
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            self.destinationPaths[url] = destinationPath
-            
-            if let existingTask = self.downloadTasks[url] {
-                debugPrint("✳️ Existing download found for: \(url.lastPathComponent)")
-                debugPrint("   Task identifier: \(existingTask.taskIdentifier)")
-                self.completionHandlers[url] = completion
-            } else {
-                let task = self.backgroundUrlSession.downloadTask(with: url)
-                debugPrint("🆕 Creating new download task: \(task.taskIdentifier) for: \(url.lastPathComponent)")
-                self.downloadTasks[url] = task
-                self.completionHandlers[url] = completion
-                task.resume()
+        if let existingTask = self.downloadTasks[url] {
+            debugPrint("📥 Reusing task: \(existingTask.taskIdentifier) - \(url.lastPathComponent)")
+            if self.completionHandlers[url] != nil {
+                completion(.failure(NSError(domain: "PlanetDownloader", code: -1, 
+                    userInfo: [NSLocalizedDescriptionKey: "Download already in progress"])))
+                return
             }
+            self.completionHandlers[url] = completion
+            self.destinationPaths[url] = destinationPath
+        } else {
+            let task = self.backgroundUrlSession.downloadTask(with: url)
+            debugPrint("📥 Starting task: \(task.taskIdentifier) - \(url.lastPathComponent)")
+            self.downloadTasks[url] = task
+            self.completionHandlers[url] = completion
+            self.destinationPaths[url] = destinationPath
+            task.resume()
         }
     }
     
     private func cleanupTask(for url: URL) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            debugPrint("🧹 Cleaning up task for: \(url.lastPathComponent)")
-            self.downloadTasks.removeValue(forKey: url)
-            self.completionHandlers.removeValue(forKey: url)
-            self.destinationPaths.removeValue(forKey: url)
-        }
+        self.downloadTasks.removeValue(forKey: url)
+        self.completionHandlers.removeValue(forKey: url)
+        self.destinationPaths.removeValue(forKey: url)
     }
 }
 
@@ -90,25 +80,17 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
                    downloadTask: URLSessionDownloadTask,
                    didFinishDownloadingTo location: URL) {
         guard let sourceURL = downloadTask.originalRequest?.url else {
-            debugPrint("🔴 Background download - Missing URL for task: \(downloadTask.taskIdentifier)")
+            debugPrint("⚠️ Missing URL for task: \(downloadTask.taskIdentifier)")
             return
         }
         
-        guard let completion = completionHandlers[sourceURL] else {
-            debugPrint("🔴 Background download - Missing completion handler for: \(sourceURL.lastPathComponent)")
-            debugPrint("   Task identifier: \(downloadTask.taskIdentifier)")
-            return
-        }
-        
-        guard let destinationPath = destinationPaths[sourceURL] else {
-            debugPrint("🔴 Background download - Missing destination path for: \(sourceURL.lastPathComponent)")
-            completion(.failure(NSError(domain: "PlanetDownloader", code: -1, userInfo: [NSLocalizedDescriptionKey: "Missing destination path"])))
+        // Always clean up task if handlers are missing
+        guard let completion = completionHandlers[sourceURL],
+              let destinationPath = destinationPaths[sourceURL] else {
+            debugPrint("⚠️ Missing handlers for task: \(downloadTask.taskIdentifier)")
             cleanupTask(for: sourceURL)
             return
         }
-        
-        debugPrint("✅ Background download completed for: \(sourceURL.lastPathComponent)")
-        debugPrint("   Task identifier: \(downloadTask.taskIdentifier)")
         
         do {
             try FileManager.default.createDirectory(at: destinationPath.deletingLastPathComponent(), 
@@ -116,41 +98,31 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
             try? FileManager.default.removeItem(at: destinationPath)
             try FileManager.default.moveItem(at: location, to: destinationPath)
             
-            DispatchQueue.main.async {
-                completion(.success(destinationPath))
-                self.cleanupTask(for: sourceURL)
-            }
+            DispatchQueue.main.async { completion(.success(destinationPath)) }
+            cleanupTask(for: sourceURL)
         } catch {
-            debugPrint("❌ Failed to move file: \(error.localizedDescription)")
-            DispatchQueue.main.async {
-                completion(.failure(error))
-                self.cleanupTask(for: sourceURL)
-            }
+            debugPrint("❌ Failed task: \(downloadTask.taskIdentifier) - \(error.localizedDescription)")
+            DispatchQueue.main.async { completion(.failure(error)) }
+            cleanupTask(for: sourceURL)
         }
     }
     
     func urlSession(_ session: URLSession,
                    task: URLSessionTask,
                    didCompleteWithError error: Error?) {
-        guard let sourceURL = task.originalRequest?.url,
-              let completion = completionHandlers[sourceURL] else {
-            debugPrint("🔴 Background download - Missing URL or completion handler for completed task: \(task)")
-            return
+        guard let sourceURL = task.originalRequest?.url else { return }
+        
+        if let completion = completionHandlers[sourceURL] {
+            if let error = error {
+                debugPrint("❌ Failed task: \(task.taskIdentifier) - \(error.localizedDescription)")
+                DispatchQueue.main.async { completion(.failure(error)) }
+            }
+        } else {
+            debugPrint("⚠️ Missing handlers for failed task: \(task.taskIdentifier)")
         }
         
-        if let error = error {
-            debugPrint("❌ Background download failed for: \(sourceURL.lastPathComponent)")
-            debugPrint("⚠️ Error: \(error.localizedDescription)")
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                completion(.failure(error))
-                self.downloadTasks.removeValue(forKey: sourceURL)
-                self.completionHandlers.removeValue(forKey: sourceURL)
-                self.destinationPaths.removeValue(forKey: sourceURL)
-                debugPrint("🧹 Cleaned up handlers for failed download: \(sourceURL.lastPathComponent)")
-            }
-        }
+        // Always clean up, even if handlers are missing
+        cleanupTask(for: sourceURL)
     }
     
     func urlSession(_ session: URLSession,
@@ -159,10 +131,8 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
                    totalBytesWritten: Int64,
                    totalBytesExpectedToWrite: Int64) {
         guard let sourceURL = downloadTask.originalRequest?.url else { return }
-        
-        let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-        debugPrint("📥 Download progress for \(sourceURL.lastPathComponent): \(Int(progress * 100))%")
-        debugPrint("   Bytes written: \(ByteCountFormatter.string(fromByteCount: totalBytesWritten, countStyle: .file))")
+        let progress = Int(Float(totalBytesWritten) / Float(totalBytesExpectedToWrite) * 100)
+        debugPrint("📥 Progress task: \(downloadTask.taskIdentifier) - \(sourceURL.lastPathComponent) (\(progress)%)")
     }
     
     func urlSession(_ session: URLSession,
@@ -170,107 +140,165 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
                    didResumeAtOffset fileOffset: Int64,
                    expectedTotalBytes: Int64) {
         guard let sourceURL = downloadTask.originalRequest?.url else { return }
-        debugPrint("⏯️ Resumed download for \(sourceURL.lastPathComponent) at offset: \(ByteCountFormatter.string(fromByteCount: fileOffset, countStyle: .file))")
-    }
-    
-    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        debugPrint("🏁 Background URL session finished all events")
+        debugPrint("📥 Resumed task: \(downloadTask.taskIdentifier) - \(sourceURL.lastPathComponent)")
     }
 }
 
 // MARK: - Article Downloader
 actor PlanetArticleDownloader {
-    // MARK: - Main Actor Methods
+    private let cacheTimeout: TimeInterval = 1800 // 30 minutes (30 * 60 seconds)
+    
+    private func isFileRecent(_ url: URL) -> Bool {
+        guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
+              let modificationDate = attributes[.modificationDate] as? Date else {
+            return false
+        }
+        return Date().timeIntervalSince(modificationDate) < cacheTimeout
+    }
+    
+    private func loadArticleFromDisk(at path: URL) -> PlanetArticle? {
+        guard let data = try? Data(contentsOf: path) else { return nil }
+        return try? JSONDecoder().decode(PlanetArticle.self, from: data)
+    }
+    
     func download(byArticleID id: String, andPlanetID planetID: String, forceDownloadAttachments: Bool = false) async throws {
         let manager = PlanetManager.shared
-        // GET /v0/planets/my/:planet_uuid/articles/:article_uuid
-        let request = try await manager.createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
-        let (data, response) = try await URLSession.shared.data(for: request)
-        let statusCode = (response as! HTTPURLResponse).statusCode
-        guard statusCode == 200 else { throw PlanetError.APIArticleNotFoundError }
-        guard
-            let articlePath = manager.getPlanetArticlePath(forID: planetID, articleID: id)
-        else {
+        guard let articlePath = manager.getPlanetArticlePath(forID: planetID, articleID: id) else {
             throw PlanetError.APIArticleNotFoundError
         }
-        guard
-            let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString)
-        else {
+        
+        let articleJsonPath = articlePath.appending(path: "article.json")
+        var planetArticle: PlanetArticle
+        var needsDownload = forceDownloadAttachments
+        
+        // First check if we can use cached article.json
+        if !forceDownloadAttachments,
+           FileManager.default.fileExists(atPath: articleJsonPath.path),
+           isFileRecent(articleJsonPath),
+           let cachedArticle = loadArticleFromDisk(at: articleJsonPath) {
+            debugPrint("📄 Using cached article.json for: \(id)")
+            planetArticle = cachedArticle
+        } else {
+            // Fetch fresh article.json from server
+            debugPrint("🌐 Fetching article.json from server for: \(id)")
+            let request = try await manager.createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "GET")
+            let (data, response) = try await URLSession.shared.data(for: request)
+            let statusCode = (response as! HTTPURLResponse).statusCode
+            guard statusCode == 200 else { throw PlanetError.APIArticleNotFoundError }
+            
+            let decoder = JSONDecoder()
+            planetArticle = try decoder.decode(PlanetArticle.self, from: data)
+            planetArticle.planetID = UUID(uuidString: planetID)
+            
+            // Save new article.json
+            try data.write(to: articleJsonPath)
+            debugPrint("💾 Saved new article.json for: \(id)")
+            needsDownload = true
+        }
+        
+        // Setup URLs for all downloads
+        guard let serverURL = URL(string: PlanetAppViewModel.shared.currentServerURLString) else {
             throw PlanetError.APIServerError
         }
-        let articleInfoPath = articlePath.appending(path: "article.json")
-        try data.write(to: articleInfoPath)
-        let decoder = JSONDecoder()
-        var planetArticle = try decoder.decode(PlanetArticle.self, from: data)
-        planetArticle.planetID = UUID(uuidString: planetID)
-        // download html and attachments, replace if exists.
-        let articlePublicURL = serverURL
-            .appending(path: planetID)
-            .appending(path: id)
-        // index.html, abort download task if not exists or failed.
-        let articleURL = articlePublicURL.appending(path: "index.html")
-        let articleIndexPath = articlePath.appending(path: "index.html")
-        // simple.html if exists
-        let simpleURL = articlePublicURL.appending(path: "simple.html")
-        let simplePath = articlePath.appending(path: "simple.html")
-        // blog.html if exists
-        let blogURL = articlePublicURL.appending(path: "blog.html")
-        let blogPath = articlePath.appending(path: "blog.html")
-        await withThrowingTaskGroup(of: Void.self) { group in
-            group.addTask(priority: .background) {
-                let (articleData, response) = try await URLSession.shared.data(from: articleURL)
-                let statusCode = (response as! HTTPURLResponse).statusCode
-                if statusCode == 200 {
-                    try? FileManager.default.removeItem(at: articleIndexPath)
-                    try articleData.write(to: articleIndexPath)
+        let articlePublicURL = serverURL.appending(path: planetID).appending(path: id)
+        
+        let indexPath = articlePath.appending(path: "index.html")
+        if needsDownload || !FileManager.default.fileExists(atPath: indexPath.path) || !isFileRecent(indexPath) {
+            // Download all HTML files concurrently
+            await withThrowingTaskGroup(of: Void.self) { group in
+                // index.html (required)
+                group.addTask {
+                    debugPrint("📥 Downloading index.html for: \(id)")
+                    let articleURL = articlePublicURL.appending(path: "index.html")
+                    let indexPath = articlePath.appending(path: "index.html")
+                    
+                    let (articleData, response) = try await URLSession.shared.data(from: articleURL)
+                    if (response as! HTTPURLResponse).statusCode == 200 {
+                        try? FileManager.default.removeItem(at: indexPath)
+                        try articleData.write(to: indexPath)
+                        debugPrint("✅ Downloaded index.html")
+                    } else {
+                        throw PlanetError.APIArticleNotFoundError
+                    }
                 }
-            }
-            group.addTask(priority: .background) {
-                let (simpleData, response) = try await URLSession.shared.data(from: simpleURL)
-                let statusCode = (response as! HTTPURLResponse).statusCode
-                if statusCode == 200 {
-                    try? FileManager.default.removeItem(at: simplePath)
-                    try? simpleData.write(to: simplePath)
+                
+                // simple.html (optional)
+                group.addTask(priority: .background) {
+                    let simpleURL = articlePublicURL.appending(path: "simple.html")
+                    let simplePath = articlePath.appending(path: "simple.html")
+                    do {
+                        let (simpleData, response) = try await URLSession.shared.data(from: simpleURL)
+                        if (response as! HTTPURLResponse).statusCode == 200 {
+                            try? FileManager.default.removeItem(at: simplePath)
+                            try simpleData.write(to: simplePath)
+                            debugPrint("✅ Downloaded simple.html")
+                        }
+                    } catch {
+                        debugPrint("ℹ️ simple.html not available")
+                    }
                 }
-            }
-            group.addTask(priority: .background) {
-                let (blogData, response) = try await URLSession.shared.data(from: blogURL)
-                let statusCode = (response as! HTTPURLResponse).statusCode
-                if statusCode == 200 {
-                    try? FileManager.default.removeItem(at: blogPath)
-                    try? blogData.write(to: blogPath)
+                
+                // blog.html (optional)
+                group.addTask(priority: .background) {
+                    let blogURL = articlePublicURL.appending(path: "blog.html")
+                    let blogPath = articlePath.appending(path: "blog.html")
+                    do {
+                        let (blogData, response) = try await URLSession.shared.data(from: blogURL)
+                        if (response as! HTTPURLResponse).statusCode == 200 {
+                            try? FileManager.default.removeItem(at: blogPath)
+                            try blogData.write(to: blogPath)
+                            debugPrint(" Downloaded blog.html")
+                        }
+                    } catch {
+                        debugPrint("ℹ️ blog.html not available")
+                    }
                 }
             }
         }
-        // attachments
+        
+        // Check attachments
         if let attachments = planetArticle.attachments, attachments.count > 0 {
-            debugPrint("downloading attachments (count = \(attachments.count)) ...")
+            let existingAttachments = (try? FileManager.default.contentsOfDirectory(
+                at: articlePath,
+                includingPropertiesForKeys: nil
+            )) ?? []
             
-            await withThrowingTaskGroup(of: Void.self) { group in
-                for a in attachments {
-                    let attachmentURL = articlePublicURL.appending(path: a)
-                    let attachmentPath = articlePath.appending(path: a)
-                    
-                    group.addTask {
-                        try await withCheckedThrowingContinuation { continuation in
-                            PlanetBackgroundArticleDownloader.shared.download(
-                                url: attachmentURL,
-                                destinationPath: attachmentPath
-                            ) { result in
-                                switch result {
-                                case .success(_):
-                                    debugPrint("download attachment: \(attachmentURL)")
-                                    continuation.resume()
-                                case .failure(let error):
-                                    continuation.resume(throwing: error)
+            let existingAttachmentNames = Set(existingAttachments.map { $0.lastPathComponent }
+                .filter { name in
+                    !name.hasSuffix(".json") && 
+                    !name.hasSuffix(".html")
+                })
+            let requiredAttachments = Set(attachments)
+            
+            if forceDownloadAttachments || !requiredAttachments.isSubset(of: existingAttachmentNames) {
+                debugPrint("📥 Downloading attachments (count = \(attachments.count))")
+                
+                try await withThrowingTaskGroup(of: Void.self) { group in
+                    for attachment in attachments {
+                        group.addTask {
+                            let attachmentURL = articlePublicURL.appending(path: attachment)
+                            let attachmentPath = articlePath.appending(path: attachment)
+                            
+                            try await withCheckedThrowingContinuation { continuation in
+                                PlanetBackgroundArticleDownloader.shared.download(
+                                    url: attachmentURL,
+                                    destinationPath: attachmentPath
+                                ) { result in
+                                    switch result {
+                                    case .success(_):
+                                        continuation.resume(returning: ())
+                                    case .failure(let error):
+                                        continuation.resume(throwing: error)
+                                    }
                                 }
                             }
                         }
                     }
+                    try await group.waitForAll()
                 }
             }
-            
-            debugPrint("initiated all attachment downloads.")
         }
+        
+        debugPrint("✅ Article download completed: \(id)")
     }
 }
