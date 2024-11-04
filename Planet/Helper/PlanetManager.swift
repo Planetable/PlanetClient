@@ -319,6 +319,7 @@ class PlanetManager: NSObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 UserDefaults.standard.removeObject(forKey: editKey)
                 NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
+                NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
             }
         }
         // POST /v0/planets/my/:planet_uuid/articles/:article_uuid
