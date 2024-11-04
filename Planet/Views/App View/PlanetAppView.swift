@@ -1,8 +1,12 @@
 import SwiftUI
 
 struct PlanetAppView: View {
-    @EnvironmentObject private var appViewModel: PlanetAppViewModel
-    @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
+    @StateObject private var appViewModel = PlanetAppViewModel()
+    @StateObject private var downloadStatusManager = PlanetArticleDownloadStatusManager.shared
+
+    @ObservedObject private var settingsViewModel: PlanetSettingsViewModel = PlanetSettingsViewModel()
+
+    @State private var isShowingDownloadStatus: Bool = false
 
     @State private var isServerInactive: Bool = false
     @State private var serverStatus: Bool = true {
@@ -82,7 +86,15 @@ struct PlanetAppView: View {
                         }
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    if downloadStatusManager.activeTasks > 0 {
+                        Button {
+                            isShowingDownloadStatus = true
+                        } label: {
+                            CircularProgressView(progress: downloadStatusManager.overallProgress)
+                                .frame(width: 16, height: 16)
+                        }
+                    }
                     switch appViewModel.selectedTab {
                     case .latest:
                         Button {
@@ -146,6 +158,10 @@ struct PlanetAppView: View {
             PlanetSettingsView()
                 .environmentObject(appViewModel)
                 .environmentObject(settingsViewModel)
+        }
+        .sheet(isPresented: $isShowingDownloadStatus) {
+            PlanetArticleDownloadStatusView()
+                .environmentObject(downloadStatusManager)
         }
         .fullScreenCover(isPresented: $appViewModel.newArticle) {
             PlanetNewArticleView(withDraft: nil)
