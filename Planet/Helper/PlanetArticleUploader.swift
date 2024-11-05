@@ -16,9 +16,12 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
     private var uploadTasks: [String: URLSessionUploadTask] = [:]  // articleID: task
     private var completionHandlers: [String: (Result<Void, Error>) -> Void] = [:]
     private var tempFiles: [String: URL] = [:] // articleID: tempFileURL
+    private var statusCodes: [Int: Int] = [:] // taskIdentifier: statusCode
+    private var responseData: [Int: Data] = [:] // taskIdentifier: response data
     
     override init() {
         super.init()
+        debugPrint("📤 [Upload] PlanetBackgroundArticleUploader initialized")
         
         let config = URLSessionConfiguration.background(withIdentifier: Self.sessionIdentifier)
         config.isDiscretionary = true
@@ -34,15 +37,15 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
             tasks.forEach { task in
                 if let originalRequest = task.originalRequest,
                    let articleID = self.extractArticleID(from: originalRequest.url?.path ?? "") {
-                    debugPrint("📤 Found pending task: \(task.taskIdentifier) - Article: \(articleID)")
+                    debugPrint("📤 [Upload] Found pending task: \(task.taskIdentifier) - Article: \(articleID)")
                     self.uploadTasks[articleID] = task as? URLSessionUploadTask
                     if self.completionHandlers[articleID] == nil {
-                        debugPrint("⚠️ No handler found, cancelling task: \(task.taskIdentifier)")
+                        debugPrint("📤 [Upload] ⚠️ No handler found, cancelling task: \(task.taskIdentifier)")
                         task.cancel()
                         self.uploadTasks.removeValue(forKey: articleID)
                     }
                 } else {
-                    debugPrint("⚠️ Invalid task, cancelling: \(task.taskIdentifier)")
+                    debugPrint("📤 [Upload] ⚠️ Invalid task, cancelling: \(task.taskIdentifier)")
                     task.cancel()
                 }
             }
@@ -68,14 +71,14 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
         modifiedRequest.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         
         if let existingTask = self.uploadTasks[articleID] {
-            debugPrint("📤 Reusing task: \(existingTask.taskIdentifier) - Article: \(articleID)")
+            debugPrint("📤 [Upload] Reusing task: \(existingTask.taskIdentifier) - Article: \(articleID)")
             if self.completionHandlers[articleID] != nil {
                 completion(.failure(PlanetError.ArticleUploadingTaskExistsError))
                 return
             }
         } else {
             let task = self.backgroundUrlSession.uploadTask(with: modifiedRequest, fromFile: tempFileURL)
-            debugPrint("📤 Starting task: \(task.taskIdentifier) - Article: \(articleID)")
+            debugPrint("📤 [Upload] Starting task: \(task.taskIdentifier) - Article: \(articleID)")
             self.uploadTasks[articleID] = task
             self.tempFiles[articleID] = tempFileURL
             task.resume()
@@ -101,9 +104,9 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
         guard let articleID = extractArticleID(from: task.originalRequest?.url?.path ?? "") else { return }
         let progress = Int(Float(totalBytesSent) / Float(totalBytesExpectedToSend) * 100)
         if progress >= 100 {
-            debugPrint("📤 Upload completed, waiting for server processing - Article: \(articleID)")
+            debugPrint("📤 [Upload] Upload completed, waiting for server processing - Article: \(articleID)")
         } else {
-            debugPrint("📤 Progress task: \(task.taskIdentifier) - Article: \(articleID) (\(progress)%)")
+            debugPrint("📤 [Upload] Progress task: \(task.taskIdentifier) - Article: \(articleID) (\(progress)%)")
         }
     }
     
@@ -111,9 +114,10 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
                     dataTask: URLSessionDataTask,
                     didReceive response: URLResponse,
                     completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        debugPrint("📤 Server started responding")
+        debugPrint("📤 [Upload] Server started responding")
         if let httpResponse = response as? HTTPURLResponse {
-            debugPrint("📤 HTTP status code: \(httpResponse.statusCode)")
+            debugPrint("📤 [Upload] HTTP status code: \(httpResponse.statusCode)")
+            statusCodes[dataTask.taskIdentifier] = httpResponse.statusCode
         }
         completionHandler(.allow)
     }
@@ -121,9 +125,11 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
     func urlSession(_ session: URLSession,
                     dataTask: URLSessionDataTask,
                     didReceive data: Data) {
-        debugPrint("📤 Received server response")
+        debugPrint("📤 [Upload] Received server response")
+        // Store response data
+        responseData[dataTask.taskIdentifier] = data
         if let responseString = String(data: data, encoding: .utf8) {
-            debugPrint("📤 Response data: \(responseString)")
+            debugPrint("📤 [Upload] Response data: \(responseString)")
         }
     }
     
@@ -132,13 +138,33 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
                     didCompleteWithError error: Error?) {
         guard let articleID = extractArticleID(from: task.originalRequest?.url?.path ?? "") else { return }
         
-        if let error = error {
-            completionHandlers[articleID]?(.failure(error))
-        } else {
-            completionHandlers[articleID]?(.success(()))
+        defer {
+            statusCodes.removeValue(forKey: task.taskIdentifier)
+            responseData.removeValue(forKey: task.taskIdentifier)
+            cleanupTask(for: articleID)
         }
         
-        cleanupTask(for: articleID)
+        if let error = error {
+            completionHandlers[articleID]?(.failure(error))
+            return
+        }
+        
+        // Check both status code and response data for errors
+        if let statusCode = statusCodes[task.taskIdentifier], statusCode >= 400 {
+            completionHandlers[articleID]?(.failure(URLError(.badServerResponse)))
+            return
+        }
+        
+        // Check response data for error message
+        if let data = responseData[task.taskIdentifier],
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let hasError = json["error"] as? Bool,
+           hasError {
+            completionHandlers[articleID]?(.failure(URLError(.badServerResponse)))
+            return
+        }
+        
+        completionHandlers[articleID]?(.success(()))
     }
 }
 
@@ -148,7 +174,7 @@ actor PlanetArticleUploader {
     private var isCreating = false
     
     private init() {
-        debugPrint("📤 PlanetArticleUploader initialized")
+        debugPrint("📤 [Upload] PlanetArticleUploader initialized")
     }
     
     var isArticleCreating: Bool {
@@ -163,7 +189,7 @@ actor PlanetArticleUploader {
         isCreating = true
         defer { isCreating = false }
         
-        debugPrint("📤 Starting createArticle")
+        debugPrint("📤 [Upload] Starting createArticle")
         
         let request = try await PlanetManager.shared.createRequest(
             with: "/v0/planets/my/\(planet.id)/articles",
@@ -202,7 +228,7 @@ actor PlanetArticleUploader {
             }
         }
         
-        debugPrint("📤 createArticle completed")
+        debugPrint("📤 [Upload] createArticle completed")
     }
     
     func modifyArticle(id: String, title: String, content: String, attachments: [PlanetArticleAttachment], planetID: String) async throws {
@@ -241,12 +267,12 @@ actor PlanetArticleUploader {
                                     andPlanetID: planetID,
                                     forceDownloadAttachments: true
                                 )
+                                await MainActor.run {
+                                    NotificationCenter.default.post(name: .reloadArticles, object: nil)
+                                    NotificationCenter.default.post(name: .updatePlanets, object: nil)
+                                }
                             } catch {
                                 debugPrint("failed to download article \(id): \(error)")
-                            }
-                            await MainActor.run {
-                                NotificationCenter.default.post(name: .reloadArticles, object: nil)
-                                NotificationCenter.default.post(name: .updatePlanets, object: nil)
                             }
                         }
                         continuation.resume()
