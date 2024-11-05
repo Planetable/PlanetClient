@@ -135,23 +135,29 @@ struct PlanetNewArticleView: View {
                         dismiss()
                         guard let selectedPlanet else { return }
                         Task(priority: .userInitiated) {
+                            let isFromDraft: Bool = articleDraft != nil
                             do {
                                 try await PlanetManager.shared.createArticle(
                                     title: self.title,
                                     content: self.content,
                                     attachments: self.uploadedImages,
-                                    forPlanet: selectedPlanet
+                                    forPlanet: selectedPlanet,
+                                    isFromDraft: isFromDraft
                                 )
+                                Task { @MainActor in
+                                    self.appViewModel.selectedTab = .latest
+                                    if let articleDraft {
+                                        self.appViewModel.removeDraft(articleDraft)
+                                    }
+                                }
                             } catch {
-                                debugPrint("failed to create article: \(error), saved as draft.")
-                            }
-                            self.removeAttachments()
-                            Task { @MainActor in
-                                self.appViewModel.selectedTab = .latest
-                                if let articleDraft {
-                                    self.appViewModel.removeDraft(articleDraft)
+                                if isFromDraft {
+                                    debugPrint("failed to create article from draft: \(error)")
+                                } else {
+                                    debugPrint("failed to create article: \(error), saved as draft.")
                                 }
                             }
+                            self.removeAttachments()
                         }
                     } label: {
                         Image(systemName: "paperplane.fill")

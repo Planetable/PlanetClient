@@ -278,7 +278,7 @@ class PlanetManager: NSObject {
     }
 
     // MARK: - create article
-    func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet, isFromShareExtension: Bool = false) async throws {
+    func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet, isFromDraft: Bool = false, isFromShareExtension: Bool = false) async throws {
         do {
             if isFromShareExtension {
                 var request = try await createRequest(with: "/v0/planets/my/\(planet.id)/articles", method: "POST")
@@ -317,7 +317,14 @@ class PlanetManager: NSObject {
                 )
             }
         } catch {
-            try? await saveArticleAsDraft(title: title, content: content, attachments: attachments, planetID: planet.id)
+            if !isFromDraft {
+                let draftID = UUID()
+                _ = try PlanetManager.shared.renderArticlePreview(forTitle: title, content: content, andArticleID: draftID.uuidString)
+                let draftAttachments = attachments.map { a in
+                    return a.url.lastPathComponent
+                }
+                try? saveArticleDraft(byID: draftID, attachments: draftAttachments, title: title, content: content, planetID: UUID(uuidString: planet.id))
+            }
             throw error
         }
     }
@@ -331,16 +338,6 @@ class PlanetManager: NSObject {
             attachments: attachments,
             planetID: planetID
         )
-    }
-
-    // MARK: - save article as draft
-    func saveArticleAsDraft(title: String, content: String, attachments: [PlanetArticleAttachment], planetID: String) async throws {
-        let draftID = UUID()
-        _ = try PlanetManager.shared.renderArticlePreview(forTitle: title, content: content, andArticleID: draftID.uuidString)
-        let draftAttachments = attachments.map { a in
-            return a.url.lastPathComponent
-        }
-        try PlanetManager.shared.saveArticleDraft(byID: draftID, attachments: draftAttachments, title: "", content: content, planetID: UUID(uuidString: planetID))
     }
 
     // MARK: - delete article

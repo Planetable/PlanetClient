@@ -55,7 +55,11 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
     private func extractArticleID(from path: String) -> String? {
         let components = path.split(separator: "/")
         guard components.count >= 2 else { return nil }
-        return String(components[components.count - 1])
+        var id = String(components[components.count - 1])
+        if id == "articles" {
+            id = "create-article"
+        }
+        return id
     }
     
     func upload(request: URLRequest, form: MultipartForm, articleID: String, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -204,7 +208,7 @@ actor PlanetArticleUploader {
             PlanetBackgroundArticleUploader.shared.upload(
                 request: request,
                 form: form,
-                articleID: "articles"
+                articleID: "create-article"
             ) { result in
                 debugPrint("📤 Upload completion received")
                 
