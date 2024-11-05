@@ -88,8 +88,15 @@ struct PlanetAppView: View {
                         Button {
                             Task {
                                 if await PlanetStatus.shared.serverIsOnline() {
-                                    await MainActor.run {
-                                        self.appViewModel.newArticle.toggle()
+                                    if await PlanetArticleUploader.shared.isArticleCreating {
+                                        await MainActor.run {
+                                            self.appViewModel.failedToCreateArticle = true
+                                            self.appViewModel.failedMessage = "Please wait for the current article to finish uploading before creating a new one."
+                                        }
+                                    } else {
+                                        await MainActor.run {
+                                            self.appViewModel.newArticle.toggle()
+                                        }
                                     }
                                 } else {
                                     await MainActor.run {
@@ -164,19 +171,15 @@ struct PlanetAppView: View {
         .sheet(isPresented: $appViewModel.newPlanet) {
             PlanetNewPlanetView()
         }
-        .alert(isPresented: $appViewModel.failedToReload) {
-            Alert(
-                title: Text("Failed to Reload"),
-                message: Text(appViewModel.failedMessage),
-                dismissButton: .default(Text("Dismiss"))
-            )
+        .alert("Failed to Reload", isPresented: $appViewModel.failedToReload) {
+            Button("Dismiss", role: .cancel) { }
+        } message: {
+            Text(appViewModel.failedMessage)
         }
-        .alert(isPresented: $appViewModel.failedToCreateArticle) {
-            Alert(
-                title: Text("Failed to Create Article"),
-                message: Text(appViewModel.failedMessage),
-                dismissButton: .default(Text("Dismiss"))
-            )
+        .alert("Failed to Create Article", isPresented: $appViewModel.failedToCreateArticle) {
+            Button("Dismiss", role: .cancel) { }
+        } message: {
+            Text(appViewModel.failedMessage)
         }
         .alert(isPresented: $isServerInactive) {
             Alert(

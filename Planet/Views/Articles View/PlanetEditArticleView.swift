@@ -147,20 +147,23 @@ struct PlanetEditArticleView: View {
                     }
                     let finalLocalAttachments = localAttachments
                     if finalLocalAttachments.count != attachments.count {
-                        debugPrint("article attachments not fully downloaded!")
                         Task { @MainActor in
                             self.isDownloading = true
                             if self.hasUnsupportedAttachments {
                                 return
                             }
+                            debugPrint("article attachments not fully downloaded!")
                             Task.detached(priority: .userInitiated) {
-                                let downloader = PlanetArticleDownloader()
-                                try? await downloader
-                                    .download(
-                                        byArticleID: self.article.id,
-                                        andPlanetID: self.planet.id,
-                                        forceDownloadAttachments: true
-                                    )
+                                do {
+                                    try await PlanetArticleDownloader.shared
+                                        .download(
+                                            byArticleID: self.article.id,
+                                            andPlanetID: self.planet.id,
+                                            forceDownloadAttachments: true
+                                        )
+                                } catch {
+                                    debugPrint("failed to download article \(self.article.id): \(error)")
+                                }
                             }
                         }
                     } else {

@@ -278,80 +278,54 @@ class PlanetManager: NSObject {
     }
 
     // MARK: - create article
-    func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet) async throws {
-        var request = try await createRequest(with: "/v0/planets/my/\(planet.id)/articles", method: "POST")
-        var form: MultipartForm = MultipartForm(parts: [
-            MultipartForm.Part(name: "title", value: title),
-            MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
-            MultipartForm.Part(name: "content", value: content)
-        ])
-        for i in 0..<attachments.count {
-            let attachment = attachments[i]
-            let attachmentName = attachment.url.lastPathComponent
-            let attachmentContentType = attachment.url.mimeType()
-            let attachmentData = try Data(contentsOf: attachment.url)
-            let data = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
-            form.parts.append(data)
-        }
-        request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        // donate article for share extension
-        Task.detached(priority: .utility) {
-            do {
-                try await PlanetShareManager.shared.donatePost(forPlanet: planet, content: title + " " + content)
-            } catch {
-                debugPrint("failed to donate post: \(title), error: \(error)")
+    func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet, isFromShareExtension: Bool = false) async throws {
+        if isFromShareExtension {
+            var request = try await createRequest(with: "/v0/planets/my/\(planet.id)/articles", method: "POST")
+            var form: MultipartForm = MultipartForm(parts: [
+                MultipartForm.Part(name: "title", value: title),
+                MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
+                MultipartForm.Part(name: "content", value: content)
+            ])
+            for i in 0..<attachments.count {
+                let attachment = attachments[i]
+                let attachmentName = attachment.url.lastPathComponent
+                let attachmentContentType = attachment.url.mimeType()
+                let attachmentData = try Data(contentsOf: attachment.url)
+                let data = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
+                form.parts.append(data)
             }
-        }
-        await MainActor.run {
-            NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+            let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+            // donate article for share extension
+            Task.detached(priority: .utility) {
+                do {
+                    try await PlanetShareManager.shared.donatePost(forPlanet: planet, content: title + " " + content)
+                } catch {
+                    debugPrint("failed to donate post: \(title), error: \(error)")
+                }
+            }
+            await MainActor.run {
+                NotificationCenter.default.post(name: .reloadArticles, object: nil)
+            }
+        } else {
+            try await PlanetArticleUploader.shared.createArticle(
+                title: title,
+                content: content,
+                attachments: attachments,
+                forPlanet: planet
+            )
         }
     }
 
     // MARK: - modify article
     func modifyArticle(id: String, title: String, content: String, attachments: [PlanetArticleAttachment], planetID: String) async throws {
-        let editKey = String.editingArticleKey(byID: id)
-        DispatchQueue.main.async {
-            UserDefaults.standard.setValue(1, forKey: editKey)
-            NotificationCenter.default.post(name: .startEditingArticle(byID: id), object: nil)
-        }
-        defer {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                UserDefaults.standard.removeObject(forKey: editKey)
-                NotificationCenter.default.post(name: .endEditingArticle(byID: id), object: nil)
-                NotificationCenter.default.post(name: .reloadArticle(byID: id), object: nil)
-            }
-        }
-        // POST /v0/planets/my/:planet_uuid/articles/:article_uuid
-        var request = try await createRequest(with: "/v0/planets/my/\(planetID)/articles/\(id)", method: "POST")
-        var form: MultipartForm = MultipartForm(parts: [
-            MultipartForm.Part(name: "title", value: title),
-            MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
-            MultipartForm.Part(name: "content", value: content)
-        ])
-        for i in 0..<attachments.count {
-            let attachment = attachments[i]
-            let attachmentName = attachment.url.lastPathComponent
-            let attachmentContentType = attachment.url.mimeType()
-            let attachmentData = try Data(contentsOf: attachment.url)
-            let formData = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
-            form.parts.append(formData)
-        }
-        request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-        let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
-        let downloader = PlanetArticleDownloader()
-        Task(priority: .userInitiated) {
-            try? await downloader
-                .download(
-                    byArticleID: id,
-                    andPlanetID: planetID,
-                    forceDownloadAttachments: true
-                )
-            await MainActor.run {
-                NotificationCenter.default.post(name: .reloadArticles, object: nil)
-                NotificationCenter.default.post(name: .updatePlanets, object: nil)
-            }
-        }
+        try await PlanetArticleUploader.shared.modifyArticle(
+            id: id,
+            title: title,
+            content: content,
+            attachments: attachments,
+            planetID: planetID
+        )
     }
 
     // MARK: - delete article

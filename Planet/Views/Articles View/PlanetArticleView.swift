@@ -135,13 +135,16 @@ struct PlanetArticleView: View {
                 }
                 Task.detached(priority: .background) {
                     if await PlanetStatus.shared.serverIsOnline() {
-                        let downloader = PlanetArticleDownloader()
-                        try? await downloader
-                            .download(
-                                byArticleID: self.article.id,
-                                andPlanetID: self.planet.id,
-                                forceDownloadAttachments: true
-                            )
+                        do {
+                            try await PlanetArticleDownloader.shared
+                                .download(
+                                    byArticleID: self.article.id,
+                                    andPlanetID: self.planet.id,
+                                    forceDownloadAttachments: true
+                                )
+                        } catch {
+                            debugPrint("failed to download article \(self.article.id): \(error)")
+                        }
                     }
                 }
             } label: {

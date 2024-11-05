@@ -35,6 +35,10 @@ enum PlanetError: Error {
     case APIArticleNotFoundError
     case APIArticleNotFoundLocallyError
     case APINodeNotExistsError
+    case ArticleCreationInProgressError
+    case ArticleUploadingTaskExistsError
+    case ArticleDownloadInProgressError
+    case ArticleDownloadingTaskExistsError
     case KeyManagerSavingKeyError
     case KeyManagerLoadingKeyError
     case KeyManagerDeletingKeyError
@@ -117,6 +121,14 @@ extension PlanetError: LocalizedError {
             return NSLocalizedString("API Article Not Found Locally", comment: "")
         case .APINodeNotExistsError:
             return NSLocalizedString("API Node Not Exists", comment: "")
+        case .ArticleCreationInProgressError:
+            return NSLocalizedString("Another Article Creation Is In Progress", comment: "")
+        case .ArticleUploadingTaskExistsError:
+            return NSLocalizedString("Upload Already In Progress", comment: "")
+        case .ArticleDownloadInProgressError:
+            return NSLocalizedString("Download Already In Progress", comment: "")
+        case .ArticleDownloadingTaskExistsError:
+            return NSLocalizedString("Download Already In Progress", comment: "")
         case .KeyManagerSavingKeyError:
             return NSLocalizedString("Key Manager Saving Key Error", comment: "")
         case .KeyManagerLoadingKeyError:
