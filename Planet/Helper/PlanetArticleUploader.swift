@@ -70,7 +70,7 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
         if let existingTask = self.uploadTasks[articleID] {
             debugPrint("📤 Reusing task: \(existingTask.taskIdentifier) - Article: \(articleID)")
             if self.completionHandlers[articleID] != nil {
-                completion(.failure(PlanetError.APIArticleUploadingTaskExistsError))
+                completion(.failure(PlanetError.ArticleUploadingTaskExistsError))
                 return
             }
         } else {
@@ -94,10 +94,10 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
     }
     
     func urlSession(_ session: URLSession,
-                   task: URLSessionTask,
-                   didSendBodyData bytesSent: Int64,
-                   totalBytesSent: Int64,
-                   totalBytesExpectedToSend: Int64) {
+                    task: URLSessionTask,
+                    didSendBodyData bytesSent: Int64,
+                    totalBytesSent: Int64,
+                    totalBytesExpectedToSend: Int64) {
         guard let articleID = extractArticleID(from: task.originalRequest?.url?.path ?? "") else { return }
         let progress = Int(Float(totalBytesSent) / Float(totalBytesExpectedToSend) * 100)
         if progress >= 100 {
@@ -108,9 +108,9 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
     }
     
     func urlSession(_ session: URLSession,
-                   dataTask: URLSessionDataTask,
-                   didReceive response: URLResponse,
-                   completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+                    dataTask: URLSessionDataTask,
+                    didReceive response: URLResponse,
+                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         debugPrint("📤 Server started responding")
         if let httpResponse = response as? HTTPURLResponse {
             debugPrint("📤 HTTP status code: \(httpResponse.statusCode)")
@@ -119,8 +119,8 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
     }
     
     func urlSession(_ session: URLSession,
-                   dataTask: URLSessionDataTask,
-                   didReceive data: Data) {
+                    dataTask: URLSessionDataTask,
+                    didReceive data: Data) {
         debugPrint("📤 Received server response")
         if let responseString = String(data: data, encoding: .utf8) {
             debugPrint("📤 Response data: \(responseString)")
@@ -128,8 +128,8 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
     }
     
     func urlSession(_ session: URLSession,
-                   task: URLSessionTask,
-                   didCompleteWithError error: Error?) {
+                    task: URLSessionTask,
+                    didCompleteWithError error: Error?) {
         guard let articleID = extractArticleID(from: task.originalRequest?.url?.path ?? "") else { return }
         
         if let error = error {
@@ -151,9 +151,13 @@ actor PlanetArticleUploader {
         debugPrint("📤 PlanetArticleUploader initialized")
     }
     
+    var isArticleCreating: Bool {
+        isCreating
+    }
+    
     func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet) async throws {
         guard !isCreating else {
-            throw PlanetError.APIArticleCreationInProgressError
+            throw PlanetError.ArticleCreationInProgressError
         }
         
         isCreating = true
@@ -179,21 +183,21 @@ actor PlanetArticleUploader {
                 debugPrint("📤 Upload completion received")
                 
                 switch result {
-                case .success:
-                    debugPrint("📤 Upload succeeded")
-                    Task {
-                        try? await PlanetShareManager.shared.donatePost(
-                            forPlanet: planet,
-                            content: title + " " + content
-                        )
-                        await MainActor.run {
-                            NotificationCenter.default.post(name: .reloadArticles, object: nil)
+                    case .success:
+                        debugPrint("📤 Upload succeeded")
+                        Task {
+                            try? await PlanetShareManager.shared.donatePost(
+                                forPlanet: planet,
+                                content: title + " " + content
+                            )
+                            await MainActor.run {
+                                NotificationCenter.default.post(name: .reloadArticles, object: nil)
+                            }
                         }
-                    }
-                    continuation.resume()
-                case .failure(let error):
-                    debugPrint("📤 Upload failed: \(error)")
-                    continuation.resume(throwing: error)
+                        continuation.resume()
+                    case .failure(let error):
+                        debugPrint("📤 Upload failed: \(error)")
+                        continuation.resume(throwing: error)
                 }
             }
         }
@@ -229,22 +233,22 @@ actor PlanetArticleUploader {
                 }
                 
                 switch result {
-                case .success:
-                    Task {
-                        let downloader = PlanetArticleDownloader()
-                        try? await downloader.download(
-                            byArticleID: id,
-                            andPlanetID: planetID,
-                            forceDownloadAttachments: true
-                        )
-                        await MainActor.run {
-                            NotificationCenter.default.post(name: .reloadArticles, object: nil)
-                            NotificationCenter.default.post(name: .updatePlanets, object: nil)
+                    case .success:
+                        Task {
+                            let downloader = PlanetArticleDownloader()
+                            try? await downloader.download(
+                                byArticleID: id,
+                                andPlanetID: planetID,
+                                forceDownloadAttachments: true
+                            )
+                            await MainActor.run {
+                                NotificationCenter.default.post(name: .reloadArticles, object: nil)
+                                NotificationCenter.default.post(name: .updatePlanets, object: nil)
+                            }
                         }
-                    }
-                    continuation.resume()
-                case .failure(let error):
-                    continuation.resume(throwing: error)
+                        continuation.resume()
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
                 }
             }
         }
@@ -272,7 +276,4 @@ actor PlanetArticleUploader {
         return form
     }
     
-    var isArticleCreating: Bool {
-        isCreating
-    }
 }
