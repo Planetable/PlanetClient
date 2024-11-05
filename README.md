@@ -1,6 +1,6 @@
 ## Planet Mobile Client
 
-Please follow the [API.md](https://raw.githubusercontent.com/Planetable/Planet/refs/heads/main/Technotes/API.md) for API details.
+Please follow the [API technote](https://github.com/Planetable/Planet/blob/main/Technotes/API.md) for details.
 
 Before running locally, setup local.xcconfig
 ```
