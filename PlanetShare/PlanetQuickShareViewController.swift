@@ -136,7 +136,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
         // create article, save as draft if failed.
         debugPrint("about to create article")
         do {
-            try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet)
+            try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet, isFromShareExtension: true)
         } catch {
             debugPrint("failed to create article: \(error), saving as draft.")
             let draftID = UUID()
