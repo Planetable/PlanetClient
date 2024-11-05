@@ -91,7 +91,7 @@ struct PlanetAppView: View {
                                     if await PlanetArticleUploader.shared.isArticleCreating {
                                         await MainActor.run {
                                             self.appViewModel.failedToCreateArticle = true
-                                            self.appViewModel.failedMessage = "Please wait for the current article to finish uploading before creating a new one."
+                                            self.appViewModel.failedMessage = "Please wait for the current article to finish uploading before creating a new one. Would you like to create this in Drafts first?"
                                         }
                                     } else {
                                         await MainActor.run {
@@ -178,6 +178,12 @@ struct PlanetAppView: View {
         }
         .alert("Failed to Create Article", isPresented: $appViewModel.failedToCreateArticle) {
             Button("Dismiss", role: .cancel) { }
+            Button("Create in Drafts") {
+                Task { @MainActor in
+                    self.appViewModel.selectedTab = .drafts
+                    self.appViewModel.newArticleDraft = true
+                }
+            }
         } message: {
             Text(appViewModel.failedMessage)
         }
