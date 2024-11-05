@@ -107,6 +107,23 @@ class PlanetManager: NSObject {
         }
     }
 
+    func validatePayloadSize(_ attachments: [PlanetArticleAttachment], maxSizeMB: Int64 = 25) -> (Bool, String?) {
+        let maxSize: Int64 = maxSizeMB * 1024 * 1024 // Convert MB to bytes
+        var totalSize: Int64 = 0
+        for attachment in attachments {
+            guard let fileSize = try? FileManager.default.attributesOfItem(atPath: attachment.url.path)[.size] as? Int64 else {
+                continue
+            }
+            totalSize += fileSize
+        }
+        if totalSize > maxSize {
+            let totalSizeMB = Double(totalSize) / (1024 * 1024)
+            debugPrint("📤 [Upload] Total attachments size (\(String(format: "%.1f", totalSizeMB))MB) exceeds maximum allowed size (\(maxSizeMB)MB)")
+            return (false, "Total attachments size (\(String(format: "%.1f", totalSizeMB))MB) exceeds maximum allowed size (\(maxSizeMB)MB)")
+        }
+        return (true, nil)
+    }
+
     // MARK: - ⚙️ API Functions
     // MARK: - list my planets
     func getMyPlanets() async throws -> [Planet] {

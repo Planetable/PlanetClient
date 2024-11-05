@@ -15,10 +15,12 @@ import MapKit
 struct PlanetArticleAttachmentsView: View {
     @Binding var title: String
     @Binding var attachments: [PlanetArticleAttachment]
-    
+
     @State private var isKeyboardVisible: Bool = false
     @State private var isReorderingAttachments: Bool = false
     @State private var isPreviewingAttachments: Bool = false
+    @State private var isShowingPayloadSizeWarning: Bool = false
+    @State private var payloadSizeWarningMessage: String = ""
 
     @State private var isTapped: Bool = false
     @State private var tappedIndex: Int?
@@ -284,6 +286,20 @@ struct PlanetArticleAttachmentsView: View {
                     self.isKeyboardVisible = false
                 }
             }
+        }
+        .onChange(of: attachments) { newValue in
+            let (valid, message) = PlanetManager.shared.validatePayloadSize(newValue)
+            if !valid, let message {
+                Task { @MainActor in
+                    self.isShowingPayloadSizeWarning = true
+                    self.payloadSizeWarningMessage = message
+                }
+            }
+        }
+        .alert("Attachments Too Large", isPresented: $isShowingPayloadSizeWarning) {
+            Button("Dismiss") { }
+        } message: {
+            Text(payloadSizeWarningMessage)
         }
     }
 }
