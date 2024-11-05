@@ -147,12 +147,12 @@ struct PlanetEditArticleView: View {
                     }
                     let finalLocalAttachments = localAttachments
                     if finalLocalAttachments.count != attachments.count {
-                        debugPrint("article attachments not fully downloaded!")
                         Task { @MainActor in
                             self.isDownloading = true
                             if self.hasUnsupportedAttachments {
                                 return
                             }
+                            debugPrint("article attachments not fully downloaded!")
                             Task.detached(priority: .userInitiated) {
                                 do {
                                     try await PlanetArticleDownloader.shared
