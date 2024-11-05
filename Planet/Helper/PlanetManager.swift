@@ -279,41 +279,46 @@ class PlanetManager: NSObject {
 
     // MARK: - create article
     func createArticle(title: String, content: String, attachments: [PlanetArticleAttachment], forPlanet planet: Planet, isFromShareExtension: Bool = false) async throws {
-        if isFromShareExtension {
-            var request = try await createRequest(with: "/v0/planets/my/\(planet.id)/articles", method: "POST")
-            var form: MultipartForm = MultipartForm(parts: [
-                MultipartForm.Part(name: "title", value: title),
-                MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
-                MultipartForm.Part(name: "content", value: content)
-            ])
-            for i in 0..<attachments.count {
-                let attachment = attachments[i]
-                let attachmentName = attachment.url.lastPathComponent
-                let attachmentContentType = attachment.url.mimeType()
-                let attachmentData = try Data(contentsOf: attachment.url)
-                let data = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
-                form.parts.append(data)
-            }
-            request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-            let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
-            // donate article for share extension
-            Task.detached(priority: .utility) {
-                do {
-                    try await PlanetShareManager.shared.donatePost(forPlanet: planet, content: title + " " + content)
-                } catch {
-                    debugPrint("failed to donate post: \(title), error: \(error)")
+        do {
+            if isFromShareExtension {
+                var request = try await createRequest(with: "/v0/planets/my/\(planet.id)/articles", method: "POST")
+                var form: MultipartForm = MultipartForm(parts: [
+                    MultipartForm.Part(name: "title", value: title),
+                    MultipartForm.Part(name: "date", value: Date().ISO8601Format()),
+                    MultipartForm.Part(name: "content", value: content)
+                ])
+                for i in 0..<attachments.count {
+                    let attachment = attachments[i]
+                    let attachmentName = attachment.url.lastPathComponent
+                    let attachmentContentType = attachment.url.mimeType()
+                    let attachmentData = try Data(contentsOf: attachment.url)
+                    let data = MultipartForm.Part(name: "attachments[\(i)]", data: attachmentData, filename: attachmentName, contentType: attachmentContentType)
+                    form.parts.append(data)
                 }
+                request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+                let _ = try await URLSession.shared.upload(for: request, from: form.bodyData)
+                // donate article for share extension
+                Task.detached(priority: .utility) {
+                    do {
+                        try await PlanetShareManager.shared.donatePost(forPlanet: planet, content: title + " " + content)
+                    } catch {
+                        debugPrint("failed to donate post: \(title), error: \(error)")
+                    }
+                }
+                await MainActor.run {
+                    NotificationCenter.default.post(name: .reloadArticles, object: nil)
+                }
+            } else {
+                try await PlanetArticleUploader.shared.createArticle(
+                    title: title,
+                    content: content,
+                    attachments: attachments,
+                    forPlanet: planet
+                )
             }
-            await MainActor.run {
-                NotificationCenter.default.post(name: .reloadArticles, object: nil)
-            }
-        } else {
-            try await PlanetArticleUploader.shared.createArticle(
-                title: title,
-                content: content,
-                attachments: attachments,
-                forPlanet: planet
-            )
+        } catch {
+            try? await saveArticleAsDraft(title: title, content: content, attachments: attachments, planetID: planet.id)
+            throw error
         }
     }
 
@@ -326,6 +331,16 @@ class PlanetManager: NSObject {
             attachments: attachments,
             planetID: planetID
         )
+    }
+
+    // MARK: - save article as draft
+    func saveArticleAsDraft(title: String, content: String, attachments: [PlanetArticleAttachment], planetID: String) async throws {
+        let draftID = UUID()
+        _ = try PlanetManager.shared.renderArticlePreview(forTitle: title, content: content, andArticleID: draftID.uuidString)
+        let draftAttachments = attachments.map { a in
+            return a.url.lastPathComponent
+        }
+        try PlanetManager.shared.saveArticleDraft(byID: draftID, attachments: draftAttachments, title: "", content: content, planetID: UUID(uuidString: planetID))
     }
 
     // MARK: - delete article

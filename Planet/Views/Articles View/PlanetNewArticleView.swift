@@ -142,15 +142,15 @@ struct PlanetNewArticleView: View {
                                     attachments: self.uploadedImages,
                                     forPlanet: selectedPlanet
                                 )
-                                self.removeAttachments()
-                                Task { @MainActor in
-                                    self.appViewModel.selectedTab = .latest
-                                    if let articleDraft {
-                                        self.appViewModel.removeDraft(articleDraft)
-                                    }
-                                }
                             } catch {
-                                debugPrint("failed to save article: \(error)")
+                                debugPrint("failed to create article: \(error), saved as draft.")
+                            }
+                            self.removeAttachments()
+                            Task { @MainActor in
+                                self.appViewModel.selectedTab = .latest
+                                if let articleDraft {
+                                    self.appViewModel.removeDraft(articleDraft)
+                                }
                             }
                         }
                     } label: {

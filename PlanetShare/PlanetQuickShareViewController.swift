@@ -138,14 +138,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
         do {
             try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet, isFromShareExtension: true)
         } catch {
-            debugPrint("failed to create article: \(error), saving as draft.")
-            let draftID = UUID()
-            _ = try PlanetManager.shared.renderArticlePreview(forTitle: "", content: content, andArticleID: draftID.uuidString)
-            let draftAttachments = attachments.map { a in
-                return a.url.lastPathComponent
-            }
-            try? PlanetManager.shared.saveArticleDraft(byID: draftID, attachments: draftAttachments, title: "", content: content, planetID: UUID(uuidString: planet.id))
-            throw error
+            debugPrint("failed to create article: \(error), saved as draft.")
         }
     }
 
