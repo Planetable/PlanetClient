@@ -37,6 +37,7 @@ enum PlanetError: Error {
     case APINodeNotExistsError
     case ArticleCreationInProgressError
     case ArticleUploadingTaskExistsError
+    case ArticleDownloadInProgressError
     case ArticleDownloadingTaskExistsError
     case KeyManagerSavingKeyError
     case KeyManagerLoadingKeyError
@@ -124,6 +125,8 @@ extension PlanetError: LocalizedError {
             return NSLocalizedString("Another Article Creation Is In Progress", comment: "")
         case .ArticleUploadingTaskExistsError:
             return NSLocalizedString("Upload Already In Progress", comment: "")
+        case .ArticleDownloadInProgressError:
+            return NSLocalizedString("Download Already In Progress", comment: "")
         case .ArticleDownloadingTaskExistsError:
             return NSLocalizedString("Download Already In Progress", comment: "")
         case .KeyManagerSavingKeyError:

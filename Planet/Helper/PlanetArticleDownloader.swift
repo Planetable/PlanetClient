@@ -144,6 +144,9 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
 
 // MARK: - Article Downloader
 actor PlanetArticleDownloader {
+    static let shared = PlanetArticleDownloader()
+
+    private var isDownloading = false
     private let cacheTimeout: TimeInterval = 1800 // 30 minutes (30 * 60 seconds)
 
     private func isFileRecent(_ url: URL) -> Bool {
@@ -159,7 +162,21 @@ actor PlanetArticleDownloader {
         return try? JSONDecoder().decode(PlanetArticle.self, from: data)
     }
 
+    var isArticleDownloading: Bool {
+        isDownloading
+    }
+
     func download(byArticleID id: String, andPlanetID planetID: String, forceDownloadAttachments: Bool = false) async throws {
+        if !forceDownloadAttachments {
+            guard !isDownloading else {
+                throw PlanetError.ArticleDownloadInProgressError
+            }
+        }
+        isDownloading = true
+        defer {
+            isDownloading = false
+        }
+
         let manager = PlanetManager.shared
         guard let articlePath = manager.getPlanetArticlePath(forID: planetID, articleID: id) else {
             throw PlanetError.APIArticleNotFoundError

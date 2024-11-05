@@ -235,12 +235,15 @@ actor PlanetArticleUploader {
                 switch result {
                     case .success:
                         Task {
-                            let downloader = PlanetArticleDownloader()
-                            try? await downloader.download(
-                                byArticleID: id,
-                                andPlanetID: planetID,
-                                forceDownloadAttachments: true
-                            )
+                            do {
+                                try await PlanetArticleDownloader.shared.download(
+                                    byArticleID: id,
+                                    andPlanetID: planetID,
+                                    forceDownloadAttachments: true
+                                )
+                            } catch {
+                                debugPrint("failed to download article \(id): \(error)")
+                            }
                             await MainActor.run {
                                 NotificationCenter.default.post(name: .reloadArticles, object: nil)
                                 NotificationCenter.default.post(name: .updatePlanets, object: nil)
