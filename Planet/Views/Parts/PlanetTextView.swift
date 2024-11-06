@@ -114,6 +114,13 @@ struct PlanetTextView: UIViewRepresentable {
             }
             view.insertText(markdown)
         }
+        NotificationCenter.default.addObserver(forName: .removeAttachment, object: nil, queue: .main) { n in
+            guard let attachment = n.object as? PlanetArticleAttachment else { return }
+            let markdown = attachment.markdownImageValue()
+            while let range = view.text.range(of: markdown) {
+                view.text.replaceSubrange(range, with: "")
+            }
+        }
         return view
     }
 

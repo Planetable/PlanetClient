@@ -243,6 +243,9 @@ struct PlanetArticleAttachmentsView: View {
                         let removed = attachments.remove(at: tappedIndex)
                         do {
                             try FileManager.default.removeItem(at: removed.url)
+                            Task { @MainActor in
+                                NotificationCenter.default.post(name: .removeAttachment, object: removed)
+                            }
                         } catch {
                             debugPrint("failed to remove attachment at: \(removed.url)")
                         }
