@@ -24,9 +24,13 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
         debugPrint("📤 [Upload] PlanetBackgroundArticleUploader initialized")
         
         let config = URLSessionConfiguration.background(withIdentifier: Self.sessionIdentifier)
-        config.isDiscretionary = true
         config.sessionSendsLaunchEvents = true
-        
+        config.isDiscretionary = false
+        config.allowsCellularAccess = true
+        config.allowsExpensiveNetworkAccess = true
+        config.allowsConstrainedNetworkAccess = true
+        config.waitsForConnectivity = false
+
         let delegateQueue = OperationQueue()
         delegateQueue.name = Self.delegateQueue
         delegateQueue.maxConcurrentOperationCount = 1

@@ -14,7 +14,7 @@ extension String {
         }
         fatalError("APP_GROUP_NAME not found in xcconfig")
     }()
-
+    
     static let selectedPlanetIndex = "PlanetSelectedPlanetIndexKey"
     static let selectedPlanetTemplateName = "PlanetSelectedPlanetTemplateNameKey"
     static let settingsSelectedTabKey = "PlanetSettingsSelectedTabKey"
@@ -27,7 +27,7 @@ extension String {
     static let settingsServerUsernameKey = "PlanetSettingsServerUsernameKey"
     static let settingsServerPasswordKey = "PlanetSettingsServerPasswordKey"
     static let settingsNodeIDKey = "PlanetSettingsNodeIDKey"
-
+    
     static func editingArticleKey(byID id: String) -> String {
         return "PlanetEditingArticleKey-\(id)"
     }
@@ -42,7 +42,7 @@ extension URL {
             return "application/octet-stream"
         }
     }
-
+    
     func withTimestamp() -> URL? {
         let timestamp = Int(Date().timeIntervalSince1970)
         guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
@@ -62,19 +62,19 @@ extension Notification.Name {
     static let insertAttachment = Notification.Name("PlanetArticleInsertAttachmentNotification")
     static let removeAttachment = Notification.Name("PlanetArticleRemoveAttachmentNotification")
     static let updateServerStatus = Notification.Name("PlanetUpdateServerStatusNotification")
-
+    
     static func startEditingArticle(byID id: String) -> Notification.Name {
         return Notification.Name("PlanetStartEditingArticleNotification-\(id)")
     }
-
+    
     static func endEditingArticle(byID id: String) -> Notification.Name {
         return Notification.Name("PlanetEndEditingArticleNotification-\(id)")
     }
-
+    
     static func reloadArticle(byID id: String) -> Notification.Name {
         return Notification.Name("PlanetReloadArticleNotification-\(id)")
     }
-
+    
     static func reloadAvatar(byID id: String) -> Notification.Name {
         return Notification.Name("PlanetReloadAvatarNotification-\(id)")
     }
@@ -111,24 +111,21 @@ extension UIImage {
         }
         return resizedImage
     }
-
-    func removeEXIF() -> UIImage? {
-        guard let imageData = self.pngData() else {
+    
+    func processForMobile(maxDimension: CGFloat = 1440, quality: CGFloat = 0.6) -> (image: UIImage, data: Data)? {
+        // Calculate new size maintaining aspect ratio
+        let scale = min(maxDimension / size.width, maxDimension / size.height, 1.0)
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        // Perform resize and strip EXIF in one render pass
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        let processedImage = renderer.image { context in
+            draw(in: CGRect(origin: .zero, size: newSize))
+        }
+        // Convert to JPEG data
+        guard let imageData = processedImage.jpegData(compressionQuality: quality) else {
             return nil
         }
-        guard let source = CGImageSourceCreateWithData(imageData as CFData, nil) else {
-            return nil
-        }
-        let mutableData = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(mutableData, "public.png" as CFString, 1, nil) else {
-            return nil
-        }
-        CGImageDestinationAddImageFromSource(destination, source, 0, nil)
-        CGImageDestinationFinalize(destination)
-        guard let image = UIImage(data: mutableData as Data) else {
-            return nil
-        }
-        return image
+        return (processedImage, imageData)
     }
 }
 

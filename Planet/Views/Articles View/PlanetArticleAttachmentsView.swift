@@ -42,24 +42,24 @@ struct PlanetArticleAttachmentsView: View {
     }
 
     private func processAndInsertImage(_ image: UIImage) throws {
-        if let noEXIFImage = image.removeEXIF(), let imageData = noEXIFImage.pngData() {
-            let imageName = String(UUID().uuidString.prefix(4)) + ".png"
+        if let processed = image.processForMobile() {
+            let imageName = String(UUID().uuidString.prefix(4)) + ".jpg"
             let url = URL.cachesDirectory.appending(path: imageName)
-            let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+            let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: processed.image, url: url)
+
             if FileManager.default.fileExists(atPath: url.path) {
                 try? FileManager.default.removeItem(at: url)
             }
-            try imageData.write(to: url)
+            try processed.data.write(to: url)
             Task { @MainActor in
                 self.attachments.insert(attachment, at: 0)
-                NotificationCenter.default.post(name: .insertAttachment, object: attachment)
             }
         } else {
             throw PlanetError.InternalError
         }
     }
 
-    #if !targetEnvironment(simulator)
+#if !targetEnvironment(simulator)
     private func generateImageFromLocation(_ location: CLLocation) async throws -> UIImage {
         let options = MKMapSnapshotter.Options()
         options.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000)
@@ -100,7 +100,7 @@ struct PlanetArticleAttachmentsView: View {
             }
         }
     }
-    #endif
+#endif
 
     var body: some View {
         ZStack {
@@ -298,6 +298,7 @@ struct PlanetArticleAttachmentsView: View {
                     self.payloadSizeWarningMessage = message
                 }
             }
+            debugPrint("validating attachments: \(valid) -> \(String(describing: message))")
         }
         .alert("Attachments Too Large", isPresented: $isShowingPayloadSizeWarning) {
             Button("Dismiss") { }

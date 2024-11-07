@@ -11,7 +11,7 @@ struct PlanetLatestItemView: View {
     var planet: Planet?
     var article: PlanetArticle
     var showAvatar: Bool = true
-
+    
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             if let planet, showAvatar {
@@ -26,7 +26,6 @@ struct PlanetLatestItemView: View {
                             .foregroundColor(.primary)
                         Text(content.prefix(280))
                             .foregroundColor(.secondary)
-
                     } else if let title = article.title, title.count == 0, let content = article.content, content.count > 0 {
                         // With only content
                         Text(content.prefix(280))
@@ -69,7 +68,7 @@ struct PlanetLatestItemView: View {
             }
         }
     }
-
+    
     private func attachmentsLabel() -> String {
         if let attachments = article.attachments, attachments.count > 0 {
             if attachments.count == 1 {

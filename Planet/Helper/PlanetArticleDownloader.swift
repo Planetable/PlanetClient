@@ -23,8 +23,12 @@ private class PlanetBackgroundArticleDownloader: NSObject {
         super.init()
 
         let config = URLSessionConfiguration.background(withIdentifier: Self.sessionIdentifier)
-        config.isDiscretionary = true
         config.sessionSendsLaunchEvents = true
+        config.isDiscretionary = false
+        config.allowsCellularAccess = true
+        config.allowsExpensiveNetworkAccess = true
+        config.allowsConstrainedNetworkAccess = true
+        config.waitsForConnectivity = true
 
         let delegateQueue = OperationQueue()
         delegateQueue.name = Self.delegateQueue

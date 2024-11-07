@@ -96,6 +96,11 @@ struct PlanetArticleView: View {
                 self.isWaitingEdit = false
             }
         }
+        .task(priority: .background) {
+            Task { @MainActor in
+                self.isWaitingEdit = UserDefaults.standard.value(forKey: .editingArticleKey(byID: article.id)) != nil
+            }
+        }
     }
 
     private func reloadAction() async {
