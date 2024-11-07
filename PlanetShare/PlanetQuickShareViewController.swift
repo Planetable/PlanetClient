@@ -143,7 +143,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
     }
 
     private func processImageForAttachment(_ image: UIImage) throws -> PlanetArticleAttachment {
-        if let processed = image.processForMobile() {
+        if let processed = image.processForMobileExtension() {
             let imageName = String(UUID().uuidString.prefix(4)) + ".jpg"
             let url = URL.cachesDirectory.appending(path: imageName)
             let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: processed.image, url: url)
