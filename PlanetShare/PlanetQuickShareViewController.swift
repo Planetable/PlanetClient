@@ -109,8 +109,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
             if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
                 let url = try await loadURL(from: targetItemProvider)
                 // Check if the URL points to an image
-                if let image = try? await loadImageFromURL(url) {
-                    let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
+                if let image = try? await loadImageFromURL(url), let attachment = try? processImageForAttachment(image) {
                     attachments.append(attachment)
                     // Append image name as text content
                     if content.isEmpty {
@@ -125,8 +124,9 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
                 }
             } else if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
                 let (image, url) = try await loadImage(from: targetItemProvider)
-                let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: image, url: url)
-                attachments.append(attachment)
+                if let attachment = try? processImageForAttachment(image) {
+                    attachments.append(attachment)
+                }
                 if self.contentText == "" {
                     content += url.lastPathComponent + "\n"
                 }
@@ -139,6 +139,21 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
             try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet, isFromShareExtension: true)
         } catch {
             debugPrint("failed to create article: \(error), saved as draft.")
+        }
+    }
+
+    private func processImageForAttachment(_ image: UIImage) throws -> PlanetArticleAttachment {
+        if let processed = image.processForMobile() {
+            let imageName = String(UUID().uuidString.prefix(4)) + ".jpg"
+            let url = URL.cachesDirectory.appending(path: imageName)
+            let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: processed.image, url: url)
+            if FileManager.default.fileExists(atPath: url.path) {
+                try? FileManager.default.removeItem(at: url)
+            }
+            try processed.data.write(to: url)
+            return attachment
+        } else {
+            throw PlanetError.InternalError
         }
     }
 
