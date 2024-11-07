@@ -1,8 +1,8 @@
 ## Planet Mobile Client
 
-Please follow the [API technote](https://github.com/Planetable/Planet/blob/main/Technotes/API.md) for details.
+For more API details, please follow the [technote](https://github.com/Planetable/Planet/blob/main/Technotes/API.md).
 
-Before running locally, setup local.xcconfig
+Before getting started, setup your local.xcconfig in the project:
 ```
 PRODUCT_NAME = Planet
 DEVELOPMENT_TEAM = <your team id>
