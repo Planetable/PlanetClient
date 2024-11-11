@@ -82,7 +82,14 @@ struct PlanetAppView: View {
                         }
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    if self.serverStatus {
+                        Button {
+                            // MARK: TODO: simple task status view.
+                        } label: {
+                            PlanetArticleTaskStatusView()
+                        }
+                    }
                     switch appViewModel.selectedTab {
                     case .latest:
                         Button {
