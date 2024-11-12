@@ -8,7 +8,7 @@ import SwiftUI
 import Foundation
 
 // MARK: - Background Downloader
-private class PlanetBackgroundArticleDownloader: NSObject {
+private class PlanetBackgroundArticleDownloader: NSObject, URLSessionDownloadDelegate {
     static let shared = PlanetBackgroundArticleDownloader()
 
     static let sessionIdentifier: String = "com.planet.attachmentdownloader"
@@ -73,15 +73,6 @@ private class PlanetBackgroundArticleDownloader: NSObject {
         }
     }
 
-    private func cleanupTask(for url: URL) {
-        self.downloadTasks.removeValue(forKey: url)
-        self.completionHandlers.removeValue(forKey: url)
-        self.destinationPaths.removeValue(forKey: url)
-    }
-}
-
-// MARK: - URLSessionDownloadDelegate
-extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
     func urlSession(_ session: URLSession,
                     downloadTask: URLSessionDownloadTask,
                     didFinishDownloadingTo location: URL) {
@@ -109,7 +100,10 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
             debugPrint("❌ Failed task: \(downloadTask.taskIdentifier) - \(error.localizedDescription)")
             DispatchQueue.main.async { completion(.failure(error)) }
         }
-        // Don't cleanup here - let didCompleteWithError handle it
+
+        Task { @MainActor in
+            PlanetArticleTaskStatusViewModel.shared.updateDownloadTaskCompleted(true)
+        }
     }
 
     func urlSession(_ session: URLSession,
@@ -125,6 +119,10 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
 
         // Always clean up, even if handlers are missing
         cleanupTask(for: sourceURL)
+
+        Task { @MainActor in
+            PlanetArticleTaskStatusViewModel.shared.updateDownloadTaskCompleted(true)
+        }
     }
 
     func urlSession(_ session: URLSession,
@@ -133,8 +131,13 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
                     totalBytesWritten: Int64,
                     totalBytesExpectedToWrite: Int64) {
         guard let sourceURL = downloadTask.originalRequest?.url else { return }
-        let progress = Int(Float(totalBytesWritten) / Float(totalBytesExpectedToWrite) * 100)
+        let progress: Double = Double(Float(totalBytesWritten) / Float(totalBytesExpectedToWrite) * 100)
         debugPrint("📥 Progress task: \(downloadTask.taskIdentifier) - \(sourceURL.lastPathComponent) (\(progress)%)")
+        Task { @MainActor in
+            PlanetArticleTaskStatusViewModel.shared.updateDownloadTaskURL(sourceURL)
+            PlanetArticleTaskStatusViewModel.shared.updateDownloadTaskProgress(progress)
+            PlanetArticleTaskStatusViewModel.shared.updateDownloadTaskCompleted(false)
+        }
     }
 
     func urlSession(_ session: URLSession,
@@ -144,7 +147,14 @@ extension PlanetBackgroundArticleDownloader: URLSessionDownloadDelegate {
         guard let sourceURL = downloadTask.originalRequest?.url else { return }
         debugPrint("📥 Resumed task: \(downloadTask.taskIdentifier) - \(sourceURL.lastPathComponent)")
     }
+
+    private func cleanupTask(for url: URL) {
+        self.downloadTasks.removeValue(forKey: url)
+        self.completionHandlers.removeValue(forKey: url)
+        self.destinationPaths.removeValue(forKey: url)
+    }
 }
+
 
 // MARK: - Article Downloader
 actor PlanetArticleDownloader {

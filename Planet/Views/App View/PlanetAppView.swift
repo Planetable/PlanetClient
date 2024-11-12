@@ -85,10 +85,10 @@ struct PlanetAppView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if self.serverStatus {
                         Button {
-                            // MARK: TODO: simple task status view.
                         } label: {
                             PlanetArticleTaskStatusView()
                         }
+                        .disabled(true)
                     }
                     switch appViewModel.selectedTab {
                     case .latest:

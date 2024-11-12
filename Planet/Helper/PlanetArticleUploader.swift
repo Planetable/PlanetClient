@@ -55,17 +55,7 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
             }
         }
     }
-    
-    private func extractArticleID(from path: String) -> String? {
-        let components = path.split(separator: "/")
-        guard components.count >= 2 else { return nil }
-        var id = String(components[components.count - 1])
-        if id == "articles" {
-            id = "create-article"
-        }
-        return id
-    }
-    
+
     func upload(request: URLRequest, form: MultipartForm, articleID: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let tempFileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         do {
@@ -95,26 +85,24 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
         self.completionHandlers[articleID] = completion
     }
     
-    private func cleanupTask(for articleID: String) {
-        if let tempFile = tempFiles[articleID] {
-            try? FileManager.default.removeItem(at: tempFile)
-        }
-        uploadTasks.removeValue(forKey: articleID)
-        completionHandlers.removeValue(forKey: articleID)
-        tempFiles.removeValue(forKey: articleID)
-    }
-    
     func urlSession(_ session: URLSession,
                     task: URLSessionTask,
                     didSendBodyData bytesSent: Int64,
                     totalBytesSent: Int64,
                     totalBytesExpectedToSend: Int64) {
         guard let articleID = extractArticleID(from: task.originalRequest?.url?.path ?? "") else { return }
-        let progress = Int(Float(totalBytesSent) / Float(totalBytesExpectedToSend) * 100)
+        let progress = Double(Float(totalBytesSent) / Float(totalBytesExpectedToSend) * 100)
         if progress >= 100 {
             debugPrint("📤 [Upload] Upload completed, waiting for server processing - Article: \(articleID)")
         } else {
             debugPrint("📤 [Upload] Progress task: \(task.taskIdentifier) - Article: \(articleID) (\(progress)%)")
+        }
+        if let sourceURL = task.originalRequest?.url {
+            Task { @MainActor in
+                PlanetArticleTaskStatusViewModel.shared.updateUploadTaskURL(sourceURL)
+                PlanetArticleTaskStatusViewModel.shared.updateUploadTaskProgress(progress)
+                PlanetArticleTaskStatusViewModel.shared.updateIsUploadTaskCompleted(false)
+            }
         }
     }
     
@@ -173,6 +161,29 @@ private class PlanetBackgroundArticleUploader: NSObject, URLSessionDataDelegate 
         }
         
         completionHandlers[articleID]?(.success(()))
+
+        Task { @MainActor in
+            PlanetArticleTaskStatusViewModel.shared.updateIsUploadTaskCompleted(true)
+        }
+    }
+
+    private func cleanupTask(for articleID: String) {
+        if let tempFile = tempFiles[articleID] {
+            try? FileManager.default.removeItem(at: tempFile)
+        }
+        uploadTasks.removeValue(forKey: articleID)
+        completionHandlers.removeValue(forKey: articleID)
+        tempFiles.removeValue(forKey: articleID)
+    }
+
+    private func extractArticleID(from path: String) -> String? {
+        let components = path.split(separator: "/")
+        guard components.count >= 2 else { return nil }
+        var id = String(components[components.count - 1])
+        if id == "articles" {
+            id = "create-article"
+        }
+        return id
     }
 }
 
