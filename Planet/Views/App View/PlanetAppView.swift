@@ -3,7 +3,9 @@ import SwiftUI
 struct PlanetAppView: View {
     @EnvironmentObject private var appViewModel: PlanetAppViewModel
     @EnvironmentObject private var settingsViewModel: PlanetSettingsViewModel
+    @EnvironmentObject private var taskStatusViewModel: PlanetArticleTaskStatusViewModel
 
+    @State private var isShowingTaskStatus: Bool = false
     @State private var isServerInactive: Bool = false
     @State private var serverStatus: Bool = true {
         didSet {
@@ -22,17 +24,79 @@ struct PlanetAppView: View {
 
     var body: some View {
         NavigationStack(path: $appViewModel.path) {
-            VStack {
-                switch appViewModel.selectedTab {
-                case .latest:
-                    PlanetLatestView()
-                        .environmentObject(appViewModel)
-                case .drafts:
-                    PlanetDraftsView()
-                        .environmentObject(appViewModel)
-                default:
-                    PlanetMyPlanetsView()
-                        .environmentObject(appViewModel)
+            ZStack {
+                VStack {
+                    switch appViewModel.selectedTab {
+                    case .latest:
+                        PlanetLatestView()
+                            .environmentObject(appViewModel)
+                    case .drafts:
+                        PlanetDraftsView()
+                            .environmentObject(appViewModel)
+                    default:
+                        PlanetMyPlanetsView()
+                            .environmentObject(appViewModel)
+                    }
+                }
+                if isShowingTaskStatus {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            HStack {
+                                VStack {
+                                    Spacer()
+                                    if taskStatusViewModel.uploadTaskStatus != "" {
+                                        HStack {
+                                            Text(taskStatusViewModel.uploadTaskStatus)
+                                            Spacer()
+                                        }
+                                    }
+                                    if taskStatusViewModel.downloadTaskStatus != "" {
+                                        if taskStatusViewModel.uploadTaskStatus != "" {
+                                            Divider()
+                                        }
+                                        HStack {
+                                            Text(taskStatusViewModel.downloadTaskStatus)
+                                            Spacer()
+                                        }
+                                    }
+                                    if taskStatusViewModel.uploadTaskStatus == "" && taskStatusViewModel.downloadTaskStatus == "" {
+                                        HStack {
+                                            Text("No tasks running.")
+                                            Spacer()
+                                        }
+                                    }
+                                    Spacer()
+                                }
+                                .padding(8)
+                                Spacer()
+                                Button {
+                                    withAnimation {
+                                        isShowingTaskStatus = false
+                                    }
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                }
+                                .padding(.trailing, 8)
+                            }
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .background(.thinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                            .frame(height: 44)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                withAnimation {
+                                    isShowingTaskStatus = false
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                    .transition(AnyTransition.move(edge: .bottom).combined(with: .opacity))
+                    .padding(.horizontal, 8)
                 }
             }
             .onChange(of: appViewModel.selectedTab) { _ in
@@ -85,10 +149,13 @@ struct PlanetAppView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if self.serverStatus {
                         Button {
+                            withAnimation {
+                                isShowingTaskStatus.toggle()
+                            }
                         } label: {
                             PlanetArticleTaskStatusView()
                         }
-                        .disabled(true)
+                        .disabled(!serverStatus)
                     }
                     switch appViewModel.selectedTab {
                     case .latest:

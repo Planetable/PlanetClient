@@ -17,27 +17,25 @@ class PlanetArticleTaskStatusViewModel: ObservableObject {
     @Published private(set) var isUploadTaskCompleted: Bool = true
     @Published private(set) var uploadTaskProgress: Double = 0.0
 
+    @Published private(set) var downloadTaskStatus: String = ""
+    @Published private(set) var uploadTaskStatus: String = ""
+
     private init() {
+        debugPrint("PlanetArticleTaskStatusViewModel initialized")
     }
 
+    // MARK: - Upload Tasks
     @MainActor
     func updateIsUploadTaskCompleted(_ completed: Bool) {
         isUploadTaskCompleted = completed
-    }
-
-    @MainActor
-    func updateDownloadTaskURL(_ url: URL) {
-        downloadTaskURL = url
-    }
-
-    @MainActor
-    func updateDownloadTaskProgress(_ progress: Double) {
-        downloadTaskProgress = progress
-    }
-
-    @MainActor
-    func updateDownloadTaskCompleted(_ completed: Bool) {
-        isDownloadTaskCompleted = completed
+        if completed {
+            uploadTaskStatus = "Upload Tasks Completed"
+        } else if let uploadTaskURL {
+            let progress: String = String(format: "%.f", uploadTaskProgress)
+            uploadTaskStatus = "Uploading: \(uploadTaskURL.lastPathComponent), \(progress)% completed."
+        } else {
+            uploadTaskStatus = ""
+        }
     }
 
     @MainActor
@@ -48,5 +46,29 @@ class PlanetArticleTaskStatusViewModel: ObservableObject {
     @MainActor
     func updateUploadTaskProgress(_ progress: Double) {
         uploadTaskProgress = progress
+    }
+
+    // MARK: - Download Tasks
+    @MainActor
+    func updateDownloadTaskCompleted(_ completed: Bool) {
+        isDownloadTaskCompleted = completed
+        if completed {
+            downloadTaskStatus = "Download Tasks Completed"
+        } else if let downloadTaskURL {
+            let progress: String = String(format: "%.f", downloadTaskProgress)
+            downloadTaskStatus = "Downloading: \(downloadTaskURL.lastPathComponent), \(progress)% completed."
+        } else {
+            downloadTaskStatus = ""
+        }
+    }
+
+    @MainActor
+    func updateDownloadTaskURL(_ url: URL) {
+        downloadTaskURL = url
+    }
+
+    @MainActor
+    func updateDownloadTaskProgress(_ progress: Double) {
+        downloadTaskProgress = progress
     }
 }
