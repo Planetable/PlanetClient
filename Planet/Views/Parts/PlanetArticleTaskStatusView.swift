@@ -8,6 +8,7 @@ import SwiftUI
 
 
 struct PlanetArticleTaskStatusView: View {
+    @State private var opacity: Double = 0.0
     @State private var uploadOpacity: Double = 1.0
     @State private var downloadOpacity: Double = 1.0
     @State private var isUploading: Bool = false
@@ -36,6 +37,7 @@ struct PlanetArticleTaskStatusView: View {
                 .frame(width: 14, height: 14)
         }
         .frame(width: 44, height: 44, alignment: .center)
+        .opacity(opacity)
         .onReceive(timer) { _ in
             Task.detached(priority: .background) {
                 let status = await PlanetStatus.shared.articleTaskStatus()
@@ -44,6 +46,11 @@ struct PlanetArticleTaskStatusView: View {
                     self.isDownloading = status.downloadStatus
                     self.uploadOpacity = self.isUploading ? 1.0 : 0.3
                     self.downloadOpacity = self.isDownloading ? 1.0 : 0.3
+                    if !self.isUploading && !self.isDownloading {
+                        self.opacity = 0.0
+                    } else {
+                        self.opacity = 1.0
+                    }
                 }
             }
         }
@@ -53,6 +60,11 @@ struct PlanetArticleTaskStatusView: View {
             isDownloading = status.downloadStatus
             uploadOpacity = isUploading ? 1.0 : 0.3
             downloadOpacity = isDownloading ? 1.0 : 0.3
+            if !isUploading && !isDownloading {
+                opacity = 0.0
+            } else {
+                opacity = 1.0
+            }
         }
     }
 }
