@@ -45,7 +45,7 @@ class PlanetArticleTaskStatusViewModel: ObservableObject {
 
     @MainActor
     func updateUploadTaskProgress(_ progress: Double) {
-        uploadTaskProgress = progress
+        uploadTaskProgress = max(0, min(progress, 100))
     }
 
     // MARK: - Download Tasks
@@ -69,6 +69,6 @@ class PlanetArticleTaskStatusViewModel: ObservableObject {
 
     @MainActor
     func updateDownloadTaskProgress(_ progress: Double) {
-        downloadTaskProgress = progress
+        downloadTaskProgress = max(0, min(progress, 100))
     }
 }
