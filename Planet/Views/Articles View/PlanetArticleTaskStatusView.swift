@@ -8,63 +8,68 @@ import SwiftUI
 
 
 struct PlanetArticleTaskStatusView: View {
-    @State private var opacity: Double = 0.0
-    @State private var uploadOpacity: Double = 1.0
-    @State private var downloadOpacity: Double = 1.0
-    @State private var isUploading: Bool = false
-    @State private var isDownloading: Bool = false
-    
-    let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
-    
+    @EnvironmentObject private var taskStatusViewModel: PlanetArticleTaskStatusViewModel
+
+    @Binding var isShowingTaskStatus: Bool
+
     var body: some View {
-        HStack(spacing: -1) {
-            // Upload arrow
-            Image(systemName: "arrow.up")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(.accentColor)
-                .opacity(uploadOpacity)
-                .animation(isUploading ? .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : .default, value: uploadOpacity)
-                .frame(width: 14, height: 14)
-            
-            // Download arrow
-            Image(systemName: "arrow.down")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(.accentColor)
-                .opacity(downloadOpacity)
-                .animation(isDownloading ? .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : .default, value: downloadOpacity)
-                .frame(width: 14, height: 14)
-        }
-        .frame(width: 44, height: 44, alignment: .center)
-        .opacity(opacity)
-        .onReceive(timer) { _ in
-            Task.detached(priority: .background) {
-                let status = await PlanetStatus.shared.articleTaskStatus()
-                await MainActor.run {
-                    self.isUploading = status.uploadStatus
-                    self.isDownloading = status.downloadStatus
-                    self.uploadOpacity = self.isUploading ? 1.0 : 0.3
-                    self.downloadOpacity = self.isDownloading ? 1.0 : 0.3
-                    if !self.isUploading && !self.isDownloading {
-                        self.opacity = 0.0
-                    } else {
-                        self.opacity = 1.0
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                HStack {
+                    VStack {
+                        Spacer()
+                        if taskStatusViewModel.uploadTaskStatus != "" {
+                            HStack {
+                                Text(taskStatusViewModel.uploadTaskStatus)
+                                Spacer()
+                            }
+                        }
+                        if taskStatusViewModel.downloadTaskStatus != "" {
+                            if taskStatusViewModel.uploadTaskStatus != "" {
+                                Divider()
+                            }
+                            HStack {
+                                Text(taskStatusViewModel.downloadTaskStatus)
+                                Spacer()
+                            }
+                        }
+                        if taskStatusViewModel.uploadTaskStatus == "" && taskStatusViewModel.downloadTaskStatus == "" {
+                            HStack {
+                                Text("No tasks running.")
+                                Spacer()
+                            }
+                        }
+                        Spacer()
+                    }
+                    .padding(8)
+                    Spacer()
+                    Button {
+                        withAnimation(.spring) {
+                            isShowingTaskStatus = false
+                        }
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .padding(.trailing, 8)
+                }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .background(.thinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                .frame(height: 44)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.spring) {
+                        isShowingTaskStatus = false
                     }
                 }
+                Spacer()
             }
         }
-        .task {
-            let status = await PlanetStatus.shared.articleTaskStatus()
-            isUploading = status.uploadStatus
-            isDownloading = status.downloadStatus
-            uploadOpacity = isUploading ? 1.0 : 0.3
-            downloadOpacity = isDownloading ? 1.0 : 0.3
-            if !isUploading && !isDownloading {
-                opacity = 0.0
-            } else {
-                opacity = 1.0
-            }
-        }
+        .transition(AnyTransition.move(edge: .bottom).combined(with: .opacity))
+        .padding(.horizontal, 8)
     }
 }

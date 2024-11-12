@@ -29,7 +29,7 @@ class PlanetArticleTaskStatusViewModel: ObservableObject {
     func updateIsUploadTaskCompleted(_ completed: Bool) {
         isUploadTaskCompleted = completed
         if completed {
-            uploadTaskStatus = "Upload Tasks Completed"
+            uploadTaskStatus = "Upload tasks completed."
         } else if let uploadTaskURL {
             let progress: String = String(format: "%.f", uploadTaskProgress)
             uploadTaskStatus = "Uploading: \(uploadTaskURL.lastPathComponent), \(progress)% completed."
@@ -53,7 +53,7 @@ class PlanetArticleTaskStatusViewModel: ObservableObject {
     func updateDownloadTaskCompleted(_ completed: Bool) {
         isDownloadTaskCompleted = completed
         if completed {
-            downloadTaskStatus = "Download Tasks Completed"
+            downloadTaskStatus = "Download tasks completed."
         } else if let downloadTaskURL {
             let progress: String = String(format: "%.f", downloadTaskProgress)
             downloadTaskStatus = "Downloading: \(downloadTaskURL.lastPathComponent), \(progress)% completed."
