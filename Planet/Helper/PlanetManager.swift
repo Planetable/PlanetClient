@@ -10,6 +10,8 @@ import UIKit
 import PlanetSiteTemplates
 import Stencil
 import PathKit
+import UserNotifications
+
 
 class PlanetManager: NSObject {
     static let shared = PlanetManager()
@@ -56,6 +58,13 @@ class PlanetManager: NSObject {
             self.templates = PlanetSiteTemplates.builtInTemplates
             for template in self.templates {
                 debugPrint("template: \(template.name), loaded at: \(template.assets)")
+            }
+        }
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            if granted {
+                debugPrint("Notification permission granted.")
+            } else if let error = error {
+                debugPrint("Error: \(error.localizedDescription)")
             }
         }
     }
@@ -333,6 +342,7 @@ class PlanetManager: NSObject {
                     forPlanet: planet
                 )
             }
+            notifyArticleStatus(articleTitle: title, summary: content)
         } catch {
             if !isFromDraft {
                 let draftID = UUID()
@@ -355,6 +365,7 @@ class PlanetManager: NSObject {
             attachments: attachments,
             planetID: planetID
         )
+        notifyArticleStatus(articleTitle: title, summary: content, isEdited: true)
     }
 
     // MARK: - delete article
@@ -587,6 +598,33 @@ class PlanetManager: NSObject {
             articles.append(contentsOf: planetArticles)
         }
         return (planets, articles)
+    }
+
+    // MARK: - send a notification when an article is created or edited successfully
+    func notifyArticleStatus(articleTitle title: String, summary: String, isEdited: Bool = false) {
+        let maxSummaryLength = 64
+        let truncatedSummary: String
+        if summary.count > maxSummaryLength {
+            let endIndex = summary.index(summary.startIndex, offsetBy: maxSummaryLength)
+            truncatedSummary = String(summary[..<endIndex]) + "..."
+        } else {
+            truncatedSummary = summary
+        }
+        let content = UNMutableNotificationContent()
+        content.title = isEdited ? "Article Edited" : "Article Updated"
+        if title == "" {
+            content.body = "\(truncatedSummary)"
+        } else {
+            content.body = "\(title): \(truncatedSummary)"
+        }
+        content.sound = UNNotificationSound.default
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                debugPrint("Error adding notification: \(error.localizedDescription)")
+            }
+        }
     }
 
     // MARK: - reset local cache

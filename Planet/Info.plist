@@ -33,6 +33,8 @@
 	<array>
 		<string>INSendMessageIntent</string>
 	</array>
+	<key>NSUserNotificationUsageDescription</key>
+	<string>Notify the user when article is created or edited.</string>
 	<key>ORGANIZATION_IDENTIFIER_PREFIX</key>
 	<string>$(ORGANIZATION_IDENTIFIER_PREFIX)</string>
 	<key>UIBackgroundModes</key>
