@@ -611,7 +611,7 @@ class PlanetManager: NSObject {
             truncatedSummary = summary
         }
         let content = UNMutableNotificationContent()
-        content.title = isEdited ? "Article Edited" : "Article Updated"
+        content.title = isEdited ? "Article Edited" : "Article Created"
         if title == "" {
             content.body = "\(truncatedSummary)"
         } else {
