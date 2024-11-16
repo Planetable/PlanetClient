@@ -15,7 +15,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         initializeSharedInstances()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             self.setupItemProviders()
             self.reloadConfigurationItems()
             self.validateContent()
