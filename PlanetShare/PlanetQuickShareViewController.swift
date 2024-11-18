@@ -11,11 +11,13 @@ import UIKit
 
 class PlanetQuickShareViewController: SLComposeServiceViewController {
     private var itemProviders: [NSItemProvider] = []
+    private var content: String = ""
+    private var attachments: [PlanetArticleAttachment] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         initializeSharedInstances()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .extensionInitDelay) {
             self.setupItemProviders()
             self.reloadConfigurationItems()
             self.validateContent()
@@ -37,7 +39,6 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
            let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
             self.setTargetPlanet(planet)
         }
-
         if let item = self.extensionContext?.inputItems.first as? NSExtensionItem,
            let providers = item.attachments {
             self.itemProviders = providers
@@ -101,23 +102,25 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
 
     private func postToTargetPlanet() async throws {
         guard let planet = self.getTargetPlanet() else { return }
-
-        var content = self.contentText ?? ""
-        var attachments: [PlanetArticleAttachment] = []
-
+        self.content = self.contentText ?? ""
         for provider in itemProviders {
             if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                try await processURLProvider(provider, into: &content, attachments: &attachments)
+                try await processURLProvider(provider)
             } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                try await processImageProvider(provider, into: &content, attachments: &attachments)
+                try await processImageProvider(provider)
             }
         }
-
+        if self.attachments.count == 0 && self.content == "" {
+            throw PlanetError.ShareExtensionInvalidItemError
+        }
+        if self.attachments.count > 0 && self.content == "" {
+            self.content = " "
+        }
         do {
             try await PlanetManager.shared.createArticle(
                 title: "",
-                content: content,
-                attachments: attachments,
+                content: self.content,
+                attachments: self.attachments,
                 forPlanet: planet,
                 isFromShareExtension: true
             )
@@ -128,34 +131,20 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
 
     // MARK: - Process Item Providers
 
-    private func processURLProvider(
-        _ provider: NSItemProvider,
-        into content: inout String,
-        attachments: inout [PlanetArticleAttachment]
-    ) async throws {
+    private func processURLProvider(_ provider: NSItemProvider) async throws {
         let url = try await loadURL(from: provider)
-
         if let (processedImage, tmpURL) = try? await loadImage(from: provider) {
             let attachment = createAttachment(from: processedImage, at: tmpURL)
-            attachments.append(attachment)
-            appendToContent(&content, value: url.lastPathComponent)
+            self.attachments.append(attachment)
         } else {
-            appendToContent(&content, value: url.absoluteString)
+            self.content += self.content.isEmpty ? url.absoluteString : "\n\(url.absoluteString)"
         }
     }
 
-    private func processImageProvider(
-        _ provider: NSItemProvider,
-        into content: inout String,
-        attachments: inout [PlanetArticleAttachment]
-    ) async throws {
+    private func processImageProvider(_ provider: NSItemProvider) async throws {
         let (processedImage, tmpURL) = try await loadImage(from: provider)
         let attachment = createAttachment(from: processedImage, at: tmpURL)
         attachments.append(attachment)
-    }
-
-    private func appendToContent(_ content: inout String, value: String) {
-        content += content.isEmpty ? value : "\n\(value)"
     }
 
     // MARK: - Image Processing
@@ -176,17 +165,13 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
                     continuation.resume(throwing: error)
                     return
                 }
-
                 guard let item = item else {
-                    continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
+                    continuation.resume(throwing: PlanetError.ShareExtensionInvalidItemError)
                     return
                 }
-
                 let tmpURL = URL.cachesDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
                 try? FileManager.default.removeItem(at: tmpURL)
-
                 var image: UIImage?
-
                 if let url = item as? URL {
                     image = UIImage(contentsOfFile: url.path)
                 } else if let data = item as? Data {
@@ -194,13 +179,11 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
                 } else if let uiImage = item as? UIImage {
                     image = uiImage
                 }
-
                 guard let unwrappedImage = image,
                       let (processedImage, imageData) = unwrappedImage.processForMobileExtension() else {
-                    continuation.resume(throwing: NSError(domain: "ProcessingFailed", code: -1, userInfo: nil))
+                    continuation.resume(throwing: PlanetError.InternalError)
                     return
                 }
-
                 do {
                     try imageData.write(to: tmpURL)
                     continuation.resume(returning: (processedImage, tmpURL))
@@ -219,7 +202,7 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
                 } else if let url = item as? URL {
                     continuation.resume(returning: url)
                 } else {
-                    continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1))
+                    continuation.resume(throwing: PlanetError.ShareExtensionInvalidItemError)
                 }
             }
         }

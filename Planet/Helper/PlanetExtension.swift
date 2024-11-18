@@ -180,4 +180,5 @@ extension Color {
 extension TimeInterval {
     static let pingTimeout: TimeInterval = 5
     static let requestTimeout: TimeInterval = 10
+    static let extensionInitDelay: TimeInterval = 2.5
 }
