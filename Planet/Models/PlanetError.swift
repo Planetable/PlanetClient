@@ -46,6 +46,7 @@ enum PlanetError: Error {
     case KeyManagerImportingKeyError
     case KeyManagerImportingKeyExistsError
     case KeyManagerExportingKeyExistsError
+    case ShareExtensionInvalidItemError
     case InternalError
     case UnknownError(Error)
 }
@@ -143,6 +144,8 @@ extension PlanetError: LocalizedError {
             return NSLocalizedString("Key Manager Importing Key Exists Error", comment: "")
         case .KeyManagerExportingKeyExistsError:
             return NSLocalizedString("Key Manager Exporting Key Exists Error", comment: "")
+        case .ShareExtensionInvalidItemError:
+            return NSLocalizedString("Share Extension Invalid Item Error", comment: "")
         case .InternalError:
             return NSLocalizedString("Internal Error", comment: "")
         case .UnknownError(let error):

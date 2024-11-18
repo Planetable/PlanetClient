@@ -1,5 +1,5 @@
 //
-//  PlanetQuickShareViewController.swift`
+//  PlanetQuickShareViewController.swift
 //  PlanetShare
 //
 
@@ -10,34 +10,45 @@ import UIKit
 
 
 class PlanetQuickShareViewController: SLComposeServiceViewController {
-
-    private var itemProviders: [NSItemProvider]?
+    private var itemProviders: [NSItemProvider] = []
+    private var content: String = ""
+    private var attachments: [PlanetArticleAttachment] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let _ = PlanetAppViewModel.shared
-        let _ = PlanetManager.shared
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let intent = self.extensionContext?.intent as? INSendMessageIntent
-            if let intent, let planetID = intent.conversationIdentifier, let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
-                self.setTargetPlanet(planet)
-            }
-            if let item = self.extensionContext?.inputItems.first as? NSExtensionItem, let itemProviders = item.attachments {
-                self.itemProviders = itemProviders
-            } else {
-                self.itemProviders = []
-            }
+        initializeSharedInstances()
+        DispatchQueue.main.asyncAfter(deadline: .now() + .extensionInitDelay) {
+            self.setupItemProviders()
             self.reloadConfigurationItems()
+            self.validateContent()
         }
     }
 
-    override func isContentValid() -> Bool {
-        if PlanetAppViewModel.shared.currentNodeID == nil {
-            return false
+    // MARK: - Initialization
+
+    private func initializeSharedInstances() {
+        _ = PlanetAppViewModel.shared
+        _ = PlanetManager.shared
+    }
+
+    // MARK: - Setup Item Providers
+
+    private func setupItemProviders() {
+        if let intent = self.extensionContext?.intent as? INSendMessageIntent,
+           let planetID = intent.conversationIdentifier,
+           let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
+            self.setTargetPlanet(planet)
         }
-        return true
+        if let item = self.extensionContext?.inputItems.first as? NSExtensionItem,
+           let providers = item.attachments {
+            self.itemProviders = providers
+        }
+    }
+
+    // MARK: - Validation and Actions
+
+    override func isContentValid() -> Bool {
+        return PlanetAppViewModel.shared.currentNodeID != nil && itemProviders.count > 0
     }
 
     override func didSelectPost() {
@@ -45,50 +56,41 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
             do {
                 try await postToTargetPlanet()
             } catch {
-                debugPrint("error posting to target planet: \(error)")
+                debugPrint("Error posting to target planet: \(error)")
             }
             super.didSelectPost()
         }
     }
 
     override func configurationItems() -> [Any]! {
-        if let planet = self.getTargetPlanet() ?? PlanetAppViewModel.shared.myPlanets.first {
-            let item = SLComposeSheetConfigurationItem()
-            item?.title = "Share to \(planet.name)"
-            item?.tapHandler = {
-                self.setTargetPlanet(planet)
-                self.showPlanetPicker()
-            }
-            if let item {
-                return [item]
-            }
+        guard let planet = self.getTargetPlanet() ?? PlanetAppViewModel.shared.myPlanets.first else { return [] }
+        let item = SLComposeSheetConfigurationItem()
+        item?.title = "Share to \(planet.name)"
+        item?.tapHandler = {
+            self.setTargetPlanet(planet)
+            self.showPlanetPicker()
         }
-        return []
+        return [item].compactMap { $0 }
     }
 
-    // MARK: -
+    // MARK: - Planet Selection
 
     private func showPlanetPicker() {
         let controller = UIAlertController(title: "Select Planet", message: nil, preferredStyle: .actionSheet)
-        for planet in PlanetAppViewModel.shared.myPlanets {
+        PlanetAppViewModel.shared.myPlanets.forEach { planet in
             let action = UIAlertAction(title: planet.name, style: .default) { _ in
                 self.setTargetPlanet(planet)
                 self.reloadConfigurationItems()
             }
             controller.addAction(action)
         }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            self.reloadConfigurationItems()
-        }
-        controller.addAction(cancelAction)
-        self.present(controller, animated: true, completion: nil)
+        controller.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(controller, animated: true)
     }
 
     private func getTargetPlanet() -> Planet? {
-        if let planetID = PlanetManager.shared.userDefaults.string(forKey: PlanetShareManager.lastSharedPlanetID), let planet = PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID }) {
-            return planet
-        }
-        return nil
+        guard let planetID = PlanetManager.shared.userDefaults.string(forKey: PlanetShareManager.lastSharedPlanetID) else { return nil }
+        return PlanetAppViewModel.shared.myPlanets.first(where: { $0.id == planetID })
     }
 
     private func setTargetPlanet(_ planet: Planet) {
@@ -96,112 +98,111 @@ class PlanetQuickShareViewController: SLComposeServiceViewController {
         PlanetManager.shared.userDefaults.synchronize()
     }
 
+    // MARK: - Post to Target Planet
+
     private func postToTargetPlanet() async throws {
         guard let planet = self.getTargetPlanet() else { return }
-
-        let targetItemProviders = self.itemProviders ?? []
-
-        // process share content from item provider, plain text content, url as text content or images.
-        var content: String = self.contentText
-        var attachments: [PlanetArticleAttachment] = []
-
-        for targetItemProvider in targetItemProviders {
-            if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                let url = try await loadURL(from: targetItemProvider)
-                // Check if the URL points to an image
-                if let image = try? await loadImageFromURL(url), let attachment = try? processImageForAttachment(image) {
-                    attachments.append(attachment)
-                    // Append image name as text content
-                    if content.isEmpty {
-                        content += url.lastPathComponent
-                    }
-                } else {
-                    // Append the URL as text content
-                    if !content.isEmpty {
-                        content += "\n"
-                    }
-                    content += url.absoluteString
-                }
-            } else if targetItemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                let (image, url) = try await loadImage(from: targetItemProvider)
-                if let attachment = try? processImageForAttachment(image) {
-                    attachments.append(attachment)
-                }
-                if self.contentText == "" {
-                    content += url.lastPathComponent + "\n"
-                }
+        self.content = self.contentText ?? ""
+        for provider in itemProviders {
+            if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                try await processURLProvider(provider)
+            } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+                try await processImageProvider(provider)
             }
         }
-
-        // create article, save as draft if failed.
-        debugPrint("about to create article")
+        if self.attachments.count == 0 && self.content == "" {
+            throw PlanetError.ShareExtensionInvalidItemError
+        }
+        if self.attachments.count > 0 && self.content == "" {
+            self.content = " "
+        }
         do {
-            try await PlanetManager.shared.createArticle(title: "", content: content, attachments: attachments, forPlanet: planet, isFromShareExtension: true)
+            try await PlanetManager.shared.createArticle(
+                title: "",
+                content: self.content,
+                attachments: self.attachments,
+                forPlanet: planet,
+                isFromShareExtension: true
+            )
         } catch {
-            debugPrint("failed to create article: \(error), saved as draft.")
+            debugPrint("Failed to create article: \(error). Saved as draft.")
         }
     }
 
-    private func processImageForAttachment(_ image: UIImage) throws -> PlanetArticleAttachment {
-        if let processed = image.processForMobileExtension() {
-            let imageName = String(UUID().uuidString.prefix(4)) + ".jpg"
-            let url = URL.cachesDirectory.appending(path: imageName)
-            let attachment = PlanetArticleAttachment(id: UUID(), created: Date(), image: processed.image, url: url)
-            if FileManager.default.fileExists(atPath: url.path) {
-                try? FileManager.default.removeItem(at: url)
-            }
-            try processed.data.write(to: url)
-            return attachment
+    // MARK: - Process Item Providers
+
+    private func processURLProvider(_ provider: NSItemProvider) async throws {
+        let url = try await loadURL(from: provider)
+        if let (processedImage, tmpURL) = try? await loadImage(from: provider) {
+            let attachment = createAttachment(from: processedImage, at: tmpURL)
+            self.attachments.append(attachment)
         } else {
-            throw PlanetError.InternalError
+            self.content += self.content.isEmpty ? url.absoluteString : "\n\(url.absoluteString)"
         }
     }
 
-    private func loadImageFromURL(_ url: URL) async throws -> UIImage? {
-        let (data, _) = try await URLSession.shared.data(from: url)
-        return UIImage(data: data)
+    private func processImageProvider(_ provider: NSItemProvider) async throws {
+        let (processedImage, tmpURL) = try await loadImage(from: provider)
+        let attachment = createAttachment(from: processedImage, at: tmpURL)
+        attachments.append(attachment)
     }
 
-    @Sendable private func loadURL(from it: NSItemProvider) async throws -> URL {
-        return try await withCheckedThrowingContinuation { continuation in
-            it.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { item, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else if let url = item as? URL {
-                    continuation.resume(returning: url)
-                } else {
-                    continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
-                }
-            }
-        }
+    // MARK: - Image Processing
+
+    private func createAttachment(from image: UIImage, at url: URL) -> PlanetArticleAttachment {
+        return PlanetArticleAttachment(
+            id: UUID(),
+            created: Date(),
+            image: image,
+            url: url
+        )
     }
 
-    @Sendable private func loadImage(from it: NSItemProvider) async throws -> (UIImage, URL) {
+    @Sendable private func loadImage(from itemProvider: NSItemProvider) async throws -> (UIImage, URL) {
         return try await withCheckedThrowingContinuation { continuation in
-            it.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { (item, error) in
+            itemProvider.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { item, error in
                 if let error = error {
                     continuation.resume(throwing: error)
                     return
                 }
+                guard let item = item else {
+                    continuation.resume(throwing: PlanetError.ShareExtensionInvalidItemError)
+                    return
+                }
+                let tmpURL = URL.cachesDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
+                try? FileManager.default.removeItem(at: tmpURL)
+                var image: UIImage?
                 if let url = item as? URL {
-                    // If the item is a URL, load the image from the file URL
-                    if let image = UIImage(contentsOfFile: url.path) {
-                        continuation.resume(returning: (image, url))
-                    } else {
-                        continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
-                    }
-                } else if let imageData = item as? Data, let image = UIImage(data: imageData) {
-                    let id = UUID()
-                    let tmpURL = URL.cachesDirectory.appending(path: "\(id.uuidString).png")
-                    do {
-                        try? FileManager.default.removeItem(at: tmpURL)
-                        try imageData.write(to: tmpURL)
-                        continuation.resume(returning: (image, tmpURL))
-                    } catch {
-                        continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
-                    }
+                    image = UIImage(contentsOfFile: url.path)
+                } else if let data = item as? Data {
+                    image = UIImage(data: data)
+                } else if let uiImage = item as? UIImage {
+                    image = uiImage
+                }
+                guard let unwrappedImage = image,
+                      let (processedImage, imageData) = unwrappedImage.processForMobileExtension() else {
+                    continuation.resume(throwing: PlanetError.InternalError)
+                    return
+                }
+                do {
+                    try imageData.write(to: tmpURL)
+                    continuation.resume(returning: (processedImage, tmpURL))
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    private func loadURL(from provider: NSItemProvider) async throws -> URL {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { item, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let url = item as? URL {
+                    continuation.resume(returning: url)
                 } else {
-                    continuation.resume(throwing: NSError(domain: "InvalidItem", code: -1, userInfo: nil))
+                    continuation.resume(throwing: PlanetError.ShareExtensionInvalidItemError)
                 }
             }
         }

@@ -128,14 +128,15 @@ extension UIImage {
         return (processedImage, imageData)
     }
 
-    func processForMobileExtension(maxDimension: CGFloat = 1280, quality: CGFloat = 0.6) -> (image: UIImage, data: Data)? {
+    func processForMobileExtension(maxDimension: CGFloat = 1024, quality: CGFloat = 0.6) -> (image: UIImage, data: Data)? {
         // Calculate the scale factor to maintain aspect ratio and limit dimensions
         let scale = min(maxDimension / size.width, maxDimension / size.height, 1.0)
         let newSize = CGSize(width: size.width * scale, height: size.height * scale)
-        // Begin Core Graphics context for resizing
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1 // Avoids double scaling on high-resolution devices
+
+        // Ensure the UIImage has a valid CGImage
         guard let cgImage = self.cgImage else { return nil }
+
+        // Configure Core Graphics context for resizing
         guard let context = CGContext(
             data: nil,
             width: Int(newSize.width),
@@ -145,19 +146,22 @@ extension UIImage {
             space: cgImage.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!,
             bitmapInfo: cgImage.bitmapInfo.rawValue
         ) else { return nil }
-        // Draw the image into the context, resizing it
+
+        // Set high-quality interpolation for resizing
         context.interpolationQuality = .high
+
+        // Perform the resize operation
         context.draw(cgImage, in: CGRect(origin: .zero, size: newSize))
-        // Get the resized image from the context
+
+        // Extract the resized image from the context
         guard let resizedCGImage = context.makeImage() else { return nil }
         let resizedImage = UIImage(cgImage: resizedCGImage)
-        // Convert the image to JPEG data to further reduce file size
-        guard let imageData = resizedImage.jpegData(compressionQuality: quality) else {
-            return nil
-        }
+
+        // Convert the resized image to JPEG format with specified quality
+        guard let imageData = resizedImage.jpegData(compressionQuality: quality) else { return nil }
+
         return (resizedImage, imageData)
-    }
-}
+    }}
 
 // MARK: - Color -
 extension Color {
@@ -176,4 +180,5 @@ extension Color {
 extension TimeInterval {
     static let pingTimeout: TimeInterval = 5
     static let requestTimeout: TimeInterval = 10
+    static let extensionInitDelay: TimeInterval = 2.5
 }
