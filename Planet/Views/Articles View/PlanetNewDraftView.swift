@@ -47,7 +47,7 @@ struct PlanetNewDraftView: View {
                     Divider()
                         .padding(.vertical, 0)
 
-                    PlanetTextView(text: $content)
+                    WriterView(writerID: draftID, text: $content)
                         .padding(.horizontal, 12)
 
                     PlanetArticleAttachmentsView(title: $title, attachments: $uploadedImages)
