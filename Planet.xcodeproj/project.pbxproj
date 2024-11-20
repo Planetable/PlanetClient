@@ -216,6 +216,14 @@
 			path = Helper;
 			sourceTree = "<group>";
 		};
+		2A67C2682CEDBA98000AFDEA /* Writer View */ = {
+			isa = PBXGroup;
+			children = (
+				2AA0D3C62CECAC73009D15D5 /* WriterView.swift */,
+			);
+			path = "Writer View";
+			sourceTree = "<group>";
+		};
 		2A85B07C2B286BC100CF6823 /* Templates */ = {
 			isa = PBXGroup;
 			children = (
@@ -292,6 +300,7 @@
 		2AC7CC0029A0AC960089C58C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				2A67C2682CEDBA98000AFDEA /* Writer View */,
 				2AC7CC0329A0B4C80089C58C /* App View */,
 				2AC7CC2429A2AD5F0089C58C /* Articles View */,
 				2AC7CC0929A13E3C0089C58C /* Planets View */,
@@ -333,7 +342,6 @@
 		2AC7CC1C29A2081A0089C58C /* Parts */ = {
 			isa = PBXGroup;
 			children = (
-				2AA0D3C62CECAC73009D15D5 /* WriterView.swift */,
 				2AC8D6E82B03BE5400AA0E32 /* PlanetAvatarView.swift */,
 			);
 			path = Parts;
