@@ -34,7 +34,7 @@ struct PlanetEditArticleView: View {
                     Divider()
                         .padding(.vertical, 0)
 
-                    PlanetTextView(text: $content)
+                    WriterView(writerID: UUID(uuidString: article.id)!, text: $content)
                         .padding(.horizontal, 12)
 
                     PlanetArticleAttachmentsView(title: $title, attachments: $uploadedImages)
