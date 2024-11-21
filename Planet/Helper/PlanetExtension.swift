@@ -129,39 +129,36 @@ extension UIImage {
     }
 
     func processForMobileExtension(maxDimension: CGFloat = 1024, quality: CGFloat = 0.6) -> (image: UIImage, data: Data)? {
-        // Calculate the scale factor to maintain aspect ratio and limit dimensions
         let scale = min(maxDimension / size.width, maxDimension / size.height, 1.0)
         let newSize = CGSize(width: size.width * scale, height: size.height * scale)
 
-        // Ensure the UIImage has a valid CGImage
         guard let cgImage = self.cgImage else { return nil }
 
-        // Configure Core Graphics context for resizing
+        let alphaInfo = CGImageAlphaInfo.noneSkipFirst
+        let bitmapInfo = CGBitmapInfo(rawValue: alphaInfo.rawValue)
+            .union(.byteOrder32Little)
+
         guard let context = CGContext(
             data: nil,
             width: Int(newSize.width),
             height: Int(newSize.height),
-            bitsPerComponent: cgImage.bitsPerComponent,
+            bitsPerComponent: 8,
             bytesPerRow: 0,
-            space: cgImage.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!,
-            bitmapInfo: cgImage.bitmapInfo.rawValue
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: bitmapInfo.rawValue
         ) else { return nil }
 
-        // Set high-quality interpolation for resizing
         context.interpolationQuality = .high
-
-        // Perform the resize operation
         context.draw(cgImage, in: CGRect(origin: .zero, size: newSize))
 
-        // Extract the resized image from the context
         guard let resizedCGImage = context.makeImage() else { return nil }
         let resizedImage = UIImage(cgImage: resizedCGImage)
 
-        // Convert the resized image to JPEG format with specified quality
         guard let imageData = resizedImage.jpegData(compressionQuality: quality) else { return nil }
 
         return (resizedImage, imageData)
-    }}
+    }
+}
 
 // MARK: - Color -
 extension Color {
@@ -180,5 +177,9 @@ extension Color {
 extension TimeInterval {
     static let pingTimeout: TimeInterval = 5
     static let requestTimeout: TimeInterval = 10
+    #if DEBUG
+    static let extensionInitDelay: TimeInterval = 3.5
+    #else
     static let extensionInitDelay: TimeInterval = 2.5
+    #endif
 }
