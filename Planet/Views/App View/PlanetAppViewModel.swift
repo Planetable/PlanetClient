@@ -49,6 +49,7 @@ class PlanetAppViewModel: ObservableObject {
             }
         }
     }
+    @Published var searchText: String = ""
     @Published var showBonjourList = false
     @Published var showSettings = false
     @Published var chooseServer = false
@@ -105,6 +106,44 @@ class PlanetAppViewModel: ObservableObject {
                     debugPrint("failed to reload planets and articles.")
                 }
             }
+        }
+    }
+
+    var filteredResults: [PlanetArticle] {
+        if searchText.isEmpty {
+            if selectedTab == .drafts {
+                return drafts
+            }
+            return myArticles
+        }
+
+        let searchTerms = searchText.split(separator: " ")
+        let sources: [PlanetArticle] = selectedTab == .drafts ? drafts : myArticles
+
+        return sources.filter { article in
+            for term in searchTerms {
+                let termString = String(term)
+                // Only match whole words or file extensions
+                let wholeWordMatches = { (text: String) -> Bool in
+                    text.range(of: "\\b\(termString)\\b",
+                               options: [.regularExpression, .caseInsensitive]) != nil
+                }
+
+                if let title = article.title, wholeWordMatches(title) {
+                    return true
+                }
+                if let summary = article.summary, wholeWordMatches(summary) {
+                    return true
+                }
+                if let content = article.content, wholeWordMatches(content) {
+                    return true
+                }
+                if let attachments = article.attachments,
+                   attachments.contains(where: { $0.localizedCaseInsensitiveContains(termString) }) {
+                    return true
+                }
+            }
+            return false
         }
     }
 

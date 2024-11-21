@@ -29,7 +29,7 @@ struct PlanetLatestView: View {
                 Spacer()
             } else {
                 List {
-                    ForEach(appViewModel.myArticles, id: \.id) { article in
+                    ForEach(appViewModel.filteredResults, id: \.id) { article in
                         if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
                             let destination = PlanetArticleView(planet: planet, article: article)
                             NavigationLink(destination: destination) {
@@ -46,6 +46,7 @@ struct PlanetLatestView: View {
         .refreshable {
             refreshAction(skipAlert: false)
         }
+        .searchable(text: $appViewModel.searchText, prompt: "Search articles")
         .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
             refreshAction()
         }

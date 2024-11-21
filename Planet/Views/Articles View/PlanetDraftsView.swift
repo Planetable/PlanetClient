@@ -17,7 +17,7 @@ struct PlanetDraftsView: View {
                 Spacer()
             } else {
                 List {
-                    ForEach(appViewModel.drafts, id: \.id) { article in
+                    ForEach(appViewModel.filteredResults, id: \.id) { article in
                         Group {
                             if let planetID = article.planetID, let planet = Planet.getPlanet(forID: planetID.uuidString) {
                                 PlanetLatestItemView(planet: planet, article: article)
@@ -36,7 +36,7 @@ struct PlanetDraftsView: View {
                     .onDelete { indexSet in
                         Task { @MainActor in
                             indexSet.forEach { i in
-                                let draft = self.appViewModel.drafts[i]
+                                let draft = self.appViewModel.filteredResults[i]
                                 self.appViewModel.removeDraft(draft)
                             }
                         }
@@ -45,6 +45,7 @@ struct PlanetDraftsView: View {
                 .listStyle(.plain)
             }
         }
+        .searchable(text: $appViewModel.searchText, prompt: "Search drafts")
     }
 }
 
