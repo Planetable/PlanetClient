@@ -2,6 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct PlanetNewPlanetView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
 
     @State private var serverStatus: Bool = false
@@ -46,7 +47,7 @@ struct PlanetNewPlanetView: View {
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
                                 } else {
-                                    Image(systemName: "photo")
+                                    Image(systemName: (colorScheme == .dark) ? "photo.circle" : "photo.circle.fill")
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
                                 }
