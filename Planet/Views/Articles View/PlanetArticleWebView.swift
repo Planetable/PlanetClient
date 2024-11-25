@@ -25,7 +25,7 @@ struct PlanetArticleWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> some UIView {
         let wv = FullScreenWKWebView()
         wv.scrollView.contentInsetAdjustmentBehavior = .always
-        wv.customUserAgent = "Planet/0.0.1"
+        wv.customUserAgent = "Planet Client/" + Bundle.appVersion()
         wv.navigationDelegate = context.coordinator
         wv.isOpaque = false
         wv.backgroundColor = UIColor.clear

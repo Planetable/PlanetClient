@@ -183,3 +183,14 @@ extension TimeInterval {
     static let extensionInitDelay: TimeInterval = 2.5
     #endif
 }
+
+// MARK: - Bundle -
+extension Bundle {
+    static func appVersion() -> String {
+        return Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1"
+    }
+
+    static func appBuildVersion() -> String {
+        return Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
+    }
+}
