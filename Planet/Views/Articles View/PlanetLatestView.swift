@@ -40,20 +40,20 @@ struct PlanetLatestView: View {
                     }
                 }
                 .listStyle(.plain)
+                .searchable(text: $appViewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search articles")
             }
         }
         .disabled(isCreating)
         .refreshable {
             refreshAction(skipAlert: false)
         }
-        .searchable(text: $appViewModel.searchText, prompt: "Search articles")
         .onReceive(NotificationCenter.default.publisher(for: .reloadArticles)) { _ in
             refreshAction()
         }
     }
 
     private func refreshAction(skipAlert: Bool = true) {
-        Task {
+        Task.detached(priority: .userInitiated) {
             do {
                 try await self.appViewModel.reloadArticles()
             } catch {

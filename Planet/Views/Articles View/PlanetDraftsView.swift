@@ -43,9 +43,9 @@ struct PlanetDraftsView: View {
                     }
                 }
                 .listStyle(.plain)
+                .searchable(text: $appViewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search drafts")
             }
         }
-        .searchable(text: $appViewModel.searchText, prompt: "Search drafts")
     }
 }
 
