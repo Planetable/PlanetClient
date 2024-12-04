@@ -40,10 +40,8 @@ struct PlanetAppView: View {
                     }
                 }
                 PlanetAppServerStatusView(isShowingServerStatus: $isShowingServerStatus, serverStatus: $serverStatus)
-                if isShowingTaskStatus {
-                    PlanetArticleTaskStatusView(isShowingTaskStatus: $isShowingTaskStatus)
-                        .environmentObject(taskStatusViewModel)
-                }
+                PlanetArticleTaskStatusView(isShowingTaskStatus: $isShowingTaskStatus)
+                    .environmentObject(taskStatusViewModel)
             }
             .onChange(of: appViewModel.selectedTab) { _ in
                 self.checkServerStatus()
