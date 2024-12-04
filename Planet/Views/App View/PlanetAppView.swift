@@ -39,9 +39,7 @@ struct PlanetAppView: View {
                             .environmentObject(appViewModel)
                     }
                 }
-                if isShowingServerStatus {
-                    PlanetAppServerStatusView(isShowingServerStatus: $isShowingServerStatus, serverStatus: $serverStatus)
-                }
+                PlanetAppServerStatusView(isShowingServerStatus: $isShowingServerStatus, serverStatus: $serverStatus)
                 if isShowingTaskStatus {
                     PlanetArticleTaskStatusView(isShowingTaskStatus: $isShowingTaskStatus)
                         .environmentObject(taskStatusViewModel)
@@ -220,9 +218,6 @@ struct PlanetAppView: View {
                 },
                 secondaryButton: .cancel(Text("Not Now"))
             )
-        }
-        .onAppear {
-            checkServerStatus(showServerStatus: true)
         }
     }
 
