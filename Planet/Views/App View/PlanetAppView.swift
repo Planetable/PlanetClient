@@ -6,6 +6,7 @@ struct PlanetAppView: View {
     @EnvironmentObject private var taskStatusViewModel: PlanetArticleTaskStatusViewModel
 
     @State private var isShowingTaskStatus: Bool = false
+    @State private var isShowingServerStatus: Bool = false
     @State private var isServerInactive: Bool = false
     @State private var serverStatus: Bool = true {
         didSet {
@@ -38,6 +39,9 @@ struct PlanetAppView: View {
                             .environmentObject(appViewModel)
                     }
                 }
+                if isShowingServerStatus {
+                    PlanetAppServerStatusView(isShowingServerStatus: $isShowingServerStatus, serverStatus: $serverStatus)
+                }
                 if isShowingTaskStatus {
                     PlanetArticleTaskStatusView(isShowingTaskStatus: $isShowingTaskStatus)
                         .environmentObject(taskStatusViewModel)
@@ -47,7 +51,7 @@ struct PlanetAppView: View {
                 self.checkServerStatus()
             }
             .onReceive(NotificationCenter.default.publisher(for: .updateServerStatus)) { _ in
-                self.checkServerStatus()
+                self.checkServerStatus(showServerStatus: true)
             }
             .navigationTitle(navigationTitle())
             .navigationBarTitleDisplayMode(.inline)
@@ -207,7 +211,7 @@ struct PlanetAppView: View {
         }
         .alert(isPresented: $isServerInactive) {
             Alert(
-                title: Text("Server Inactive"),
+                title: Text("Server Disconnected"),
                 message: Text("Would you like to check for server status in settings?"),
                 primaryButton: .default(Text("Open Settings")) {
                     Task { @MainActor in
@@ -216,6 +220,9 @@ struct PlanetAppView: View {
                 },
                 secondaryButton: .cancel(Text("Not Now"))
             )
+        }
+        .onAppear {
+            checkServerStatus(showServerStatus: true)
         }
     }
 
@@ -228,10 +235,16 @@ struct PlanetAppView: View {
         return name
     }
     
-    private func checkServerStatus() {
+    private func checkServerStatus(showServerStatus: Bool = false) {
         Task.detached(priority: .background) {
             Task { @MainActor in
                 self.serverStatus = await PlanetStatus.shared.serverIsOnline()
+                guard showServerStatus else { return }
+                guard isShowingServerStatus == false else { return }
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                self.isShowingServerStatus = true
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                self.isShowingServerStatus = false
             }
         }
     }
