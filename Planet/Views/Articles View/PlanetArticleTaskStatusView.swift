@@ -9,17 +9,17 @@ import SwiftUI
 
 struct PlanetArticleTaskStatusView: View {
     @EnvironmentObject private var taskStatusViewModel: PlanetArticleTaskStatusViewModel
-
+    
     @Binding var isShowingTaskStatus: Bool
-
+    
     @State private var isVisible: Bool = false
-
+    
     var body: some View {
         VStack {
             Spacer()
-            if isVisible {
-                HStack {
-                    Spacer()
+            HStack {
+                Spacer()
+                if isVisible {
                     HStack {
                         VStack {
                             Spacer()
@@ -71,9 +71,9 @@ struct PlanetArticleTaskStatusView: View {
                             isShowingTaskStatus = false
                         }
                     }
-                    Spacer()
+                    .transition(AnyTransition.move(edge: .bottom).combined(with: .opacity))
                 }
-                .transition(AnyTransition.move(edge: .bottom).combined(with: .opacity))
+                Spacer()
             }
         }
         .padding(.horizontal, 8)
